@@ -69,9 +69,6 @@ export function AppHeader() {
                         {link.label}
                       </Link>
                     ))}
-                     <Link href="/dashboard" className="text-lg font-medium text-secondary-foreground hover:text-secondary-foreground/80" onClick={() => setOpen(false)}>
-                      Dashboard
-                    </Link>
                   </>
                 )}
                 <button
@@ -111,10 +108,6 @@ export function AppHeader() {
                   {link.label}
                 </Link>
               ))}
-              <Link href="/dashboard" className="text-sm font-medium text-secondary-foreground/70 transition-colors hover:text-secondary-foreground flex items-center gap-2">
-                <LayoutDashboard className="h-4 w-4" />
-                Dashboard
-              </Link>
             </>
           )}
         </nav>
