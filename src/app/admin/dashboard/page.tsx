@@ -31,6 +31,8 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 
 const users = [
@@ -151,6 +153,25 @@ export default function AdminDashboardPage() {
                         <Bar dataKey="users" fill="hsl(var(--primary))" />
                       </BarChart>
                     </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* View & Edit User Dashboard */}
+              <div className="space-y-6">
+                <h2 className="text-2xl font-semibold text-secondary font-headline">View & Edit User Dashboard</h2>
+                <Card>
+                  <CardContent className="pt-6 space-y-4">
+                    <p className="text-muted-foreground">
+                      Enter a user's Registration ID to view their full dashboard and manage their details.
+                    </p>
+                    <div className="space-y-2">
+                      <Label htmlFor="userId">User Registration ID</Label>
+                      <div className="flex gap-4">
+                        <Input id="userId" placeholder="Enter User Registration ID (e.g., IF-12345)" className="max-w-xs" />
+                        <Button>View/Edit User</Button>
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
               </div>
