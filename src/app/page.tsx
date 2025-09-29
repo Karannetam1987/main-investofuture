@@ -76,10 +76,10 @@ export default function Home() {
 
         <section id="cta" className="py-16 md:py-24">
           <div className="container text-center">
-            <h1 className="font-headline text-4xl font-bold tracking-tight text-secondary md:text-5xl lg:text-6xl">
+            <h1 className="font-headline text-5xl font-bold tracking-tight text-secondary md:text-6xl lg:text-7xl">
               Secure Your Financial Future with InvestoFuture
             </h1>
-            <p className="mx-auto mt-6 max-w-3xl text-lg text-muted-foreground">
+            <p className="mx-auto mt-6 max-w-3xl text-xl text-muted-foreground">
               Innovative investment solutions designed for your growth. We provide the tools and expertise to help you navigate the financial markets with confidence.
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-4">
@@ -98,10 +98,10 @@ export default function Home() {
         <section id="features" className="bg-white dark:bg-card py-16 md:py-24">
           <div className="container">
             <div className="mx-auto max-w-3xl text-center">
-              <h2 className="font-headline text-3xl font-bold text-secondary md:text-4xl">
+              <h2 className="font-headline text-4xl font-bold text-secondary md:text-5xl">
                 Features for Your Financial Success
               </h2>
-              <p className="mt-4 text-lg text-muted-foreground">
+              <p className="mt-4 text-xl text-muted-foreground">
                 Discover the powerful tools and features that make InvestoFuture the right choice for your financial journey.
               </p>
             </div>
@@ -124,10 +124,10 @@ export default function Home() {
         <section id="about" className="py-16 md:py-24">
           <div className="container">
             <div className="mx-auto max-w-3xl text-center">
-              <h2 className="font-headline text-3xl font-bold text-secondary md:text-4xl">
+              <h2 className="font-headline text-4xl font-bold text-secondary md:text-5xl">
                 About InvestoFuture
               </h2>
-              <p className="mt-4 text-lg text-muted-foreground">
+              <p className="mt-4 text-xl text-muted-foreground">
                 We are dedicated to empowering individuals to achieve financial independence through smart and secure investing.
               </p>
             </div>
