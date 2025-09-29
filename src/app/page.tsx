@@ -8,6 +8,7 @@ import {
   UserCheck,
   AlertTriangle,
 } from "lucide-react";
+import Link from "next/link";
 
 import { AppHeader } from "@/components/header";
 import { AppFooter } from "@/components/footer";
@@ -82,9 +83,11 @@ export default function Home() {
               Innovative investment solutions designed for your growth. We provide the tools and expertise to help you navigate the financial markets with confidence.
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-4">
-              <Button size="lg">
-                Get Started <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
+              <Link href="/register">
+                <Button size="lg">
+                  Get Started <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
               <Button size="lg" variant="outline" className="border-secondary text-secondary hover:bg-secondary/10 hover:text-secondary">
                 Learn More
               </Button>
