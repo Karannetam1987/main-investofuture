@@ -40,14 +40,6 @@ export default function RegisterPage() {
       <AppHeader />
       <main className="flex-1 py-12 md:py-16">
         <div className="container">
-          <div className="mb-6 max-w-4xl mx-auto">
-            <Link href="/">
-              <Button variant="outline">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Home
-              </Button>
-            </Link>
-          </div>
           <Card className="max-w-4xl mx-auto card-within-page">
             <CardHeader className="text-center">
               <CardTitle className="text-3xl font-bold font-headline text-secondary">Create an Account</CardTitle>
