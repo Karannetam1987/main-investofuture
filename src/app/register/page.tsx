@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { AppHeader } from "@/components/header";
 import { AppFooter } from "@/components/footer";
 import { Button } from "@/components/ui/button";
@@ -24,7 +25,7 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon } from "lucide-react";
+import { ArrowLeft, CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
@@ -39,6 +40,14 @@ export default function RegisterPage() {
       <AppHeader />
       <main className="flex-1 py-12 md:py-16">
         <div className="container">
+          <div className="mb-6 max-w-4xl mx-auto">
+            <Link href="/">
+              <Button variant="outline">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to Home
+              </Button>
+            </Link>
+          </div>
           <Card className="max-w-4xl mx-auto card-within-page">
             <CardHeader className="text-center">
               <CardTitle className="text-3xl font-bold font-headline text-secondary">Create an Account</CardTitle>
@@ -91,7 +100,9 @@ export default function RegisterPage() {
                           mode="single"
                           selected={dob}
                           onSelect={setDob}
-                          initialFocus
+                          captionLayout="dropdown-buttons"
+                          fromYear={1900}
+                          toYear={new Date().getFullYear()}
                         />
                       </PopoverContent>
                     </Popover>
@@ -278,7 +289,9 @@ export default function RegisterPage() {
                           mode="single"
                           selected={nomineeDob}
                           onSelect={setNomineeDob}
-                          initialFocus
+                          captionLayout="dropdown-buttons"
+                          fromYear={1900}
+                          toYear={new Date().getFullYear()}
                         />
                       </PopoverContent>
                     </Popover>
