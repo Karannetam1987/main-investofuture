@@ -40,6 +40,14 @@ export default function RegisterPage() {
       <AppHeader />
       <main className="flex-1 py-12 md:py-16">
         <div className="container">
+           <div className="mb-6">
+            <Link href="/">
+              <Button variant="outline">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to Home
+              </Button>
+            </Link>
+          </div>
           <Card className="max-w-4xl mx-auto card-within-page">
             <CardHeader className="text-center">
               <CardTitle className="text-3xl font-bold font-headline text-secondary">Create an Account</CardTitle>
@@ -52,6 +60,10 @@ export default function RegisterPage() {
               <div className="space-y-4">
                 <h3 className="text-xl font-semibold text-secondary font-headline">Personal Details</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                   <div className="space-y-2">
+                    <Label htmlFor="regId">Registration ID</Label>
+                    <Input id="regId" defaultValue="IF-12345" readOnly />
+                  </div>
                   <div className="space-y-2">
                     <Label htmlFor="fullName">Full Name</Label>
                     <Input id="fullName" placeholder="John Doe" />
