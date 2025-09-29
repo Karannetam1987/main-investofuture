@@ -33,13 +33,13 @@ const dashboardItems = [
     icon: <BookUser className="w-8 h-8 text-primary" />,
     title: "Nominee Details",
     description: "View your nominee details.",
-    href: "#",
+    href: "/dashboard/nominee-details",
   },
   {
     icon: <Banknote className="w-8 h-8 text-primary" />,
     title: "Bank Details",
     description: "View your bank account information.",
-    href: "#",
+    href: "/dashboard/bank-details",
   },
   {
     icon: <Gift className="w-8 h-8 text-primary" />,
