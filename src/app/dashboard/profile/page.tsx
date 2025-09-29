@@ -12,6 +12,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
 export default function ProfilePage() {
   return (
@@ -19,6 +21,14 @@ export default function ProfilePage() {
       <AppHeader />
       <main className="flex-1 py-12 md:py-16">
         <div className="container">
+          <div className="mb-6">
+            <Link href="/dashboard">
+              <Button variant="outline">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to Dashboard
+              </Button>
+            </Link>
+          </div>
           <Card>
             <CardHeader>
               <CardTitle>Profile Details</CardTitle>
