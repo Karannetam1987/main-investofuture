@@ -23,7 +23,7 @@ export function AppHeader() {
   const [open, setOpen] = React.useState(false);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b bg-secondary text-secondary-foreground border-secondary-foreground/20">
       <div className="container flex h-16 items-center justify-between">
         <div className="hidden md:flex">
           <Logo />
@@ -37,7 +37,7 @@ export function AppHeader() {
                 <span className="sr-only">Toggle Menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="left">
+            <SheetContent side="left" className="bg-secondary text-secondary-foreground">
               <div className="px-4 pt-6">
                 <Logo />
               </div>
@@ -46,7 +46,7 @@ export function AppHeader() {
                   <Link
                     key={link.href}
                     href={link.href}
-                    className="text-lg font-medium text-foreground hover:text-foreground/80"
+                    className="text-lg font-medium text-secondary-foreground hover:text-secondary-foreground/80"
                     onClick={() => setOpen(false)}
                   >
                     {link.label}
@@ -66,7 +66,7 @@ export function AppHeader() {
             <Link
               key={link.href}
               href={link.href}
-              className="text-sm font-medium text-foreground/70 transition-colors hover:text-foreground"
+              className="text-sm font-medium text-secondary-foreground/70 transition-colors hover:text-secondary-foreground"
             >
               {link.label}
             </Link>
