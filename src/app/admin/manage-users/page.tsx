@@ -32,7 +32,8 @@ export default function ManageUsersPage() {
   const filteredUsers = allUsers.filter(
     (user) =>
       user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase())
+      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.id.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const totalPages = Math.ceil(filteredUsers.length / USERS_PER_PAGE);
@@ -61,7 +62,7 @@ export default function ManageUsersPage() {
       <div className="flex items-center justify-between">
         <div className="w-full max-w-sm">
           <Input
-            placeholder="Search by name or email..."
+            placeholder="Search by ID, name, or email..."
             value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value);
