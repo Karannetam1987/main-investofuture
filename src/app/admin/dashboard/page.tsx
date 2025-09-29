@@ -1,3 +1,6 @@
+
+"use client";
+
 import { AppHeader } from "@/components/header";
 import { AppFooter } from "@/components/footer";
 import {
@@ -16,8 +19,19 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Eye, Pencil, Trash2 } from "lucide-react";
+import { Eye, Pencil, Trash2, Users, Banknote, UserCheck, UserX } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+
 
 const users = [
   {
@@ -50,6 +64,14 @@ const users = [
   },
 ];
 
+const chartData = [
+  { name: 'Jan', users: 30 },
+  { name: 'Feb', users: 45 },
+  { name: 'Mar', users: 60 },
+  { name: 'Apr', users: 50 },
+  { name: 'May', users: 70 },
+  { name: 'Jun', users: 90 },
+];
 
 export default function AdminDashboardPage() {
   return (
@@ -66,7 +88,75 @@ export default function AdminDashboardPage() {
                 Welcome to the admin panel. Here you can manage users, view registrations, and configure application settings.
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-10">
+              {/* Stats Cards */}
+              <div>
+                <h2 className="text-2xl font-semibold text-secondary font-headline mb-4">Overview</h2>
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                  <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+                      <Users className="h-5 w-5 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">1,234</div>
+                      <p className="text-xs text-muted-foreground">+20.1% from last month</p>
+                    </CardContent>
+                  </Card>
+                   <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">Total Investment</CardTitle>
+                      <Banknote className="h-5 w-5 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">₹5,231,890</div>
+                      <p className="text-xs text-muted-foreground">+15.2% from last month</p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">Active Users</CardTitle>
+                      <UserCheck className="h-5 w-5 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">982</div>
+                      <p className="text-xs text-muted-foreground">+180.1% from last month</p>
+                    </CardContent>
+                  </Card>
+                   <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">Inactive Users</CardTitle>
+                      <UserX className="h-5 w-5 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">252</div>
+                      <p className="text-xs text-muted-foreground">+19% from last month</p>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+
+               {/* Chart */}
+              <div>
+                <h2 className="text-2xl font-semibold text-secondary font-headline mb-4">User Registrations</h2>
+                 <Card>
+                  <CardContent className="pt-6">
+                    <ResponsiveContainer width="100%" height={300}>
+                      <BarChart data={chartData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                        <Bar dataKey="users" fill="hsl(var(--primary))" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+              </div>
+
+
+              {/* Manage Users Table */}
               <div className="space-y-6">
                 <h2 className="text-2xl font-semibold text-secondary font-headline">Manage Users</h2>
                  <div className="border rounded-lg overflow-hidden">
