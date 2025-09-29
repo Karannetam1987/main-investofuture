@@ -81,7 +81,7 @@ export function LoginPopup({
             </form>
             <div className="mt-6 text-center text-sm">
               Don&apos;t have an account?{" "}
-              <Link href="#" className="font-semibold text-primary hover:underline">
+              <Link href="/register" className="font-semibold text-primary hover:underline" onClick={() => onOpenChange(false)}>
                 Register
               </Link>
             </div>
