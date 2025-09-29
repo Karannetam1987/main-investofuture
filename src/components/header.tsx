@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Menu, LayoutDashboard } from "lucide-react";
+import { Menu } from "lucide-react";
 import * as React from 'react';
 import { usePathname } from 'next/navigation';
 
@@ -36,7 +36,7 @@ export function AppHeader() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-secondary text-secondary-foreground border-secondary-foreground/20">
       <div className="container flex h-16 items-center justify-between">
-        <div className="hidden md:flex">
+        <div className="flex items-center">
           <Logo />
         </div>
         
@@ -87,12 +87,8 @@ export function AppHeader() {
             </SheetContent>
           </Sheet>
         </div>
-        
-        <div className="md:hidden">
-          <Logo />
-        </div>
 
-        <nav className="hidden md:flex md:items-center md:gap-6">
+        <nav className="hidden md:flex md:items-center md:gap-4">
           {isDashboard ? (
              <Link href="/" className="text-sm font-medium text-secondary-foreground/70 transition-colors hover:text-secondary-foreground">
               Back to Home
@@ -110,14 +106,10 @@ export function AppHeader() {
               ))}
             </>
           )}
-        </nav>
-
-        <div className="hidden md:flex items-center gap-2">
            <Button variant="ghost" onClick={() => handleLoginClick("User")} className="text-sm font-medium text-secondary-foreground/70 transition-colors hover:text-secondary-foreground">User Login</Button>
           <Button variant="ghost" onClick={() => handleLoginClick("Admin")} className="text-sm font-medium text-secondary-foreground/70 transition-colors hover:text-secondary-foreground">Admin Login</Button>
-        </div>
+        </nav>
 
-        <div className="w-10 md:hidden"></div>
       </div>
       <LoginPopup
         open={loginPopupOpen}
