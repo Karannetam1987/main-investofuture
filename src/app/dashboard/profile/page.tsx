@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 
 export default function ProfilePage() {
   return (
@@ -37,9 +38,10 @@ export default function ProfilePage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-8">
+              {/* Personal Information */}
               <div>
-                <h3 className="text-lg font-semibold text-secondary mb-4">Personal Information</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <h3 className="text-xl font-semibold text-secondary mb-4 font-headline">Personal Information</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   <div className="space-y-2">
                     <Label htmlFor="regId">Registration ID</Label>
                     <Input id="regId" defaultValue="IF-12345" readOnly />
@@ -57,6 +59,10 @@ export default function ProfilePage() {
                     <Input id="motherName" defaultValue="Mother's Name" />
                   </div>
                   <div className="space-y-2">
+                    <Label htmlFor="mobile">Mobile Number</Label>
+                    <Input id="mobile" defaultValue="+91-9876543210" />
+                  </div>
+                  <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
                     <div className="flex items-center gap-2">
                       <Input id="email" type="email" defaultValue="karan.sidar@example.com" />
@@ -64,8 +70,36 @@ export default function ProfilePage() {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="mobile">Mobile Number</Label>
-                    <Input id="mobile" defaultValue="+91-9876543210" />
+                    <Label htmlFor="dob">Date of Birth</Label>
+                    <Input id="dob" defaultValue="01/01/1990" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="gender">Gender</Label>
+                    <Input id="gender" defaultValue="Male" />
+                  </div>
+                   <div className="space-y-2">
+                    <Label htmlFor="maritalStatus">Marital Status</Label>
+                    <Input id="maritalStatus" defaultValue="Single" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="religion">Religion</Label>
+                    <Input id="religion" defaultValue="Hindu" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="caste">Caste</Label>
+                    <Input id="caste" defaultValue="General" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="children">Children</Label>
+                    <Input id="children" defaultValue="0" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="bloodGroup">Blood Group</Label>
+                    <Input id="bloodGroup" defaultValue="O+" />
+                  </div>
+                   <div className="space-y-2 md:col-span-2">
+                    <Label htmlFor="identificationMark">Identification Mark</Label>
+                    <Input id="identificationMark" defaultValue="A mole on the right cheek" />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="pan">PAN Number</Label>
@@ -75,19 +109,87 @@ export default function ProfilePage() {
                     <Label htmlFor="aadhaar">Aadhaar Number</Label>
                     <Input id="aadhaar" defaultValue="xxxx-xxxx-1234" />
                   </div>
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Address Details */}
+              <div>
+                <h3 className="text-xl font-semibold text-secondary mb-4 font-headline">Address Details</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                        <Label>Permanent Address</Label>
+                        <Textarea defaultValue="123, ABC Street, New Delhi, India - 110001" rows={3}/>
+                    </div>
+                     <div className="space-y-2">
+                        <Label>Current Address</Label>
+                        <Textarea defaultValue="123, ABC Street, New Delhi, India - 110001" rows={3}/>
+                    </div>
+                </div>
+              </div>
+
+               <Separator />
+
+              {/* Bank Details */}
+              <div>
+                <h3 className="text-xl font-semibold text-secondary mb-4 font-headline">Bank Details</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="bankName">Bank Name</Label>
+                    <Input id="bankName" defaultValue="State Bank of India" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="accountNumber">Account Number</Label>
+                    <Input id="accountNumber" defaultValue="************1234" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="ifsc">IFSC Code</Label>
+                    <Input id="ifsc" defaultValue="SBIN0001234" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="upi">UPI ID</Label>
+                    <Input id="upi" defaultValue="karan.sidar@upi" />
+                  </div>
                   <div className="space-y-2 md:col-span-2">
-                    <Label htmlFor="address">Address</Label>
-                    <Textarea
-                      id="address"
-                      defaultValue="123, ABC Street, New Delhi, India - 110001"
-                      rows={3}
-                    />
+                    <Label htmlFor="bankAddress">Bank Address</Label>
+                     <Textarea defaultValue="Main Branch, New Delhi, India" />
                   </div>
                 </div>
               </div>
 
-              <div className="flex justify-end">
-                <Button>Edit Personal Information</Button>
+              <Separator />
+
+              {/* Nominee Details */}
+              <div>
+                <h3 className="text-xl font-semibold text-secondary mb-4 font-headline">Nominee Details</h3>
+                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                   <div className="space-y-2">
+                    <Label htmlFor="nomineeName">Nominee Name</Label>
+                    <Input id="nomineeName" defaultValue="Nominee Name" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="nomineeFatherName">Nominee's Father Name</Label>
+                    <Input id="nomineeFatherName" defaultValue="Nominee Father's Name" />
+                  </div>
+                   <div className="space-y-2">
+                    <Label htmlFor="relationship">Relationship</Label>
+                    <Input id="relationship" defaultValue="Spouse" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="nomineeMobile">Nominee Mobile Number</Label>
+                    <Input id="nomineeMobile" defaultValue="+91-9876543211" />
+                  </div>
+                   <div className="space-y-2">
+                    <Label htmlFor="nomineeDob">Nominee's Date of Birth</Label>
+                    <Input id="nomineeDob" defaultValue="01/01/1992" />
+                  </div>
+                 </div>
+              </div>
+
+
+              <div className="flex justify-end pt-4">
+                <Button size="lg">Save Changes</Button>
               </div>
             </CardContent>
           </Card>
@@ -97,3 +199,5 @@ export default function ProfilePage() {
     </div>
   );
 }
+
+    
