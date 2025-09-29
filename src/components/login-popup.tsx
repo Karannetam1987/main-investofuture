@@ -70,9 +70,9 @@ export function LoginPopup({
       router.push("/dashboard");
       onOpenChange(false);
     } else if (loginType === "Admin") {
-      if (emailOrId === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+      if (emailOrId.toLowerCase() === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
         toast({ title: "Admin Login Successful" });
-        // router.push('/admin/dashboard'); // Future admin dashboard
+        router.push('/admin/dashboard'); 
         onOpenChange(false);
       } else {
         toast({
