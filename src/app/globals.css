@@ -20,7 +20,7 @@
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 214.3 31.8% 91.4%;
+    --border: 120 60% 30%; /* Green */
     --input: 214.3 31.8% 91.4%;
     --ring: 180 100% 25%; /* Teal */
     --radius: 0.5rem;
@@ -43,7 +43,7 @@
     --accent-foreground: 210 40% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
+    --border: 120 60% 40%; /* Lighter Green for dark mode */
     --input: 217.2 32.6% 17.5%;
     --ring: 180 100% 30%;
   }
