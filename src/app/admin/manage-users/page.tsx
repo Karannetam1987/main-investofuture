@@ -22,28 +22,28 @@ import { Badge } from "@/components/ui/badge";
 
 const users = [
   {
-    id: "IF-12345",
+    id: "INF001",
     name: "Karan Singh Sidar",
     email: "karan.sidar@example.com",
     mobile: "+91-9876543210",
     status: "Active",
   },
   {
-    id: "IF-12346",
+    id: "INF002",
     name: "Aarav Sharma",
     email: "aarav.sharma@example.com",
     mobile: "+91-9876543211",
     status: "Active",
   },
   {
-    id: "IF-12347",
+    id: "INF003",
     name: "Priya Patel",
     email: "priya.patel@example.com",
     mobile: "+91-9876543212",
     status: "Inactive",
   },
   {
-    id: "IF-12348",
+    id: "INF004",
     name: "Rohan Kumar",
     email: "rohan.kumar@example.com",
     mobile: "+91-9876543213",

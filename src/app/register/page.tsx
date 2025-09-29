@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -62,7 +63,7 @@ export default function RegisterPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                    <div className="space-y-2">
                     <Label htmlFor="regId">Registration ID</Label>
-                    <Input id="regId" defaultValue="IF-12345" readOnly />
+                    <Input id="regId" defaultValue="INF001" readOnly />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="fullName">Full Name</Label>

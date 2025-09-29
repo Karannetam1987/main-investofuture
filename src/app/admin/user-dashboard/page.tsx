@@ -29,7 +29,7 @@ export default function UserDashboardPage() {
             <div className="space-y-2">
                 <Label htmlFor="userId">User Registration ID</Label>
                 <div className="flex gap-4">
-                <Input id="userId" placeholder="Enter User Registration ID (e.g., IF-12345)" className="max-w-xs" />
+                <Input id="userId" placeholder="Enter User Registration ID (e.g., INF001)" className="max-w-xs" />
                 <Button>View/Edit User</Button>
                 </div>
             </div>
