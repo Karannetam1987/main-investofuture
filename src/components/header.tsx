@@ -11,16 +11,23 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Logo } from "./logo";
+import { LoginPopup } from "./login-popup";
 
 const navLinks = [
   { href: "#home", label: "Home" },
   { href: "#features", label: "Features" },
-  { href: "/login", label: "User Login" },
-  { href: "/admin", label: "Admin Login" },
 ];
 
 export function AppHeader() {
   const [open, setOpen] = React.useState(false);
+  const [loginPopupOpen, setLoginPopupOpen] = React.useState(false);
+  const [loginType, setLoginType] = React.useState<"User" | "Admin">("User");
+
+  const handleLoginClick = (type: "User" | "Admin") => {
+    setLoginType(type);
+    setLoginPopupOpen(true);
+    setOpen(false); // Close mobile menu if open
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-secondary text-secondary-foreground border-secondary-foreground/20">
@@ -52,6 +59,18 @@ export function AppHeader() {
                     {link.label}
                   </Link>
                 ))}
+                <button
+                  onClick={() => handleLoginClick("User")}
+                  className="text-lg font-medium text-secondary-foreground hover:text-secondary-foreground/80 text-left"
+                >
+                  User Login
+                </button>
+                <button
+                  onClick={() => handleLoginClick("Admin")}
+                  className="text-lg font-medium text-secondary-foreground hover:text-secondary-foreground/80 text-left"
+                >
+                  Admin Login
+                </button>
               </nav>
             </SheetContent>
           </Sheet>
@@ -71,10 +90,17 @@ export function AppHeader() {
               {link.label}
             </Link>
           ))}
+          <Button variant="ghost" onClick={() => handleLoginClick("User")} className="text-sm font-medium text-secondary-foreground/70 transition-colors hover:text-secondary-foreground">User Login</Button>
+          <Button variant="ghost" onClick={() => handleLoginClick("Admin")} className="text-sm font-medium text-secondary-foreground/70 transition-colors hover:text-secondary-foreground">Admin Login</Button>
         </nav>
 
         <div className="w-10 md:hidden"></div>
       </div>
+      <LoginPopup
+        open={loginPopupOpen}
+        onOpenChange={setLoginPopupOpen}
+        loginType={loginType}
+      />
     </header>
   );
 }
