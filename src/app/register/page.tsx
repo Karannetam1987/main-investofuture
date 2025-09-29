@@ -39,7 +39,7 @@ export default function RegisterPage() {
       <AppHeader />
       <main className="flex-1 py-12 md:py-16">
         <div className="container">
-          <Card className="max-w-4xl mx-auto">
+          <Card className="max-w-4xl mx-auto card-within-page">
             <CardHeader className="text-center">
               <CardTitle className="text-3xl font-bold font-headline text-secondary">Create an Account</CardTitle>
               <CardDescription>
@@ -78,7 +78,7 @@ export default function RegisterPage() {
                         <Button
                           variant={"outline"}
                           className={cn(
-                            "w-full justify-start text-left font-normal",
+                            "w-full justify-start text-left font-normal bg-card",
                             !dob && "text-muted-foreground"
                           )}
                         >
@@ -265,7 +265,7 @@ export default function RegisterPage() {
                         <Button
                           variant={"outline"}
                           className={cn(
-                            "w-full justify-start text-left font-normal",
+                            "w-full justify-start text-left font-normal bg-card",
                             !nomineeDob && "text-muted-foreground"
                           )}
                         >
