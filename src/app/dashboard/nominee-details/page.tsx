@@ -17,7 +17,6 @@ import { ArrowLeft } from "lucide-react";
 import { useState } from "react";
 
 export default function NomineeDetailsPage() {
-  const [isEditing, setIsEditing] = useState(false);
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -36,47 +35,31 @@ export default function NomineeDetailsPage() {
             <CardHeader>
               <CardTitle>Nominee Details</CardTitle>
               <CardDescription>
-                Manage your nominee information.
+                Your nominee information.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="nomineeName">Nominee Name</Label>
-                  <Input id="nomineeName" defaultValue="Nominee Name" readOnly={!isEditing} />
+                  <Input id="nomineeName" defaultValue="Nominee Name" readOnly />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="nomineeFatherName">Nominee's Father Name</Label>
-                  <Input id="nomineeFatherName" defaultValue="Nominee Father's Name" readOnly={!isEditing} />
+                  <Input id="nomineeFatherName" defaultValue="Nominee Father's Name" readOnly />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="relationship">Relationship</Label>
-                  <Input id="relationship" defaultValue="Spouse" readOnly={!isEditing} />
+                  <Input id="relationship" defaultValue="Spouse" readOnly />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="nomineeMobile">Nominee Mobile Number</Label>
-                  <Input id="nomineeMobile" defaultValue="+91-9876543211" readOnly={!isEditing} />
+                  <Input id="nomineeMobile" defaultValue="+91-9876543211" readOnly />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="nomineeDob">Nominee's Date of Birth</Label>
-                  <Input id="nomineeDob" defaultValue="01/01/1992" readOnly={!isEditing} />
+                  <Input id="nomineeDob" defaultValue="01/01/1992" readOnly />
                 </div>
-              </div>
-              <div className="flex justify-end pt-4 gap-4">
-                {isEditing ? (
-                  <>
-                    <Button variant="outline" size="lg" onClick={() => setIsEditing(false)}>
-                      Cancel
-                    </Button>
-                    <Button size="lg" onClick={() => setIsEditing(false)}>
-                      Save Changes
-                    </Button>
-                  </>
-                ) : (
-                  <Button size="lg" onClick={() => setIsEditing(true)}>
-                    Edit Details
-                  </Button>
-                )}
               </div>
             </CardContent>
           </Card>

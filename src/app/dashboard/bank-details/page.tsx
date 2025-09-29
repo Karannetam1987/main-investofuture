@@ -18,7 +18,6 @@ import { ArrowLeft } from "lucide-react";
 import { useState } from "react";
 
 export default function BankDetailsPage() {
-  const [isEditing, setIsEditing] = useState(false);
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -37,47 +36,31 @@ export default function BankDetailsPage() {
             <CardHeader>
               <CardTitle>Bank Details</CardTitle>
               <CardDescription>
-                Manage your bank account information.
+                Your bank account information.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="bankName">Bank Name</Label>
-                  <Input id="bankName" defaultValue="State Bank of India" readOnly={!isEditing} />
+                  <Input id="bankName" defaultValue="State Bank of India" readOnly />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="accountNumber">Account Number</Label>
-                  <Input id="accountNumber" defaultValue="************1234" readOnly={!isEditing} />
+                  <Input id="accountNumber" defaultValue="************1234" readOnly />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="ifsc">IFSC Code</Label>
-                  <Input id="ifsc" defaultValue="SBIN0001234" readOnly={!isEditing} />
+                  <Input id="ifsc" defaultValue="SBIN0001234" readOnly />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="upi">UPI ID</Label>
-                  <Input id="upi" defaultValue="karan.sidar@upi" readOnly={!isEditing} />
+                  <Input id="upi" defaultValue="karan.sidar@upi" readOnly />
                 </div>
                 <div className="space-y-2 md:col-span-2">
                   <Label htmlFor="bankAddress">Bank Address</Label>
-                  <Textarea defaultValue="Main Branch, New Delhi, India" readOnly={!isEditing} />
+                  <Textarea defaultValue="Main Branch, New Delhi, India" readOnly />
                 </div>
-              </div>
-              <div className="flex justify-end pt-4 gap-4">
-                {isEditing ? (
-                  <>
-                    <Button variant="outline" size="lg" onClick={() => setIsEditing(false)}>
-                      Cancel
-                    </Button>
-                    <Button size="lg" onClick={() => setIsEditing(false)}>
-                      Save Changes
-                    </Button>
-                  </>
-                ) : (
-                  <Button size="lg" onClick={() => setIsEditing(true)}>
-                    Edit Details
-                  </Button>
-                )}
               </div>
             </CardContent>
           </Card>
