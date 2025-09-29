@@ -1,3 +1,4 @@
+
 "use client";
 
 import { AppHeader } from "@/components/header";
@@ -7,6 +8,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -15,9 +17,17 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 export default function BankDetailsPage() {
+  const { toast } = useToast();
+
+  const handleSaveChanges = () => {
+    toast({
+      title: "Success!",
+      description: "Your bank details have been updated.",
+    });
+  };
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -36,33 +46,36 @@ export default function BankDetailsPage() {
             <CardHeader>
               <CardTitle>Bank Details</CardTitle>
               <CardDescription>
-                Your bank account information.
+                Manage your bank account information.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="bankName">Bank Name</Label>
-                  <Input id="bankName" defaultValue="State Bank of India" readOnly />
+                  <Input id="bankName" defaultValue="State Bank of India" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="accountNumber">Account Number</Label>
-                  <Input id="accountNumber" defaultValue="************1234" readOnly />
+                  <Input id="accountNumber" defaultValue="************1234" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="ifsc">IFSC Code</Label>
-                  <Input id="ifsc" defaultValue="SBIN0001234" readOnly />
+                  <Input id="ifsc" defaultValue="SBIN0001234" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="upi">UPI ID</Label>
-                  <Input id="upi" defaultValue="karan.sidar@upi" readOnly />
+                  <Input id="upi" defaultValue="karan.sidar@upi" />
                 </div>
                 <div className="space-y-2 md:col-span-2">
                   <Label htmlFor="bankAddress">Bank Address</Label>
-                  <Textarea defaultValue="Main Branch, New Delhi, India" readOnly />
+                  <Textarea defaultValue="Main Branch, New Delhi, India" />
                 </div>
               </div>
             </CardContent>
+            <CardFooter>
+              <Button onClick={handleSaveChanges}>Save Changes</Button>
+            </CardFooter>
           </Card>
         </div>
       </main>
