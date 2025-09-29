@@ -5,7 +5,17 @@ import { AppHeader } from "@/components/header";
 import { AppFooter } from "@/components/footer";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, UserSearch } from "lucide-react";
+import {
+  LayoutDashboard,
+  Users,
+  UserSearch,
+  Gift,
+  ShieldAlert,
+  Handshake,
+  PiggyBank,
+  HeartHandshake,
+  Library,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -24,6 +34,36 @@ const adminNavItems = [
     href: "/admin/user-dashboard",
     label: "View/Edit User",
     icon: <UserSearch className="mr-2 h-4 w-4" />,
+  },
+  {
+    href: "/admin/joining-gift",
+    label: "Joining Gift",
+    icon: <Gift className="mr-2 h-4 w-4" />,
+  },
+  {
+    href: "/admin/accidental-insurance",
+    label: "Accidental Insurance",
+    icon: <ShieldAlert className="mr-2 h-4 w-4" />,
+  },
+  {
+    href: "/admin/scholarship",
+    label: "Scholarship",
+    icon: <Handshake className="mr-2 h-4 w-4" />,
+  },
+  {
+    href: "/admin/interest-fund",
+    label: "Interest Fund",
+    icon: <PiggyBank className="mr-2 h-4 w-4" />,
+  },
+  {
+    href: "/admin/maturity-fund",
+    label: "Maturity Fund",
+    icon: <HeartHandshake className="mr-2 h-4 w-4" />,
+  },
+  {
+    href: "/admin/my-documents",
+    label: "My Documents",
+    icon: <Library className="mr-2 h-4 w-4" />,
   },
 ];
 
