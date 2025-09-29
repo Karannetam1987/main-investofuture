@@ -27,7 +27,7 @@ const dashboardItems = [
     icon: <User className="w-8 h-8 text-primary" />,
     title: "Profile",
     description: "Manage your personal information.",
-    href: "#",
+    href: "/dashboard/profile",
   },
   {
     icon: <BookUser className="w-8 h-8 text-primary" />,
