@@ -22,7 +22,7 @@ const adminNavItems = [
   },
   {
     href: "/admin/user-dashboard",
-    label: "User Dashboard",
+    label: "View/Edit User",
     icon: <UserSearch className="mr-2 h-4 w-4" />,
   },
 ];
