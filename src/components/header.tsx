@@ -14,8 +14,8 @@ import { Logo } from "./logo";
 import { LoginPopup } from "./login-popup";
 
 const navLinks = [
-  { href: "#home", label: "Home" },
-  { href: "#features", label: "Features" },
+  { href: "/#home", label: "Home" },
+  { href: "/#features", label: "Features" },
 ];
 
 export function AppHeader() {

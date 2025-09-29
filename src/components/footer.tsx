@@ -42,9 +42,9 @@ export function AppFooter() {
           <div>
             <h3 className="font-semibold text-secondary-foreground">About Us</h3>
             <nav className="mt-4 flex flex-col gap-2 text-sm text-secondary-foreground/80">
-              <Link href="#privacy" className="hover:text-secondary-foreground transition-colors">Privacy Policy</Link>
-              <Link href="#terms" className="hover:text-secondary-foreground transition-colors">Terms of Service</Link>
-              <Link href="#disclaimer" className="hover:text-secondary-foreground transition-colors">Disclaimer</Link>
+              <Link href="/#privacy" className="hover:text-secondary-foreground transition-colors">Privacy Policy</Link>
+              <Link href="/#terms" className="hover:text-secondary-foreground transition-colors">Terms of Service</Link>
+              <Link href="/#disclaimer" className="hover:text-secondary-foreground transition-colors">Disclaimer</Link>
             </nav>
           </div>
           <div>
