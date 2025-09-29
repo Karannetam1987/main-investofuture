@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface LoginPopupProps {
   open: boolean;
@@ -27,6 +28,17 @@ export function LoginPopup({
   onOpenChange,
   loginType,
 }: LoginPopupProps) {
+  const router = useRouter();
+
+  const handleSignIn = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (loginType === 'User') {
+      router.push('/dashboard');
+    }
+    // You can add logic for Admin login here
+    onOpenChange(false); // Close the popup
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
@@ -40,7 +52,7 @@ export function LoginPopup({
         </DialogHeader>
         <Card className="border-0 shadow-none">
           <CardContent className="pt-6">
-            <form className="space-y-4">
+            <form className="space-y-4" onSubmit={handleSignIn}>
               <div className="space-y-2">
                 <Label htmlFor="emailOrId">Email or Registration ID</Label>
                 <Input
