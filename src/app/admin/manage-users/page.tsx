@@ -2,6 +2,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import {
   Table,
   TableBody,
@@ -14,16 +15,27 @@ import { Button } from "@/components/ui/button";
 import { Eye, Pencil, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { useToast } from "@/hooks/use-toast";
 import allUsers from "@/lib/data/users.json";
-
 
 const USERS_PER_PAGE = 25;
 
+type User = {
+  id: string;
+  name: string;
+  email: string;
+  mobile: string;
+  status: "Active" | "Inactive";
+};
+
 export default function ManageUsersPage() {
+  const [users, setUsers] = useState<User[]>(allUsers);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
+  const { toast } = useToast();
 
-  const filteredUsers = allUsers.filter(
+  const filteredUsers = users.filter(
     (user) =>
       user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -46,6 +58,34 @@ export default function ManageUsersPage() {
       setCurrentPage(currentPage - 1);
     }
   };
+
+  const handleStatusChange = (userId: string, newStatus: boolean) => {
+    // In a real app, this would be an API call.
+    // For now, we update the local state.
+    setUsers(
+      users.map((user) =>
+        user.id === userId
+          ? { ...user, status: newStatus ? "Active" : "Inactive" }
+          : user
+      )
+    );
+    toast({
+      title: "Status Updated",
+      description: `User ${userId} has been set to ${
+        newStatus ? "Active" : "Inactive"
+      }.`,
+    });
+  };
+
+  const handleDeleteUser = (userId: string) => {
+     // In a real app, this would be an API call.
+     setUsers(users.filter(user => user.id !== userId));
+     toast({
+        title: "User Deleted",
+        description: `User ${userId} has been removed.`,
+        variant: "destructive"
+     });
+  }
 
   return (
     <div className="flex-1 space-y-8 p-4 md:p-8">
@@ -86,30 +126,45 @@ export default function ManageUsersPage() {
                 <TableCell>{user.email}</TableCell>
                 <TableCell>{user.mobile}</TableCell>
                 <TableCell>
-                  <Badge
-                    variant={
-                      user.status === "Active" ? "default" : "destructive"
-                    }
-                    className={
-                      user.status === "Active"
-                        ? "bg-primary"
-                        : "bg-destructive"
-                    }
-                  >
-                    {user.status}
-                  </Badge>
+                  <div className="flex items-center gap-2">
+                    <Switch
+                      id={`status-${user.id}`}
+                      checked={user.status === "Active"}
+                      onCheckedChange={(checked) =>
+                        handleStatusChange(user.id, checked)
+                      }
+                    />
+                    <Badge
+                      variant={
+                        user.status === "Active" ? "default" : "destructive"
+                      }
+                      className={
+                        user.status === "Active"
+                          ? "bg-primary"
+                          : "bg-destructive"
+                      }
+                    >
+                      {user.status}
+                    </Badge>
+                  </div>
                 </TableCell>
                 <TableCell className="text-right">
-                  <Button variant="ghost" size="icon">
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                  <Button variant="ghost" size="icon">
-                    <Pencil className="h-4 w-4" />
-                  </Button>
+                  <Link href={`/dashboard/profile`}>
+                    <Button variant="ghost" size="icon" title="View User Dashboard">
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                  </Link>
+                  <Link href={`/admin/user-dashboard?userId=${user.id}`}>
+                     <Button variant="ghost" size="icon" title="Edit User">
+                        <Pencil className="h-4 w-4" />
+                     </Button>
+                  </Link>
                   <Button
                     variant="ghost"
                     size="icon"
                     className="text-destructive"
+                    onClick={() => handleDeleteUser(user.id)}
+                    title="Delete User"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>

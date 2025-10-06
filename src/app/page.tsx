@@ -1,4 +1,5 @@
 
+
 import {
   ArrowRight,
   BrainCircuit,
@@ -8,6 +9,7 @@ import {
   TrendingUp,
   UserCheck,
   AlertTriangle,
+  Send,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -20,7 +22,12 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  CardFooter,
+  CardDescription
 } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { AdPlaceholder } from "@/components/ad-placeholder";
 import adsData from "@/lib/data/ads.json";
 import siteConfig from "@/lib/data/site-config.json";
@@ -159,11 +166,53 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+         <section id="contact" className="bg-white dark:bg-card py-16 md:py-24">
+          <div className="container">
+            <div className="mx-auto max-w-3xl text-center">
+              <h2 className="font-headline text-4xl font-bold text-secondary md:text-5xl">
+                Contact Us
+              </h2>
+              <p className="mt-4 text-xl text-muted-foreground">
+                Have questions? We&apos;d love to hear from you.
+              </p>
+            </div>
+            <Card className="max-w-2xl mx-auto mt-12">
+              <CardHeader>
+                <CardTitle>Send us a Message</CardTitle>
+                <CardDescription>We will get back to you as soon as possible.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="contact-name">Name</Label>
+                        <Input id="contact-name" placeholder="Your Name" />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="contact-email">Email</Label>
+                        <Input id="contact-email" type="email" placeholder="your.email@example.com" />
+                    </div>
+                 </div>
+                 <div className="space-y-2">
+                    <Label htmlFor="contact-subject">Subject</Label>
+                    <Input id="contact-subject" placeholder="Question about my account" />
+                 </div>
+                 <div className="space-y-2">
+                    <Label htmlFor="contact-message">Message</Label>
+                    <Textarea id="contact-message" placeholder="Type your message here..." rows={5}/>
+                 </div>
+              </CardContent>
+              <CardFooter>
+                <Button className="w-full">
+                    Send Message <Send className="ml-2 h-4 w-4" />
+                </Button>
+              </CardFooter>
+            </Card>
+          </div>
+        </section>
         
       </main>
       <AppFooter />
     </div>
   );
 }
-
-    

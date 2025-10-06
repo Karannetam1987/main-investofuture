@@ -1,8 +1,8 @@
 
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -14,12 +14,35 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-
+import allUsers from "@/lib/data/users.json";
 
 export default function UserDashboardPage() {
   const [userId, setUserId] = useState("");
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
+
+  useEffect(() => {
+    const userIdFromQuery = searchParams.get("userId");
+    if (userIdFromQuery) {
+      const userExists = allUsers.some(user => user.id === userIdFromQuery);
+      if (userExists) {
+        setUserId(userIdFromQuery);
+        // Automatically redirect if a valid user ID is in the query
+        toast({
+            title: "Loading User Dashboard...",
+            description: `Showing editable dashboard for user ${userIdFromQuery}.`,
+        });
+        router.push("/dashboard/profile"); // You'd likely go to an edit page like /admin/user/edit/${userIdFromQuery}
+      } else {
+         toast({
+            title: "User Not Found",
+            description: `No user found with ID ${userIdFromQuery}.`,
+            variant: "destructive",
+        });
+      }
+    }
+  }, [searchParams, router, toast]);
 
   const handleViewUser = () => {
     if (userId.trim() === "") {
@@ -30,14 +53,21 @@ export default function UserDashboardPage() {
       });
       return;
     }
-    // In a real application, you would fetch the user and navigate
-    // to a dynamic route like `/admin/user/${userId}`.
-    // For now, we'll navigate to the example profile page.
-    toast({
-        title: "Redirecting...",
-        description: `Showing dashboard for user ${userId}.`,
-    });
-    router.push("/dashboard/profile");
+    const userExists = allUsers.some(user => user.id.toLowerCase() === userId.trim().toLowerCase());
+
+    if (userExists) {
+        toast({
+            title: "Redirecting...",
+            description: `Showing dashboard for user ${userId}.`,
+        });
+        router.push(`/dashboard/profile`); // In a real app, you'd fetch this user's data
+    } else {
+        toast({
+            title: "User Not Found",
+            description: `No user found with ID ${userId}.`,
+            variant: "destructive",
+        });
+    }
   };
 
   return (
@@ -49,7 +79,7 @@ export default function UserDashboardPage() {
             <CardHeader>
                 <CardTitle>Find User</CardTitle>
                 <CardDescription>
-                Enter a user's Registration ID to view their full dashboard and manage their details.
+                Enter a user's Registration ID to view and manage their full dashboard.
                 </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -62,6 +92,7 @@ export default function UserDashboardPage() {
                   className="max-w-xs" 
                   value={userId}
                   onChange={(e) => setUserId(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleViewUser()}
                 />
                 <Button onClick={handleViewUser}>View/Edit User</Button>
                 </div>
