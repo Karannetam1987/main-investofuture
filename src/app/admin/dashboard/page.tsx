@@ -56,7 +56,7 @@ export default function AdminDashboardPage() {
                 <Banknote className="h-5 w-5 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">₹5,231,890</div>
+                <div className="text-2xl font-bold">5,231,890</div>
                 <p className="text-xs text-muted-foreground">+15.2% from last month</p>
               </CardContent>
             </Card>
