@@ -112,6 +112,9 @@ export function LoginPopup({
         });
     }
   }
+  
+  const isPasswordDisabled = loginType === 'Admin' && emailOrId.toLowerCase() !== ADMIN_EMAIL && emailOrId !== "";
+  const isForgotPassDisabled = loginType === 'Admin' && forgotPasswordEmail.toLowerCase() !== ADMIN_EMAIL && forgotPasswordEmail !== "";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -144,6 +147,7 @@ export function LoginPopup({
                  <Button 
                     onClick={handleSendOtp} 
                     className="w-full"
+                    disabled={isForgotPassDisabled}
                  >
                     Send Reset Link
                 </Button>
@@ -177,9 +181,10 @@ export function LoginPopup({
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    disabled={isPasswordDisabled}
                   />
                 </div>
-                <Button type="submit" className="w-full">
+                <Button type="submit" className="w-full" disabled={isPasswordDisabled}>
                   Sign In
                 </Button>
                 <div className="text-center text-sm">
@@ -212,5 +217,3 @@ export function LoginPopup({
     </Dialog>
   );
 }
-
-    
