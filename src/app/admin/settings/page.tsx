@@ -59,6 +59,11 @@ type AdsConfig = {
   aboveFooter: AdSlot;
 };
 
+type SocialLink = {
+    name: string;
+    url: string;
+}
+
 type SiteConfig = {
     siteName: string;
     logoType: "text" | "image";
@@ -73,6 +78,7 @@ type SiteConfig = {
         email: string;
         phone: string;
     };
+    socialLinks: SocialLink[];
 };
 
 type SmtpConfig = {
@@ -167,6 +173,14 @@ export default function SettingsPage() {
               [field as keyof SiteConfig]: value
           }));
       }
+  }
+
+  const handleSocialLinkChange = (index: number, url: string) => {
+      setSiteConfig(prev => {
+          const newSocialLinks = [...prev.socialLinks];
+          newSocialLinks[index].url = url;
+          return { ...prev, socialLinks: newSocialLinks };
+      });
   }
 
   const handleSmtpChange = (field: keyof SmtpConfig, value: string | number) => {
@@ -265,6 +279,22 @@ export default function SettingsPage() {
                      <div className="space-y-2">
                         <Label htmlFor="contactPhone">Contact Phone</Label>
                         <Input id="contactPhone" value={siteConfig.contact.phone} onChange={(e) => handleSiteConfigChange('contact', 'phone', e.target.value)} />
+                    </div>
+                     <div className="space-y-4 p-4 border rounded-md">
+                        <h4 className="font-medium text-sm">Social Media Links</h4>
+                        <div className="space-y-4">
+                            {siteConfig.socialLinks.map((link, index) => (
+                                <div key={link.name} className="flex items-center gap-4">
+                                    <Label htmlFor={`social-${link.name}`} className="w-24">{link.name}</Label>
+                                    <Input 
+                                        id={`social-${link.name}`}
+                                        value={link.url}
+                                        onChange={(e) => handleSocialLinkChange(index, e.target.value)}
+                                        placeholder={`Enter ${link.name} URL`}
+                                    />
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </CardContent>
             </Card>
@@ -495,5 +525,8 @@ export default function SettingsPage() {
       </Tabs>
     </div>
   );
+
+    
+}
 
     

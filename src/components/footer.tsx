@@ -6,33 +6,32 @@ import { AdPlaceholder } from "./ad-placeholder";
 import adsData from "@/lib/data/ads.json";
 import siteConfig from "@/lib/data/site-config.json";
 
-const socialLinks = [
-  { name: "Facebook", href: "#", icon: <Facebook className="h-6 w-6" /> },
-  { name: "Instagram", href: "#", icon: <Instagram className="h-6 w-6" /> },
-  { name: "Twitter", href: "#", icon: <Twitter className="h-6 w-6" /> },
-  { name: "Telegram", href: "#", icon: (
-      <svg
-        className="h-6 w-6"
-        viewBox="0 0 24 24"
-        fill="currentColor"
-        stroke="none"
-      >
-        <path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15.91L20.2 17.05c-.21.51-.78.65-1.28.41l-4.49-3.3-2.15 2.07c-.24.24-.45.46-.8.46l.32-4.42z" />
-      </svg>
-    )
-  },
-  { name: "WhatsApp", href: "#", icon: (
-      <svg
-        className="h-6 w-6"
-        viewBox="0 0 24 24"
-        fill="currentColor"
-        stroke="none"
-      >
-        <path d="M16.75 13.96c.25.5.12 1.04-.12 1.41-.25.36-.63.62-1.12.72-.42.08-.9.1-1.42-.05-1.17-.33-2.22-1-3.12-1.93s-1.6-2-1.9-3.13c-.2-.73-.05-1.4.35-1.96.2-.28.45-.48.73-.6.3-.12.63-.1.93.04.3.14.5.38.6.7l.34 1.18c.1.34.02.73-.22 1.04l-.4.5c-.25.3-.25.75.05 1.1s.6.55 1.05.5c.45-.04.85-.3 1.1-.5l.5-.4c.3-.24.7-.3 1.05-.2zM12 2a10 10 0 100 20 10 10 0 000-20z" />
-      </svg>
-    )
-  },
-];
+const socialIcons: { [key: string]: React.ReactNode } = {
+  Facebook: <Facebook className="h-6 w-6" />,
+  Instagram: <Instagram className="h-6 w-6" />,
+  Twitter: <Twitter className="h-6 w-6" />,
+  Telegram: (
+    <svg
+      className="h-6 w-6"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      stroke="none"
+    >
+      <path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15.91L20.2 17.05c-.21.51-.78.65-1.28.41l-4.49-3.3-2.15 2.07c-.24.24-.45.46-.8.46l.32-4.42z" />
+    </svg>
+  ),
+  WhatsApp: (
+    <svg
+      className="h-6 w-6"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      stroke="none"
+    >
+      <path d="M16.75 13.96c.25.5.12 1.04-.12 1.41-.25.36-.63.62-1.12.72-.42.08-.9.1-1.42-.05-1.17-.33-2.22-1-3.12-1.93s-1.6-2-1.9-3.13c-.2-.73-.05-1.4.35-1.96.2-.28.45-.48.73-.6.3-.12.63-.1.93.04.3.14.5.38.6.7l.34 1.18c.1.34.02.73-.22 1.04l-.4.5c-.25.3-.25.75.05 1.1s.6.55 1.05.5c.45-.04.85-.3 1.1-.5l.5-.4c.3-.24.7-.3 1.05-.2zM12 2a10 10 0 100 20 10 10 0 000-20z" />
+    </svg>
+  ),
+};
+
 
 export function AppFooter() {
   return (
@@ -69,9 +68,9 @@ export function AppFooter() {
             <div>
               <h3 className="font-semibold text-secondary-foreground">Follow Us</h3>
               <div className="mt-4 flex gap-4 text-secondary-foreground/80">
-                {socialLinks.map((social) => (
-                  <Link key={social.name} href={social.href} className="hover:text-secondary-foreground transition-colors">
-                    {social.icon}
+                {siteConfig.socialLinks.map((social) => (
+                  <Link key={social.name} href={social.url} className="hover:text-secondary-foreground transition-colors" target="_blank" rel="noopener noreferrer">
+                    {socialIcons[social.name] || null}
                     <span className="sr-only">{social.name}</span>
                   </Link>
                 ))}
