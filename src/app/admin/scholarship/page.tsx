@@ -200,7 +200,7 @@ export default function ScholarshipPage() {
                 </div>
                  <div className="space-y-2">
                     <Label htmlFor="childrenCount">No. of Children</Label>
-                    <Input id="childrenCount" type="number" value={scholarshipData.childrenCount} onChange={(e) => setScholarshipData(prev => ({...prev, childrenCount: Number(e.target.value)}))}/>
+                    <Input id="childrenCount" type="number" value={scholarshipData.childrenCount} onChange={(e) => setScholarshipData(prev => ({...prev, childrenCount: Number(e.target.value)}))} readOnly/>
                 </div>
                  <div className="space-y-2">
                     <Label htmlFor="scholarshipAmount">Scholarship Amount</Label>
@@ -338,3 +338,6 @@ export default function ScholarshipPage() {
     </div>
   );
 }
+
+
+    
