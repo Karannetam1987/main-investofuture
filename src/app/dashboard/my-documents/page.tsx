@@ -1,6 +1,7 @@
 
 "use client";
 
+import { useState } from "react";
 import { AppHeader } from "@/components/header";
 import { AppFooter } from "@/components/footer";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import Link from "next/link";
-import { ArrowLeft, Download, FileText } from "lucide-react";
+import { ArrowLeft, Download, FileText, Upload, Trash2, LoaderCircle } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -21,16 +22,87 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import userDocuments from "@/lib/data/user-documents.json";
-import userData from "@/lib/data/user-data.json";
 import { format } from "date-fns";
+import { useUser, useFirestore } from "@/firebase";
+import { useCollection } from "@/firebase/firestore/use-collection";
+import { collection, addDoc, deleteDoc, doc, serverTimestamp } from "firebase/firestore";
+import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
+import { useToast } from "@/hooks/use-toast";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
-
-// Assuming the first user is the logged-in user for this example.
-const currentUserId = userData[0].id;
-const documentsForCurrentUser = userDocuments.filter(doc => doc.userId === currentUserId);
+type Document = {
+  uid?: string; // Firestore document ID
+  name: string;
+  url: string;
+  path: string; // Storage path
+  userId: string;
+  createdAt: any;
+};
 
 export default function MyDocumentsPage() {
+  const { user, loading: userLoading } = useUser();
+  const firestore = useFirestore();
+  const { toast } = useToast();
+  const [fileToUpload, setFileToUpload] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+
+  const documentsCollection = user ? collection(firestore, `users/${user.uid}/documents`) : null;
+  const { data: documents, loading: docsLoading } = useCollection<Document>(documentsCollection);
+
+  const handleFileUpload = async () => {
+    if (!fileToUpload || !user || !firestore) return;
+
+    setIsUploading(true);
+    const storage = getStorage();
+    const filePath = `user_documents/${user.uid}/${Date.now()}_${fileToUpload.name}`;
+    const storageRef = ref(storage, filePath);
+
+    try {
+      const uploadResult = await uploadBytes(storageRef, fileToUpload);
+      const downloadURL = await getDownloadURL(uploadResult.ref);
+
+      if (documentsCollection) {
+        await addDoc(documentsCollection, {
+            name: fileToUpload.name,
+            url: downloadURL,
+            path: filePath,
+            userId: user.uid,
+            createdAt: serverTimestamp(),
+        });
+      }
+
+      toast({ title: "Upload Successful", description: `${fileToUpload.name} has been uploaded.` });
+      setFileToUpload(null);
+    } catch (error: any) {
+      toast({ title: "Upload Failed", description: error.message, variant: "destructive" });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleRemoveDocument = async (docToDelete: Document) => {
+    if (!user || !firestore || !docToDelete.uid || !docToDelete.path) return;
+
+    const docRef = doc(firestore, `users/${user.uid}/documents`, docToDelete.uid);
+    const storage = getStorage();
+    const storageRef = ref(storage, docToDelete.path);
+
+    try {
+        // Delete the file from storage first
+        await deleteObject(storageRef);
+        // Then delete the document from Firestore
+        await deleteDoc(docRef);
+        toast({ title: "Document Removed", variant: "destructive" });
+    } catch (error: any) {
+        toast({ title: "Deletion Failed", description: error.message, variant: "destructive" });
+        // If storage deletion fails but firestore doesn't, we might have an orphan entry.
+        // For a production app, more robust error handling is needed.
+    }
+  };
+  
+  const loading = userLoading || docsLoading;
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <AppHeader />
@@ -48,42 +120,76 @@ export default function MyDocumentsPage() {
             <CardHeader>
               <CardTitle>My Documents</CardTitle>
               <CardDescription>
-                View and download documents related to your account.
+                View and manage documents related to your account.
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-6">
+               <Card className="bg-muted/40">
+                <CardHeader>
+                    <CardTitle className="text-lg">Upload New Document</CardTitle>
+                </CardHeader>
+                <CardContent className="flex flex-col md:flex-row items-center gap-4">
+                    <div className="flex-1 w-full">
+                        <Label htmlFor="doc-upload" className="sr-only">Choose file</Label>
+                        <Input 
+                            id="doc-upload" 
+                            type="file" 
+                            onChange={(e) => setFileToUpload(e.target.files ? e.target.files[0] : null)}
+                            className="cursor-pointer"
+                        />
+                    </div>
+                    <Button onClick={handleFileUpload} disabled={!fileToUpload || isUploading}>
+                        {isUploading ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/> : <Upload className="mr-2 h-4 w-4" />}
+                        {isUploading ? "Uploading..." : "Upload Document"}
+                    </Button>
+                </CardContent>
+              </Card>
+
               <div className="border rounded-lg overflow-hidden">
                 <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead>Document Name</TableHead>
                       <TableHead>Upload Date</TableHead>
-                      <TableHead className="text-right">Action</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {documentsForCurrentUser.length > 0 ? (
-                      documentsForCurrentUser.map((doc) => (
-                        <TableRow key={doc.id}>
+                    {loading ? (
+                       <TableRow>
+                        <TableCell colSpan={3} className="h-24 text-center">
+                           <div className="flex justify-center items-center gap-2">
+                             <LoaderCircle className="h-6 w-6 animate-spin text-primary"/>
+                             <p className="text-muted-foreground">Loading documents...</p>
+                           </div>
+                        </TableCell>
+                      </TableRow>
+                    ) : documents && documents.length > 0 ? (
+                      documents.map((doc) => (
+                        <TableRow key={doc.uid}>
                           <TableCell className="font-medium flex items-center gap-2">
                              <FileText className="h-4 w-4 text-muted-foreground"/>
                              {doc.name}
                           </TableCell>
-                          <TableCell>{format(new Date(doc.date), "PPP")}</TableCell>
-                          <TableCell className="text-right">
-                            <a href={`/documents/${doc.name}`} download>
+                          <TableCell>{doc.createdAt ? format(doc.createdAt.toDate(), "PPP") : "N/A"}</TableCell>
+                          <TableCell className="text-right space-x-2">
+                            <a href={doc.url} download target="_blank" rel="noopener noreferrer">
                               <Button variant="outline" size="sm">
                                 <Download className="mr-2 h-4 w-4" />
                                 Download
                               </Button>
                             </a>
+                            <Button variant="destructive" size="sm" onClick={() => handleRemoveDocument(doc)}>
+                                <Trash2 className="mr-2 h-4 w-4"/>
+                                Delete
+                            </Button>
                           </TableCell>
                         </TableRow>
                       ))
                     ) : (
                       <TableRow>
                         <TableCell colSpan={3} className="h-24 text-center">
-                          No documents have been uploaded for you yet.
+                          No documents have been uploaded yet.
                         </TableCell>
                       </TableRow>
                     )}
@@ -98,3 +204,5 @@ export default function MyDocumentsPage() {
     </div>
   );
 }
+
+    

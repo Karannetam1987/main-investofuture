@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { AppHeader } from "@/components/header";
 import { AppFooter } from "@/components/footer";
 import { Button } from "@/components/ui/button";
@@ -22,11 +22,12 @@ import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { useUser, useFirestore } from "@/firebase";
 import { setUserProfile, UserProfile } from "@/firebase/firestore/users";
+import { format, parseISO } from "date-fns";
 
-type EditableProfile = Omit<UserProfile, 'id' | 'email'>;
+type EditableProfile = Omit<UserProfile, 'id' | 'email' | 'uid' | 'createdAt' | 'updatedAt' | 'status'>;
 
-export default function ProfilePage() {
-  const { user, profile, loading } = useUser();
+function ProfileEditor() {
+  const { user, profile, loading, isAdminView } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
   
@@ -34,95 +35,90 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (profile) {
-      // Create a new object for editing to avoid directly mutating the hook's state
       setEditableProfile({
-        personalInfo: { ...profile.personalInfo },
+        personalInfo: { ...profile.personalInfo, dob: profile.personalInfo.dob },
         address: { ...profile.address },
         bankDetails: { ...profile.bankDetails },
-        nomineeDetails: { ...profile.nomineeDetails },
+        nomineeDetails: { ...profile.nomineeDetails, nomineeDob: profile.nomineeDetails.nomineeDob },
       });
     }
   }, [profile]);
 
 
-  const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const { id, value } = e.target;
-      if (editableProfile) {
-        setEditableProfile(prev => ({
-            ...prev!,
-            personalInfo: {
-                ...prev!.personalInfo,
-                [id]: value
+  const handleChange = (section: keyof EditableProfile, field: string, value: string) => {
+    if (editableProfile) {
+        setEditableProfile(prev => {
+            if (!prev) return null;
+            const sectionData = prev[section];
+            return {
+                ...prev,
+                [section]: {
+                    ...(sectionData as any),
+                    [field]: value,
+                }
             }
-        }));
-      }
+        });
+    }
   }
 
-  const handleAddressChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      const { id, value } = e.target;
+  const handleDateChange = (section: keyof EditableProfile, field: string, value: string) => {
       if (editableProfile) {
-        setEditableProfile(prev => ({
-            ...prev!,
-            address: {
-                ...prev!.address,
-                [id]: value
-            }
-        }));
+        const date = new Date(value);
+        if (!isNaN(date.getTime())) {
+            handleChange(section, field, date.toISOString());
+        }
       }
   }
 
   const handleSaveChanges = () => {
-    if (!user || !firestore || !editableProfile) {
-        toast({ title: "Error", description: "User not logged in or database not available.", variant: "destructive"});
+    // The user to update is the one in the profile, which could be the admin-viewed one
+    const userToUpdateUid = profile?.uid;
+
+    if (!firestore || !editableProfile || !userToUpdateUid) {
+        toast({ title: "Error", description: "Data not available to save.", variant: "destructive"});
         return;
     };
 
     const updatedProfileData: UserProfile = {
-        ...profile!,
+        ...profile,
         ...editableProfile,
     };
     
-    setUserProfile(firestore, user.uid, updatedProfileData);
+    setUserProfile(firestore, userToUpdateUid, updatedProfileData);
     
     toast({
       title: "Success!",
-      description: "Your profile has been updated.",
+      description: "Profile has been updated.",
     });
   };
 
-  if (loading || !editableProfile) {
+  if (loading || !editableProfile || !profile) {
     return (
-      <div className="flex min-h-screen flex-col bg-background">
-        <AppHeader />
         <main className="flex-1 flex items-center justify-center">
             <div className="flex items-center gap-2">
                 <LoaderCircle className="h-8 w-8 animate-spin text-primary"/>
                 <p className="text-muted-foreground">Loading profile...</p>
             </div>
         </main>
-        <AppFooter />
-      </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <AppHeader />
       <main className="flex-1 py-12 md:py-16">
         <div className="container">
           <div className="mb-6">
-            <Link href="/dashboard">
+            <Link href={isAdminView ? "/admin/manage-users" : "/dashboard"}>
               <Button variant="outline">
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Dashboard
+                Back to {isAdminView ? "Manage Users" : "Dashboard"}
               </Button>
             </Link>
           </div>
           <Card>
             <CardHeader>
-              <CardTitle>Profile Details</CardTitle>
+              <CardTitle>{isAdminView ? "Edit User Profile" : "Profile Details"}</CardTitle>
               <CardDescription>
-                Manage your personal details.
+                {isAdminView ? `You are editing the profile for ${profile.personalInfo.fullName}.` : "Manage your personal details."}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-8">
@@ -132,67 +128,67 @@ export default function ProfilePage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   <div className="space-y-2">
                     <Label htmlFor="regId">Registration ID</Label>
-                    <Input id="regId" value={profile?.id || ''} readOnly />
+                    <Input id="regId" value={profile.id || ''} readOnly />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="fullName">Full Name</Label>
-                    <Input id="fullName" value={editableProfile.personalInfo.fullName} onChange={handleProfileChange} />
+                    <Input id="fullName" value={editableProfile.personalInfo.fullName} onChange={(e) => handleChange('personalInfo', 'fullName', e.target.value)} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="fatherName">Father's Name</Label>
-                    <Input id="fatherName" value={editableProfile.personalInfo.fatherName} onChange={handleProfileChange} />
+                    <Input id="fatherName" value={editableProfile.personalInfo.fatherName} onChange={(e) => handleChange('personalInfo', 'fatherName', e.target.value)} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="motherName">Mother's Name</Label>
-                    <Input id="motherName" value={editableProfile.personalInfo.motherName} onChange={handleProfileChange} />
+                    <Input id="motherName" value={editableProfile.personalInfo.motherName} onChange={(e) => handleChange('personalInfo', 'motherName', e.target.value)} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="mobile">Mobile Number</Label>
-                    <Input id="mobile" value={editableProfile.personalInfo.mobile} readOnly />
+                    <Input id="mobile" value={editableProfile.personalInfo.mobile} onChange={(e) => handleChange('personalInfo', 'mobile', e.target.value)} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
-                    <Input id="email" type="email" value={profile?.email || ''} readOnly />
+                    <Input id="email" type="email" value={profile.email || ''} readOnly />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="dob">Date of Birth</Label>
-                    <Input id="dob" value={format(new Date(editableProfile.personalInfo.dob), "yyyy-MM-dd")} onChange={handleProfileChange} type="date" />
+                    <Input id="dob" value={format(parseISO(editableProfile.personalInfo.dob), "yyyy-MM-dd")} onChange={(e) => handleDateChange('personalInfo', 'dob', e.target.value)} type="date" />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="gender">Gender</Label>
-                    <Input id="gender" value={editableProfile.personalInfo.gender} onChange={handleProfileChange} />
+                    <Input id="gender" value={editableProfile.personalInfo.gender} onChange={(e) => handleChange('personalInfo', 'gender', e.target.value)} />
                   </div>
                    <div className="space-y-2">
                     <Label htmlFor="maritalStatus">Marital Status</Label>
-                    <Input id="maritalStatus" value={editableProfile.personalInfo.maritalStatus} onChange={handleProfileChange} />
+                    <Input id="maritalStatus" value={editableProfile.personalInfo.maritalStatus} onChange={(e) => handleChange('personalInfo', 'maritalStatus', e.target.value)} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="religion">Religion</Label>
-                    <Input id="religion" value={editableProfile.personalInfo.religion} onChange={handleProfileChange} />
+                    <Input id="religion" value={editableProfile.personalInfo.religion} onChange={(e) => handleChange('personalInfo', 'religion', e.target.value)} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="caste">Caste</Label>
-                    <Input id="caste" value={editableProfile.personalInfo.caste} onChange={handleProfileChange} />
+                    <Input id="caste" value={editableProfile.personalInfo.caste} onChange={(e) => handleChange('personalInfo', 'caste', e.target.value)} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="children">Children</Label>
-                    <Input id="children" value={editableProfile.personalInfo.children} onChange={handleProfileChange} />
+                    <Input id="children" value={editableProfile.personalInfo.children} onChange={(e) => handleChange('personalInfo', 'children', e.target.value)} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="bloodGroup">Blood Group</Label>
-                    <Input id="bloodGroup" value={editableProfile.personalInfo.bloodGroup} onChange={handleProfileChange} />
+                    <Input id="bloodGroup" value={editableProfile.personalInfo.bloodGroup} onChange={(e) => handleChange('personalInfo', 'bloodGroup', e.target.value)} />
                   </div>
                    <div className="space-y-2 md:col-span-2">
                     <Label htmlFor="identificationMark">Identification Mark</Label>
-                    <Input id="identificationMark" value={editableProfile.personalInfo.identificationMark} onChange={handleProfileChange} />
+                    <Input id="identificationMark" value={editableProfile.personalInfo.identificationMark} onChange={(e) => handleChange('personalInfo', 'identificationMark', e.target.value)} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="pan">PAN Number</Label>
-                    <Input id="pan" value={editableProfile.personalInfo.pan} onChange={handleProfileChange} />
+                    <Input id="pan" value={editableProfile.personalInfo.pan} onChange={(e) => handleChange('personalInfo', 'pan', e.target.value)} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="aadhaar">Aadhaar Number</Label>
-                    <Input id="aadhaar" value={editableProfile.personalInfo.aadhaar} onChange={handleProfileChange} />
+                    <Input id="aadhaar" value={editableProfile.personalInfo.aadhaar} onChange={(e) => handleChange('personalInfo', 'aadhaar', e.target.value)} />
                   </div>
                 </div>
               </div>
@@ -205,11 +201,11 @@ export default function ProfilePage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                         <Label htmlFor="permanent">Permanent Address</Label>
-                        <Textarea id="permanent" value={editableProfile.address.permanent} onChange={handleAddressChange} rows={3}/>
+                        <Textarea id="permanent" value={editableProfile.address.permanent} onChange={(e) => handleChange('address', 'permanent', e.target.value)} rows={3}/>
                     </div>
                      <div className="space-y-2">
                         <Label htmlFor="current">Current Address</Label>
-                        <Textarea id="current" value={editableProfile.address.current} onChange={handleAddressChange} rows={3}/>
+                        <Textarea id="current" value={editableProfile.address.current} onChange={(e) => handleChange('address', 'current', e.target.value)} rows={3}/>
                     </div>
                 </div>
               </div>
@@ -220,7 +216,27 @@ export default function ProfilePage() {
           </Card>
         </div>
       </main>
-      <AppFooter />
-    </div>
   );
 }
+
+
+export default function ProfilePage() {
+    return (
+        <div className="flex min-h-screen flex-col bg-background">
+            <AppHeader />
+            <Suspense fallback={
+                <main className="flex-1 flex items-center justify-center">
+                    <div className="flex items-center gap-2">
+                        <LoaderCircle className="h-8 w-8 animate-spin text-primary"/>
+                        <p className="text-muted-foreground">Loading profile...</p>
+                    </div>
+                </main>
+            }>
+                <ProfileEditor />
+            </Suspense>
+            <AppFooter />
+        </div>
+    );
+}
+
+    

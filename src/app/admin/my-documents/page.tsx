@@ -21,75 +21,110 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Upload, Trash2, FileText, Search, Users } from "lucide-react";
+import { Upload, Trash2, FileText, Search, Users, LoaderCircle } from "lucide-react";
 import Link from "next/link";
-import usersData from "@/lib/data/user-data.json";
-import documentsData from "@/lib/data/user-documents.json";
+import { useFirestore } from "@/firebase";
+import { collection, query, where, getDocs, addDoc, deleteDoc, doc, serverTimestamp } from "firebase/firestore";
+import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
+import { useCollection } from "@/firebase/firestore/use-collection";
+import type { UserProfile } from "@/firebase/firestore/users";
+import { format } from "date-fns";
+
 
 type Document = {
-    id: number;
-    name: string;
-    date: string;
-    userId: string;
-};
-
-type User = {
-    id: string;
-    email: string;
-    personalInfo: {
-        fullName: string;
-    };
+  uid?: string; // Firestore document ID
+  name: string;
+  url: string;
+  path: string; // Storage path
+  userId: string;
+  createdAt: any;
 };
 
 export default function MyDocumentsPage() {
     const [searchTerm, setSearchTerm] = useState("");
-    const [foundUser, setFoundUser] = useState<User | null>(null);
-    const [userDocuments, setUserDocuments] = useState<Document[]>([]);
+    const [foundUser, setFoundUser] = useState<UserProfile | null>(null);
+    const [isSearching, setIsSearching] = useState(false);
     const [fileToUpload, setFileToUpload] = useState<File | null>(null);
+    const [isUploading, setIsUploading] = useState(false);
     const { toast } = useToast();
+    const firestore = useFirestore();
 
-    const handleSearchUser = () => {
-        const user = usersData.find(u => u.id.toLowerCase() === searchTerm.toLowerCase() || u.email.toLowerCase() === searchTerm.toLowerCase()) || null;
+    const documentsCollection = foundUser ? collection(firestore, `users/${foundUser.uid}/documents`) : null;
+    const { data: userDocuments, loading: docsLoading, error } = useCollection<Document>(documentsCollection);
+
+
+    const handleSearchUser = async () => {
+        if (!searchTerm.trim()) {
+            toast({ title: "Search term required", variant: "destructive" });
+            return;
+        }
+        setIsSearching(true);
+        setFoundUser(null);
         
-        if (user) {
-            setFoundUser(user);
-            const docs = documentsData.filter(doc => doc.userId === user.id);
-            setUserDocuments(docs);
-            toast({ title: "User Found", description: `Managing documents for ${user.personalInfo.fullName}.` });
-        } else {
-            setFoundUser(null);
-            setUserDocuments([]);
-            toast({ title: "User Not Found", variant: "destructive" });
+        try {
+            const usersRef = collection(firestore, "users");
+            const q = query(usersRef, where("id", "==", searchTerm.trim().toUpperCase()));
+            const querySnapshot = await getDocs(q);
+
+            if (querySnapshot.empty) {
+                toast({ title: "User Not Found", variant: "destructive" });
+                setFoundUser(null);
+            } else {
+                const userDoc = querySnapshot.docs[0];
+                const userData = { uid: userDoc.id, ...userDoc.data() } as UserProfile;
+                setFoundUser(userData);
+                toast({ title: "User Found", description: `Managing documents for ${userData.personalInfo.fullName}.` });
+            }
+        } catch (error: any) {
+            toast({ title: "Search Error", description: error.message, variant: "destructive" });
+        } finally {
+            setIsSearching(false);
         }
     };
 
-    const handleFileUpload = () => {
-        if (!fileToUpload || !foundUser) return;
+    const handleFileUpload = async () => {
+        if (!fileToUpload || !foundUser || !documentsCollection) return;
         
-        const newDocument = {
-            id: Date.now(),
-            name: fileToUpload.name,
-            date: new Date().toISOString().split('T')[0],
-            userId: foundUser.id
-        };
+        setIsUploading(true);
+        const storage = getStorage();
+        const filePath = `user_documents/${foundUser.uid}/${Date.now()}_${fileToUpload.name}`;
+        const storageRef = ref(storage, filePath);
 
-        // This is a simulation. In a real app, you'd send this to a backend to update the JSON file.
-        setUserDocuments(prevDocs => [...prevDocs, newDocument]);
-        
-        toast({ title: "Upload Successful", description: `${fileToUpload.name} has been uploaded for ${foundUser.personalInfo.fullName}.` });
-        setFileToUpload(null);
-         // To make this permanent, you'd need a backend API to write to `user-documents.json`.
-        console.log("New document (not saved to file):", newDocument);
+        try {
+            const uploadResult = await uploadBytes(storageRef, fileToUpload);
+            const downloadURL = await getDownloadURL(uploadResult.ref);
+            
+            await addDoc(documentsCollection, {
+                name: fileToUpload.name,
+                url: downloadURL,
+                path: filePath,
+                userId: foundUser.uid,
+                createdAt: serverTimestamp(),
+            });
+            
+            toast({ title: "Upload Successful", description: `${fileToUpload.name} has been uploaded for ${foundUser.personalInfo.fullName}.` });
+            setFileToUpload(null);
+        } catch (error: any) {
+            toast({ title: "Upload Failed", description: error.message, variant: "destructive" });
+        } finally {
+            setIsUploading(false);
+        }
     };
 
-    const handleRemoveDocument = (docId: number) => {
-        if (!foundUser) return;
+    const handleRemoveDocument = async (docToDelete: Document) => {
+        if (!foundUser || !docToDelete.uid || !docToDelete.path) return;
         
-        setUserDocuments(prevDocs => prevDocs.filter(doc => doc.id !== docId));
-       
-        toast({ title: "Document Removed", variant: "destructive" });
-         // To make this permanent, you'd need a backend API to write to `user-documents.json`.
-        console.log("Removed docId (not saved to file):", docId);
+        const docRef = doc(firestore, `users/${foundUser.uid}/documents`, docToDelete.uid);
+        const storage = getStorage();
+        const storageRef = ref(storage, docToDelete.path);
+
+        try {
+            await deleteObject(storageRef);
+            await deleteDoc(docRef);
+            toast({ title: "Document Removed", variant: "destructive" });
+        } catch (error: any) {
+            toast({ title: "Deletion Failed", description: error.message, variant: "destructive" });
+        }
     };
 
   return (
@@ -107,19 +142,22 @@ export default function MyDocumentsPage() {
         <CardHeader>
           <CardTitle>Manage User Documents</CardTitle>
           <CardDescription>
-            Search for a user by ID or email to upload and manage their documents.
+            Search for a user by Registration ID to upload and manage their documents.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
             <div className="flex items-center gap-4">
                 <Input 
-                    placeholder="Search by User ID or Email" 
+                    placeholder="Search by User Reg. ID (e.g. INF001)" 
                     className="max-w-sm"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSearchUser()}
                 />
-                <Button onClick={handleSearchUser}><Search className="mr-2 h-4"/>Search User</Button>
+                <Button onClick={handleSearchUser} disabled={isSearching}>
+                    {isSearching ? <LoaderCircle className="mr-2 h-4 animate-spin"/> : <Search className="mr-2 h-4"/>}
+                    Search User
+                </Button>
             </div>
 
             {foundUser && (
@@ -128,7 +166,6 @@ export default function MyDocumentsPage() {
                         Managing Documents for: <span className="text-primary">{foundUser.personalInfo.fullName} ({foundUser.email})</span>
                     </h3>
                     
-                    {/* Upload Section */}
                     <Card className="bg-muted/40">
                         <CardHeader>
                             <CardTitle className="text-lg">Upload New Document</CardTitle>
@@ -143,14 +180,13 @@ export default function MyDocumentsPage() {
                                     className="cursor-pointer"
                                 />
                             </div>
-                            <Button onClick={handleFileUpload} disabled={!fileToUpload}>
-                                <Upload className="mr-2 h-4 w-4" />
-                                Upload Document
+                            <Button onClick={handleFileUpload} disabled={!fileToUpload || isUploading}>
+                                {isUploading ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/> : <Upload className="mr-2 h-4 w-4" />}
+                                {isUploading ? 'Uploading...' : 'Upload Document'}
                             </Button>
                         </CardContent>
                     </Card>
 
-                    {/* Document Statement */}
                     <div className="space-y-2">
                         <h4 className="text-md font-semibold">Document Statement</h4>
                         <div className="border rounded-lg">
@@ -163,16 +199,27 @@ export default function MyDocumentsPage() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {userDocuments.length > 0 ? (
+                                {docsLoading ? (
+                                    <TableRow>
+                                        <TableCell colSpan={3} className="h-24 text-center">
+                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-primary"/>
+                                        </TableCell>
+                                    </TableRow>
+                                ) : userDocuments && userDocuments.length > 0 ? (
                                     userDocuments.map(doc => (
-                                        <TableRow key={doc.id}>
+                                        <TableRow key={doc.uid}>
                                             <TableCell className="font-medium flex items-center gap-2">
                                                 <FileText className="h-4 w-4 text-muted-foreground"/>
                                                 {doc.name}
                                             </TableCell>
-                                            <TableCell>{format(new Date(doc.date), "PPP")}</TableCell>
-                                            <TableCell className="text-right">
-                                                <Button variant="destructive" size="icon" onClick={() => handleRemoveDocument(doc.id)}>
+                                            <TableCell>{doc.createdAt ? format(doc.createdAt.toDate(), "PPP") : "N/A"}</TableCell>
+                                            <TableCell className="text-right space-x-2">
+                                                 <a href={doc.url} download target="_blank" rel="noopener noreferrer">
+                                                    <Button variant="outline" size="icon">
+                                                        <Download className="h-4 w-4" />
+                                                    </Button>
+                                                 </a>
+                                                <Button variant="destructive" size="icon" onClick={() => handleRemoveDocument(doc)}>
                                                     <Trash2 className="h-4 w-4" />
                                                 </Button>
                                             </TableCell>
@@ -194,3 +241,5 @@ export default function MyDocumentsPage() {
     </div>
   );
 }
+
+    

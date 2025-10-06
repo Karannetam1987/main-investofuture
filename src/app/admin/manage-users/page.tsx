@@ -59,14 +59,6 @@ export default function ManageUsersPage() {
 
   const handleStatusChange = async (userId: string, newStatus: boolean) => {
     if (!firestore) return;
-    // This is a placeholder for the actual user document ID from auth.
-    // In a real app, you would have the document ID, not the custom 'id' field.
-    // For this example, we assume we can find the user doc by the custom ID.
-    // This part of the code will need to be adjusted once you can query by the custom 'id' field.
-    // For now, let's pretend we have a `docId` which is the same as `auth uid`.
-    // We cannot proceed without a proper way to get the document ID.
-
-    // Let's find the user in the fetched data to get the `uid` (which is the doc id)
     const userToUpdate = users?.find(u => u.id === userId);
     if (!userToUpdate || !userToUpdate.uid) {
          toast({
@@ -184,19 +176,13 @@ export default function ManageUsersPage() {
                       onCheckedChange={(checked) =>
                         handleStatusChange(user.id, checked)
                       }
-                      disabled={true} // Re-enable once doc ID logic is solid
                     />
                     <Badge
                       variant={
                         user.status === "Active" ? "default" : "destructive"
                       }
-                      className={
-                        user.status === "Active"
-                          ? "bg-primary"
-                          : "bg-destructive"
-                      }
                     >
-                      {user.status || "N/A"}
+                      {user.status || "Inactive"}
                     </Badge>
                   </div>
                 </TableCell>
@@ -206,7 +192,7 @@ export default function ManageUsersPage() {
                       <Eye className="h-4 w-4" />
                     </Button>
                   </Link>
-                  <Link href={`/admin/user-dashboard?userId=${user.id}`}>
+                  <Link href={`/admin/user-dashboard?userId=${user.uid}`}>
                      <Button variant="ghost" size="icon" title="Edit User">
                         <Pencil className="h-4 w-4" />
                      </Button>
@@ -217,7 +203,6 @@ export default function ManageUsersPage() {
                     className="text-destructive"
                     onClick={() => handleDeleteUser(user.id)}
                     title="Delete User"
-                    disabled={true} // Re-enable once doc ID logic is solid
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -262,3 +247,5 @@ export default function ManageUsersPage() {
     </div>
   );
 }
+
+    

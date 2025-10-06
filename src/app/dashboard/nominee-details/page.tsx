@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { AppHeader } from "@/components/header";
 import { AppFooter } from "@/components/footer";
 import { Button } from "@/components/ui/button";
@@ -25,8 +25,8 @@ import { format, parseISO } from 'date-fns';
 
 type NomineeDetails = UserProfile['nomineeDetails'];
 
-export default function NomineeDetailsPage() {
-    const { user, profile, loading } = useUser();
+function NomineeDetailsEditor() {
+    const { profile, loading, isAdminView } = useUser();
     const firestore = useFirestore();
     const { toast } = useToast();
     
@@ -39,7 +39,8 @@ export default function NomineeDetailsPage() {
     }, [profile]);
 
     const handleSaveChanges = () => {
-        if (!user || !firestore || !profile || !nomineeDetails) {
+        const userToUpdateUid = profile?.uid;
+        if (!firestore || !profile || !nomineeDetails || !userToUpdateUid) {
             toast({ title: "Error", description: "User not logged in or data not available.", variant: "destructive"});
             return;
         };
@@ -49,11 +50,11 @@ export default function NomineeDetailsPage() {
             nomineeDetails: nomineeDetails,
         };
         
-        setUserProfile(firestore, user.uid, updatedProfileData);
+        setUserProfile(firestore, userToUpdateUid, updatedProfileData);
         
         toast({
             title: "Success!",
-            description: "Your nominee details have been updated.",
+            description: "Nominee details have been updated.",
         });
     };
 
@@ -67,37 +68,31 @@ export default function NomineeDetailsPage() {
        setNomineeDetails(prev => prev ? {...prev, [id]: new Date(value).toISOString()} : null);
     }
 
-  if (loading || !nomineeDetails) {
+  if (loading || !nomineeDetails || !profile) {
     return (
-      <div className="flex min-h-screen flex-col bg-background">
-        <AppHeader />
         <main className="flex-1 flex items-center justify-center">
           <div className="flex items-center gap-2">
             <LoaderCircle className="h-8 w-8 animate-spin text-primary" />
             <p className="text-muted-foreground">Loading nominee details...</p>
           </div>
         </main>
-        <AppFooter />
-      </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <AppHeader />
       <main className="flex-1 py-12 md:py-16">
         <div className="container">
           <div className="mb-6">
-            <Link href="/dashboard">
+            <Link href={isAdminView ? `/admin/user-dashboard?userId=${profile.uid}` : "/dashboard"}>
               <Button variant="outline">
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Dashboard
+                Back to {isAdminView ? "User" : "Dashboard"}
               </Button>
             </Link>
           </div>
           <Card>
             <CardHeader>
-              <CardTitle>Nominee Details</CardTitle>
+              <CardTitle>{isAdminView ? `Edit Nominee Details for ${profile.personalInfo.fullName}` : "Nominee Details"}</CardTitle>
               <CardDescription>
                 Manage your nominee information.
               </CardDescription>
@@ -125,7 +120,7 @@ export default function NomineeDetailsPage() {
                   <Input 
                     id="nomineeDob" 
                     type="date" 
-                    value={format(parseISO(nomineeDetails.nomineeDob), 'yyyy-MM-dd')} 
+                    value={nomineeDetails.nomineeDob ? format(parseISO(nomineeDetails.nomineeDob), 'yyyy-MM-dd') : ''} 
                     onChange={handleDateChange} 
                   />
                 </div>
@@ -137,7 +132,26 @@ export default function NomineeDetailsPage() {
           </Card>
         </div>
       </main>
-      <AppFooter />
-    </div>
   );
 }
+
+export default function NomineeDetailsPage() {
+    return (
+         <div className="flex min-h-screen flex-col bg-background">
+            <AppHeader />
+            <Suspense fallback={
+                <main className="flex-1 flex items-center justify-center">
+                    <div className="flex items-center gap-2">
+                        <LoaderCircle className="h-8 w-8 animate-spin text-primary"/>
+                        <p className="text-muted-foreground">Loading...</p>
+                    </div>
+                </main>
+            }>
+                <NomineeDetailsEditor />
+            </Suspense>
+            <AppFooter />
+        </div>
+    )
+}
+
+    
