@@ -158,18 +158,8 @@ export default function Home() {
           </div>
         </section>
         
-        {adsData.aboveFooter.network !== 'none' && (
-            <section id="ad-above-footer" className="py-8">
-                <div className="container flex justify-center">
-                    <AdPlaceholder adSlot={adsData.aboveFooter} />
-                </div>
-            </section>
-        )}
-
       </main>
       <AppFooter />
     </div>
   );
 }
-
-    

@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { Facebook, Instagram, Twitter } from "lucide-react";
 import { Logo } from "./logo";
+import { AdPlaceholder } from "./ad-placeholder";
+import adsData from "@/lib/data/ads.json";
 
 const socialLinks = [
   { name: "Facebook", href: "#", icon: <Facebook className="h-6 w-6" /> },
@@ -32,41 +34,50 @@ const socialLinks = [
 
 export function AppFooter() {
   return (
-    <footer className="bg-secondary text-secondary-foreground border-t">
-      <div className="container mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div className="col-span-1 md:col-span-1">
-            <Logo />
-            <p className="mt-4 text-sm text-secondary-foreground/80">© {new Date().getFullYear()} InvestoFuture. All rights reserved.</p>
-          </div>
-          <div>
-            <h3 className="font-semibold text-secondary-foreground">About Us</h3>
-            <nav className="mt-4 flex flex-col gap-2 text-sm text-secondary-foreground/80">
-              <Link href="/#privacy" className="hover:text-secondary-foreground transition-colors">Privacy Policy</Link>
-              <Link href="/#terms" className="hover:text-secondary-foreground transition-colors">Terms of Service</Link>
-              <Link href="/#disclaimer" className="hover:text-secondary-foreground transition-colors">Disclaimer</Link>
-            </nav>
-          </div>
-          <div>
-            <h3 className="font-semibold text-secondary-foreground">Contact Us</h3>
-            <div className="mt-4 flex flex-col gap-2 text-sm text-secondary-foreground/80">
-              <a href="mailto:support@investofuture.com" className="hover:text-secondary-foreground transition-colors">support@investofuture.com</a>
-              <a href="tel:+1234567890" className="hover:text-secondary-foreground transition-colors">(123) 456-7890</a>
+    <>
+      {adsData.aboveFooter.network !== 'none' && (
+        <section id="ad-above-footer" className="py-8 bg-background">
+            <div className="container flex justify-center">
+                <AdPlaceholder adSlot={adsData.aboveFooter} />
             </div>
-          </div>
-          <div>
-            <h3 className="font-semibold text-secondary-foreground">Follow Us</h3>
-            <div className="mt-4 flex gap-4 text-secondary-foreground/80">
-              {socialLinks.map((social) => (
-                <Link key={social.name} href={social.href} className="hover:text-secondary-foreground transition-colors">
-                  {social.icon}
-                  <span className="sr-only">{social.name}</span>
-                </Link>
-              ))}
+        </section>
+      )}
+      <footer className="bg-secondary text-secondary-foreground border-t">
+        <div className="container mx-auto px-6 py-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div className="col-span-1 md:col-span-1">
+              <Logo />
+              <p className="mt-4 text-sm text-secondary-foreground/80">© {new Date().getFullYear()} InvestoFuture. All rights reserved.</p>
+            </div>
+            <div>
+              <h3 className="font-semibold text-secondary-foreground">About Us</h3>
+              <nav className="mt-4 flex flex-col gap-2 text-sm text-secondary-foreground/80">
+                <Link href="/#privacy" className="hover:text-secondary-foreground transition-colors">Privacy Policy</Link>
+                <Link href="/#terms" className="hover:text-secondary-foreground transition-colors">Terms of Service</Link>
+                <Link href="/#disclaimer" className="hover:text-secondary-foreground transition-colors">Disclaimer</Link>
+              </nav>
+            </div>
+            <div>
+              <h3 className="font-semibold text-secondary-foreground">Contact Us</h3>
+              <div className="mt-4 flex flex-col gap-2 text-sm text-secondary-foreground/80">
+                <a href="mailto:support@investofuture.com" className="hover:text-secondary-foreground transition-colors">support@investofuture.com</a>
+                <a href="tel:+1234567890" className="hover:text-secondary-foreground transition-colors">(123) 456-7890</a>
+              </div>
+            </div>
+            <div>
+              <h3 className="font-semibold text-secondary-foreground">Follow Us</h3>
+              <div className="mt-4 flex gap-4 text-secondary-foreground/80">
+                {socialLinks.map((social) => (
+                  <Link key={social.name} href={social.href} className="hover:text-secondary-foreground transition-colors">
+                    {social.icon}
+                    <span className="sr-only">{social.name}</span>
+                  </Link>
+                ))}
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </footer>
+      </footer>
+    </>
   );
 }
