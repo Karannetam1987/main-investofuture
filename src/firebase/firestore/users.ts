@@ -1,3 +1,4 @@
+
 import { doc, setDoc, Firestore, serverTimestamp } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError, type SecurityRuleContext } from '@/firebase/errors';
@@ -41,6 +42,8 @@ export type UserProfile = {
     nomineeMobile: string;
     nomineeDob: string;
   };
+  createdAt?: any;
+  updatedAt?: any;
 };
 
 
@@ -54,22 +57,25 @@ export type UserProfile = {
 export function setUserProfile(db: Firestore, uid: string, data: UserProfile) {
   const userDocRef = doc(db, 'users', uid);
 
-  const profileData = {
+  const profileData: Partial<UserProfile> = {
       ...data,
-      createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
   };
+
+  // Add createdAt only if it's a new document
+  if (!data.createdAt) {
+    profileData.createdAt = serverTimestamp();
+  }
+
 
   setDoc(userDocRef, profileData, { merge: true })
     .catch(async (serverError) => {
       const permissionError = new FirestorePermissionError({
         path: userDocRef.path,
-        operation: 'create',
+        operation: 'update', // or 'create' depending on context
         requestResourceData: profileData,
       } satisfies SecurityRuleContext);
       
       errorEmitter.emit('permission-error', permissionError);
     });
 }
-
-    
