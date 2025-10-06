@@ -1,4 +1,5 @@
 
+"use client";
 
 import {
   ArrowRight,
@@ -10,8 +11,14 @@ import {
   UserCheck,
   AlertTriangle,
   Send,
+  LoaderCircle
 } from "lucide-react";
 import Link from "next/link";
+import * as React from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useToast } from "@/hooks/use-toast";
 
 import { AppHeader } from "@/components/header";
 import { AppFooter } from "@/components/footer";
@@ -31,6 +38,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { AdPlaceholder } from "@/components/ad-placeholder";
 import adsData from "@/lib/data/ads.json";
 import siteConfig from "@/lib/data/site-config.json";
+import { sendEmail } from "@/ai/flows/send-email-flow";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+
 
 const features = [
   {
@@ -76,7 +86,50 @@ const aboutLinks = [
   },
 ];
 
+const contactFormSchema = z.object({
+    name: z.string().min(1, "Name is required."),
+    from: z.string().email("Please enter a valid email address."),
+    subject: z.string().min(1, "Subject is required."),
+    message: z.string().min(10, "Message must be at least 10 characters long."),
+});
+
+
 export default function Home() {
+  const { toast } = useToast();
+  const form = useForm<z.infer<typeof contactFormSchema>>({
+    resolver: zodResolver(contactFormSchema),
+    defaultValues: {
+      name: "",
+      from: "",
+      subject: "",
+      message: "",
+    },
+  });
+
+  const { isSubmitting } = form.formState;
+
+  const handleContactSubmit = async (values: z.infer<typeof contactFormSchema>) => {
+      try {
+        const result = await sendEmail(values);
+        if (result.success) {
+            toast({
+                title: "Message Sent!",
+                description: "Thank you for contacting us. We will get back to you shortly.",
+            });
+            form.reset();
+        } else {
+            throw new Error(result.message);
+        }
+      } catch (error: any) {
+        toast({
+            title: "Error Sending Message",
+            description: error.message || "An unexpected error occurred. Please try again later.",
+            variant: "destructive",
+        });
+      }
+  };
+
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <AppHeader />
@@ -178,35 +231,76 @@ export default function Home() {
               </p>
             </div>
             <Card className="max-w-2xl mx-auto mt-12">
-              <CardHeader>
-                <CardTitle>Send us a Message</CardTitle>
-                <CardDescription>We will get back to you as soon as possible.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="contact-name">Name</Label>
-                        <Input id="contact-name" placeholder="Your Name" />
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="contact-email">Email</Label>
-                        <Input id="contact-email" type="email" placeholder="your.email@example.com" />
-                    </div>
-                 </div>
-                 <div className="space-y-2">
-                    <Label htmlFor="contact-subject">Subject</Label>
-                    <Input id="contact-subject" placeholder="Question about my account" />
-                 </div>
-                 <div className="space-y-2">
-                    <Label htmlFor="contact-message">Message</Label>
-                    <Textarea id="contact-message" placeholder="Type your message here..." rows={5}/>
-                 </div>
-              </CardContent>
-              <CardFooter>
-                <Button className="w-full">
-                    Send Message <Send className="ml-2 h-4 w-4" />
-                </Button>
-              </CardFooter>
+             <Form {...form}>
+              <form onSubmit={form.handleSubmit(handleContactSubmit)}>
+                  <CardHeader>
+                    <CardTitle>Send us a Message</CardTitle>
+                    <CardDescription>We will get back to you as soon as possible.</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <FormField
+                            control={form.control}
+                            name="name"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Name</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="Your Name" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="from"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Email</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="your.email@example.com" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                     </div>
+                     <FormField
+                        control={form.control}
+                        name="subject"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Subject</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="Question about my account" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                        />
+                    <FormField
+                        control={form.control}
+                        name="message"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Message</FormLabel>
+                                <FormControl>
+                                    <Textarea placeholder="Type your message here..." rows={5} {...field}/>
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                        />
+                  </CardContent>
+                  <CardFooter>
+                    <Button type="submit" className="w-full" disabled={isSubmitting}>
+                        {isSubmitting ? <LoaderCircle className="animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
+                        {isSubmitting ? "Sending..." : "Send Message"}
+                    </Button>
+                  </CardFooter>
+              </form>
+             </Form>
             </Card>
           </div>
         </section>
