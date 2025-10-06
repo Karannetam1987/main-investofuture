@@ -67,6 +67,8 @@ export function LoginPopup({
   const handleSignIn = (e: React.FormEvent) => {
     e.preventDefault();
     if (loginType === "User") {
+      // In a real app, you would verify user credentials here
+      toast({ title: "Login Successful", description: "Redirecting to your dashboard..." });
       router.push("/dashboard");
       onOpenChange(false);
     } else if (loginType === "Admin") {
@@ -85,21 +87,25 @@ export function LoginPopup({
   };
 
   const handleForgotPasswordClick = () => {
+    setForgotPasswordEmail(loginType === 'Admin' ? emailOrId : '');
     setShowForgotPassword(true);
   };
   
   const handleForgotPasswordEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const email = e.target.value;
     setForgotPasswordEmail(email);
-    setCanSendOtp(email.toLowerCase() === ADMIN_EMAIL);
+    // Enable OTP button only if it's the admin email (for this demo)
+    setCanSendOtp(loginType === 'Admin' && email.toLowerCase() === ADMIN_EMAIL);
   }
 
   const handleSendOtp = () => {
+    // In a real app, this would trigger a backend API call to send an email.
+    // For now, we simulate the action.
     toast({
         title: "OTP Sent",
-        description: `An OTP has been sent to ${forgotPasswordEmail}.`
+        description: `If an account exists for ${forgotPasswordEmail}, an OTP has been sent.`
     });
-    // Reset to login form
+    // Reset to login form after "sending"
     setShowForgotPassword(false);
   }
 
@@ -112,7 +118,7 @@ export function LoginPopup({
           </DialogTitle>
           <DialogDescription className="text-center">
             {showForgotPassword
-              ? `Enter your admin email to receive an OTP.`
+              ? `Enter your account's email address to receive an OTP.`
               : `Access your ${loginType.toLowerCase()} account.`}
           </DialogDescription>
         </DialogHeader>
@@ -121,17 +127,22 @@ export function LoginPopup({
             {showForgotPassword ? (
               <div className="space-y-4">
                  <div className="space-y-2">
-                    <Label htmlFor="adminEmail">Admin Email</Label>
+                    <Label htmlFor="forgot-email">Email Address</Label>
                     <Input
-                    id="adminEmail"
-                    placeholder="Enter admin email"
-                    value={forgotPasswordEmail}
-                    onChange={handleForgotPasswordEmailChange}
-                    required
+                      id="forgot-email"
+                      type="email"
+                      placeholder="Enter your email"
+                      value={forgotPasswordEmail}
+                      onChange={handleForgotPasswordEmailChange}
+                      required
                     />
                 </div>
-                 <Button onClick={handleSendOtp} className="w-full" disabled={!canSendOtp}>
-                    Send OTP to Email
+                 <Button 
+                    onClick={handleSendOtp} 
+                    className="w-full"
+                    disabled={loginType === 'Admin' && !canSendOtp}
+                 >
+                    Send OTP
                 </Button>
                 <div className="text-center text-sm">
                     <button onClick={() => setShowForgotPassword(false)} className="text-primary hover:underline">
@@ -162,7 +173,7 @@ export function LoginPopup({
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    disabled={isPasswordDisabled}
+                    disabled={loginType === 'Admin' && isPasswordDisabled}
                   />
                 </div>
                 <Button type="submit" className="w-full">
