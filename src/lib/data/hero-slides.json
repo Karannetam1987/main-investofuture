@@ -1,0 +1,39 @@
+
+[
+  {
+    "id": 1,
+    "imageUrl": "https://images.unsplash.com/photo-1745847768367-893e989d3a98?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxvZmZpY2UlMjBjaGFydHN8ZW58MHx8fHwxNzU5MTQxNTE3fDA&ixlib=rb-4.1.0&q=80&w=1920&h=1080",
+    "imageHint": "office charts",
+    "heading": "Smart Investing Solutions",
+    "description": "Utilize our AI-powered tools for intelligent investment decisions and portfolio management.",
+    "button": {
+      "text": "Explore Features",
+      "link": "/#features",
+      "position": "center"
+    }
+  },
+  {
+    "id": 2,
+    "imageUrl": "https://images.unsplash.com/photo-1628348068343-c6a848d2b6dd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxmaW5hbmNpYWwlMjBkYXRhfGVufDB8fHx8MTc1OTA4MTcxOXww&ixlib=rb-4.1.0&q=80&w=1920&h=1080",
+    "imageHint": "financial data",
+    "heading": "Secure Your Financial Future",
+    "description": "Your data and investments are protected with top-tier, multi-layered security protocols.",
+    "button": {
+      "text": "Register Now",
+      "link": "/register",
+      "position": "left"
+    }
+  },
+  {
+    "id": 3,
+    "imageUrl": "https://images.unsplash.com/photo-1648275913341-7973ae7bc9b3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxzdG9jayUyMG1hcmtldHxlbnwwfHx8fDE3NTkxMzI0Nzd8MA&ixlib=rb-4.1.0&q=80&w=1920&h=1080",
+    "imageHint": "stock market",
+    "heading": "Guaranteed Returns",
+    "description": "Explore investment options with assured returns, providing stability and peace of mind for your future.",
+    "button": {
+      "text": "Learn More",
+      "link": "/#about",
+      "position": "right"
+    }
+  }
+]

@@ -1,7 +1,9 @@
+
 "use client";
 
 import * as React from "react";
 import Image from "next/image";
+import Link from "next/link";
 import Autoplay from "embla-carousel-autoplay";
 
 import {
@@ -11,14 +13,20 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { PlaceHolderImages, type ImagePlaceholder } from "@/lib/placeholder-images";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import heroSlides from "@/lib/data/hero-slides.json";
+
+const positionClasses = {
+  left: "items-center text-left",
+  right: "items-center text-right justify-end",
+  center: "items-center text-center justify-center",
+};
 
 export function HeroSlider() {
   const plugin = React.useRef(
-    Autoplay({ delay: 3000, stopOnInteraction: true })
+    Autoplay({ delay: 5000, stopOnInteraction: true })
   );
-
-  const images = PlaceHolderImages.filter(img => img.id.startsWith("hero-"));
 
   return (
     <Carousel
@@ -29,19 +37,41 @@ export function HeroSlider() {
       opts={{ loop: true }}
     >
       <CarouselContent>
-        {images.map((image, index) => (
-          <CarouselItem key={index}>
+        {heroSlides.map((slide, index) => (
+          <CarouselItem key={slide.id}>
             <div className="relative h-[65vh] w-full">
               <Image
-                src={image.imageUrl}
-                alt={image.description}
+                src={slide.imageUrl}
+                alt={slide.description}
                 fill
                 className="object-cover"
                 priority={index === 0}
-                data-ai-hint={image.imageHint}
+                data-ai-hint={slide.imageHint}
                 sizes="100vw"
               />
               <div className="absolute inset-0 bg-black/50" />
+              <div
+                className={cn(
+                  "absolute inset-0 z-10 flex flex-col p-8 md:p-16 text-white",
+                  positionClasses[slide.button.position as keyof typeof positionClasses] || "items-center text-center justify-center"
+                )}
+              >
+                <div className="max-w-3xl">
+                  <h2 className="text-4xl md:text-6xl font-headline font-bold drop-shadow-md">
+                    {slide.heading}
+                  </h2>
+                  <p className="mt-4 text-lg md:text-xl drop-shadow-sm">
+                    {slide.description}
+                  </p>
+                  {slide.button.text && slide.button.link && (
+                    <Link href={slide.button.link}>
+                      <Button size="lg" className="mt-8">
+                        {slide.button.text}
+                      </Button>
+                    </Link>
+                  )}
+                </div>
+              </div>
             </div>
           </CarouselItem>
         ))}
