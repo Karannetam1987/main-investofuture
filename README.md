@@ -20,9 +20,9 @@ This application is ready to be deployed on any Node.js hosting platform like Ho
 
 For deployment, you need to set up environment variables to securely connect to your Firebase project.
 
-1.  **Create a `.env.local` file** in the root of your project if you are running it locally.
-2.  **Copy the contents** from the provided `.env.local` file into it.
-3.  **Replace the placeholder values** with your actual Firebase project configuration. You can find these values in your Firebase project settings.
+1.  **Create a `.env.local` file** in the root of your project for local development.
+2.  **Copy the contents** from `.env.local.example` into your new `.env.local` file.
+3.  **Replace the placeholder values** with your actual Firebase project configuration. You can find these values in your Firebase project settings under Project settings > General > Your apps > SDK setup and configuration.
 
 When you deploy to your hosting provider (like Hostinger), you will need to set these same key-value pairs in the environment variables section of your hosting platform's dashboard.
 
