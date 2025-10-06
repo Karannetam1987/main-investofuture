@@ -1,6 +1,7 @@
 
 "use client";
 
+import { useState } from "react";
 import { AppHeader } from "@/components/header";
 import { AppFooter } from "@/components/footer";
 import { Button } from "@/components/ui/button";
@@ -19,11 +20,26 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
+import userData from "@/lib/data/user-data.json";
 
 export default function ProfilePage() {
+  const [profile, setProfile] = useState(userData[0].personalInfo);
+  const [address, setAddress] = useState(userData[0].address);
   const { toast } = useToast();
 
+  const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const { id, value } = e.target;
+      setProfile(prev => ({...prev, [id]: value}));
+  }
+
+  const handleAddressChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      const { id, value } = e.target;
+      setAddress(prev => ({...prev, [id]: value}));
+  }
+
   const handleSaveChanges = () => {
+    // In a real app, you'd call an API to save this.
+    console.log("Saving changes:", { personalInfo: profile, address });
     toast({
       title: "Success!",
       description: "Your profile has been updated.",
@@ -57,67 +73,67 @@ export default function ProfilePage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   <div className="space-y-2">
                     <Label htmlFor="regId">Registration ID</Label>
-                    <Input id="regId" defaultValue="INF001" readOnly />
+                    <Input id="regId" value={userData[0].id} readOnly />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="fullName">Full Name</Label>
-                    <Input id="fullName" defaultValue="Karan Singh Sidar" />
+                    <Input id="fullName" value={profile.fullName} onChange={handleProfileChange} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="fatherName">Father's Name</Label>
-                    <Input id="fatherName" defaultValue="Father's Name" />
+                    <Input id="fatherName" value={profile.fatherName} onChange={handleProfileChange} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="motherName">Mother's Name</Label>
-                    <Input id="motherName" defaultValue="Mother's Name" />
+                    <Input id="motherName" value={profile.motherName} onChange={handleProfileChange} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="mobile">Mobile Number</Label>
-                    <Input id="mobile" defaultValue="+91-9876543210" />
+                    <Input id="mobile" value={userData[0].mobile} readOnly />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
-                    <Input id="email" type="email" defaultValue="karan.sidar@example.com" />
+                    <Input id="email" type="email" value={userData[0].email} readOnly />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="dob">Date of Birth</Label>
-                    <Input id="dob" defaultValue="01/01/1990" />
+                    <Input id="dob" value={profile.dob} onChange={handleProfileChange} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="gender">Gender</Label>
-                    <Input id="gender" defaultValue="Male" />
+                    <Input id="gender" value={profile.gender} onChange={handleProfileChange} />
                   </div>
                    <div className="space-y-2">
                     <Label htmlFor="maritalStatus">Marital Status</Label>
-                    <Input id="maritalStatus" defaultValue="Single" />
+                    <Input id="maritalStatus" value={profile.maritalStatus} onChange={handleProfileChange} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="religion">Religion</Label>
-                    <Input id="religion" defaultValue="Hindu" />
+                    <Input id="religion" value={profile.religion} onChange={handleProfileChange} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="caste">Caste</Label>
-                    <Input id="caste" defaultValue="General" />
+                    <Input id="caste" value={profile.caste} onChange={handleProfileChange} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="children">Children</Label>
-                    <Input id="children" defaultValue="0" />
+                    <Input id="children" value={profile.children} onChange={handleProfileChange} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="bloodGroup">Blood Group</Label>
-                    <Input id="bloodGroup" defaultValue="O+" />
+                    <Input id="bloodGroup" value={profile.bloodGroup} onChange={handleProfileChange} />
                   </div>
                    <div className="space-y-2 md:col-span-2">
                     <Label htmlFor="identificationMark">Identification Mark</Label>
-                    <Input id="identificationMark" defaultValue="A mole on the right cheek" />
+                    <Input id="identificationMark" value={profile.identificationMark} onChange={handleProfileChange} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="pan">PAN Number</Label>
-                    <Input id="pan" defaultValue="ABCDE1234F" />
+                    <Input id="pan" value={profile.pan} onChange={handleProfileChange} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="aadhaar">Aadhaar Number</Label>
-                    <Input id="aadhaar" defaultValue="xxxx-xxxx-1234" />
+                    <Input id="aadhaar" value={profile.aadhaar} onChange={handleProfileChange} />
                   </div>
                 </div>
               </div>
@@ -129,12 +145,12 @@ export default function ProfilePage() {
                 <h3 className="text-xl font-semibold text-secondary mb-4 font-headline">Address Details</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                        <Label>Permanent Address</Label>
-                        <Textarea defaultValue="123, ABC Street, New Delhi, India - 110001" rows={3}/>
+                        <Label htmlFor="permanent">Permanent Address</Label>
+                        <Textarea id="permanent" value={address.permanent} onChange={handleAddressChange} rows={3}/>
                     </div>
                      <div className="space-y-2">
-                        <Label>Current Address</Label>
-                        <Textarea defaultValue="123, ABC Street, New Delhi, India - 110001" rows={3}/>
+                        <Label htmlFor="current">Current Address</Label>
+                        <Textarea id="current" value={address.current} onChange={handleAddressChange} rows={3}/>
                     </div>
                 </div>
               </div>

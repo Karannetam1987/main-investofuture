@@ -1,0 +1,18 @@
+{
+  "policyNumber": "POL12345",
+  "openDate": "2023-01-15T00:00:00.000Z",
+  "expiryDate": "2025-01-14T00:00:00.000Z",
+  "deathCover": "10,00,000",
+  "handicapCover": "5,00,000",
+  "description": "This is a comprehensive accidental insurance policy covering various scenarios. It is provided as part of the premium membership.",
+  "statements": [
+    {
+      "id": 1,
+      "name": "Basic Cover",
+      "openingDate": "2023-01-15T00:00:00.000Z",
+      "expiryDate": "2025-01-14T00:00:00.000Z",
+      "years": 2,
+      "status": "Active"
+    }
+  ]
+}

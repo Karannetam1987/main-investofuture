@@ -23,53 +23,42 @@ import {
 } from "@/components/ui/table";
 import { Upload, Trash2, FileText, Search, Users } from "lucide-react";
 import Link from "next/link";
-
-
-const mockUsers = {
-    "INF001": {
-        name: "Karan Singh Sidar",
-        email: "karan.sidar@example.com",
-        documents: [
-            { id: 1, name: "PAN Card.pdf", date: "2023-10-05" },
-            { id: 2, name: "Aadhaar Card.pdf", date: "2023-10-05" },
-        ],
-    },
-     "user2@example.com": {
-        name: "User Name 2",
-        email: "user2@example.com",
-        documents: [
-             { id: 3, name: "Investment_slip_Q1.pdf", date: "2024-03-20" },
-        ]
-    }
-};
+import usersData from "@/lib/data/user-data.json";
+import documentsData from "@/lib/data/user-documents.json";
 
 type Document = {
     id: number;
     name: string;
     date: string;
+    userId: string;
 };
 
-type UserData = {
-    name: string;
+type User = {
+    id: string;
     email: string;
-    documents: Document[];
+    personalInfo: {
+        fullName: string;
+    };
 };
-
 
 export default function MyDocumentsPage() {
     const [searchTerm, setSearchTerm] = useState("");
-    const [foundUser, setFoundUser] = useState<UserData | null>(null);
+    const [foundUser, setFoundUser] = useState<User | null>(null);
+    const [userDocuments, setUserDocuments] = useState<Document[]>([]);
     const [fileToUpload, setFileToUpload] = useState<File | null>(null);
     const { toast } = useToast();
 
     const handleSearchUser = () => {
-        // @ts-ignore
-        const user = mockUsers[searchTerm] || Object.values(mockUsers).find(u => u.email === searchTerm);
+        const user = usersData.find(u => u.id.toLowerCase() === searchTerm.toLowerCase() || u.email.toLowerCase() === searchTerm.toLowerCase()) || null;
+        
         if (user) {
             setFoundUser(user);
-             toast({ title: "User Found", description: `Managing documents for ${user.name}.` });
+            const docs = documentsData.filter(doc => doc.userId === user.id);
+            setUserDocuments(docs);
+            toast({ title: "User Found", description: `Managing documents for ${user.personalInfo.fullName}.` });
         } else {
             setFoundUser(null);
+            setUserDocuments([]);
             toast({ title: "User Not Found", variant: "destructive" });
         }
     };
@@ -81,34 +70,26 @@ export default function MyDocumentsPage() {
             id: Date.now(),
             name: fileToUpload.name,
             date: new Date().toISOString().split('T')[0],
+            userId: foundUser.id
         };
 
-        const updatedUser = {
-            ...foundUser,
-            documents: [...foundUser.documents, newDocument],
-        };
-        setFoundUser(updatedUser);
-
-        // In a real app, you would update the backend here
-        // For now, we update our mock data
-        // @ts-ignore
-        mockUsers[searchTerm] = updatedUser;
+        // This is a simulation. In a real app, you'd send this to a backend to update the JSON file.
+        setUserDocuments(prevDocs => [...prevDocs, newDocument]);
         
-        toast({ title: "Upload Successful", description: `${fileToUpload.name} has been uploaded for ${foundUser.name}.` });
+        toast({ title: "Upload Successful", description: `${fileToUpload.name} has been uploaded for ${foundUser.personalInfo.fullName}.` });
         setFileToUpload(null);
+         // To make this permanent, you'd need a backend API to write to `user-documents.json`.
+        console.log("New document (not saved to file):", newDocument);
     };
 
     const handleRemoveDocument = (docId: number) => {
         if (!foundUser) return;
-
-        const updatedDocuments = foundUser.documents.filter(doc => doc.id !== docId);
-        const updatedUser = { ...foundUser, documents: updatedDocuments };
-        setFoundUser(updatedUser);
-
-        // @ts-ignore
-        mockUsers[searchTerm] = updatedUser;
-
+        
+        setUserDocuments(prevDocs => prevDocs.filter(doc => doc.id !== docId));
+       
         toast({ title: "Document Removed", variant: "destructive" });
+         // To make this permanent, you'd need a backend API to write to `user-documents.json`.
+        console.log("Removed docId (not saved to file):", docId);
     };
 
   return (
@@ -136,14 +117,15 @@ export default function MyDocumentsPage() {
                     className="max-w-sm"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSearchUser()}
                 />
-                <Button onClick={handleSearchUser}><Search className="mr-2 h-4 w-4"/>Search User</Button>
+                <Button onClick={handleSearchUser}><Search className="mr-2 h-4"/>Search User</Button>
             </div>
 
             {foundUser && (
                 <div className="space-y-6 pt-4 border-t">
                     <h3 className="text-xl font-semibold text-secondary font-headline">
-                        Managing Documents for: <span className="text-primary">{foundUser.name} ({foundUser.email})</span>
+                        Managing Documents for: <span className="text-primary">{foundUser.personalInfo.fullName} ({foundUser.email})</span>
                     </h3>
                     
                     {/* Upload Section */}
@@ -181,14 +163,14 @@ export default function MyDocumentsPage() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {foundUser.documents.length > 0 ? (
-                                    foundUser.documents.map(doc => (
+                                {userDocuments.length > 0 ? (
+                                    userDocuments.map(doc => (
                                         <TableRow key={doc.id}>
                                             <TableCell className="font-medium flex items-center gap-2">
                                                 <FileText className="h-4 w-4 text-muted-foreground"/>
                                                 {doc.name}
                                             </TableCell>
-                                            <TableCell>{doc.date}</TableCell>
+                                            <TableCell>{format(new Date(doc.date), "PPP")}</TableCell>
                                             <TableCell className="text-right">
                                                 <Button variant="destructive" size="icon" onClick={() => handleRemoveDocument(doc.id)}>
                                                     <Trash2 className="h-4 w-4" />

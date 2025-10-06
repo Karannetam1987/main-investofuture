@@ -15,32 +15,8 @@ import Link from "next/link";
 import { ArrowLeft, CheckCircle, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-
-const giftData = {
-  joiningDate: "October 1st, 2023",
-  overallStatus: "Received",
-  description: "Standard joining package for new members.",
-  items: [
-    {
-      id: 1,
-      name: "Smart Watch",
-      status: "Received",
-      dateReceived: "October 26th, 2023",
-    },
-    {
-      id: 2,
-      name: "Bag",
-      status: "Received",
-      dateReceived: "October 26th, 2023",
-    },
-    {
-      id: 3,
-      name: "Agreement Document",
-      status: "Pending",
-      dateReceived: null,
-    },
-  ],
-};
+import giftData from "@/lib/data/joining-gift.json";
+import { format } from "date-fns";
 
 export default function JoiningGiftPage() {
   return (
@@ -67,7 +43,7 @@ export default function JoiningGiftPage() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
                 <div>
                   <h4 className="font-semibold text-muted-foreground">Joining Date</h4>
-                  <p className="font-medium">{giftData.joiningDate}</p>
+                  <p className="font-medium">{format(new Date(giftData.joiningDate), "PPP")}</p>
                 </div>
                 <div>
                   <h4 className="font-semibold text-muted-foreground">Overall Status</h4>
@@ -103,7 +79,7 @@ export default function JoiningGiftPage() {
                         <div>
                           {item.dateReceived ? (
                             <p className="text-sm text-muted-foreground">
-                              Received on: {item.dateReceived}
+                              Received on: {format(new Date(item.dateReceived), "PPP")}
                             </p>
                           ) : (
                             <p className="text-sm text-muted-foreground">

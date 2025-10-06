@@ -24,37 +24,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
+import { Calendar } from "@/componentsui/calendar";
 import { CalendarIcon, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "@/components/ui/textarea";
-
-const initialInterestFundData = {
-  depositAmount: "1,00,000",
-  depositDate: new Date("2024-01-01"),
-  annualInterest: "12",
-  interestReturnMode: "4th Monthly",
-  paymentMode: "UPI",
-  description: "High-yield interest fund for stable returns.",
-  statements: [
-    {
-      id: 1,
-      date: new Date("2024-04-01"),
-      interest: "1,000",
-      amount: "1,01,000",
-      status: "Paid",
-    },
-    {
-      id: 2,
-      date: new Date("2024-08-01"),
-      interest: "1,010",
-      amount: "1,02,010",
-      status: "Pending",
-    },
-  ],
-};
+import initialInterestFundData from "@/lib/data/interest-fund.json";
 
 
 export default function InterestFundPage() {
@@ -77,7 +53,7 @@ export default function InterestFundPage() {
         ...prevData.statements,
         {
           id: Date.now(),
-          date: new Date(),
+          date: new Date().toISOString(),
           interest: "",
           amount: "",
           status: "Pending",
@@ -131,11 +107,11 @@ export default function InterestFundPage() {
                         <PopoverTrigger asChild>
                             <Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !fundData.depositDate && "text-muted-foreground")}>
                             <CalendarIcon className="mr-2 h-4 w-4" />
-                            {fundData.depositDate ? format(fundData.depositDate, "PPP") : <span>Pick a date</span>}
+                            {fundData.depositDate ? format(new Date(fundData.depositDate), "PPP") : <span>Pick a date</span>}
                             </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0">
-                            <Calendar mode="single" selected={fundData.depositDate} onSelect={(date) => setFundData(prev => ({...prev, depositDate: date!}))} initialFocus />
+                            <Calendar mode="single" selected={new Date(fundData.depositDate)} onSelect={(date) => setFundData(prev => ({...prev, depositDate: date!.toISOString()}))} initialFocus />
                         </PopoverContent>
                     </Popover>
                 </div>
@@ -161,18 +137,18 @@ export default function InterestFundPage() {
                 <h3 className="text-xl font-semibold text-secondary font-headline">Statement of Interest</h3>
                  <div className="space-y-4 rounded-lg border p-4">
                     {fundData.statements.map((stmt) => (
-                    <div key={stmt.id} className="grid grid-cols-1 md:grid-cols-6 gap-4 items-end border-b pb-4 last:border-b-0 last:pb-0">
+                    <div key={stmt.id} className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end border-b pb-4 last:border-b-0 last:pb-0">
                         <div className="space-y-2">
                             <Label>4th Monthly Date</Label>
                             <Popover>
                                 <PopoverTrigger asChild>
                                     <Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !stmt.date && "text-muted-foreground")}>
                                     <CalendarIcon className="mr-2 h-4 w-4" />
-                                    {stmt.date ? format(stmt.date, "PPP") : <span>Pick a date</span>}
+                                    {stmt.date ? format(new Date(stmt.date), "PPP") : <span>Pick a date</span>}
                                     </Button>
                                 </PopoverTrigger>
                                 <PopoverContent className="w-auto p-0">
-                                    <Calendar mode="single" selected={stmt.date} onSelect={(date) => handleStatementChange(stmt.id, "date", date!)} initialFocus />
+                                    <Calendar mode="single" selected={new Date(stmt.date)} onSelect={(date) => handleStatementChange(stmt.id, "date", date!.toISOString())} initialFocus />
                                 </PopoverContent>
                             </Popover>
                         </div>
@@ -194,7 +170,7 @@ export default function InterestFundPage() {
                                 </SelectContent>
                             </Select>
                         </div>
-                        <div className="md:col-start-6">
+                        <div>
                             <Button variant="destructive" size="icon" onClick={() => handleRemoveStatement(stmt.id)} className="w-full md:w-auto">
                                 <Trash2 className="h-4 w-4"/>
                             </Button>

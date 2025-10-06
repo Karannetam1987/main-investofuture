@@ -1,3 +1,4 @@
+
 import {
   Banknote,
   BookUser,
@@ -21,6 +22,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import userData from "@/lib/data/user-data.json";
 
 const dashboardItems = [
   {
@@ -80,6 +82,8 @@ const dashboardItems = [
 ];
 
 export default function DashboardPage() {
+  const currentUser = userData[0]; // For demonstration, we'll use the first user.
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <AppHeader />
@@ -90,7 +94,7 @@ export default function DashboardPage() {
               Dashboard
             </h1>
             <p className="text-muted-foreground mt-2">
-              Welcome back, karan Singh Sidar! Here's a summary of your
+              Welcome back, {currentUser.personalInfo.fullName}! Here's a summary of your
               account.
             </p>
           </div>

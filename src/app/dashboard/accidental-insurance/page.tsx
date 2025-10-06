@@ -15,25 +15,8 @@ import Link from "next/link";
 import { ArrowLeft, ShieldCheck, Calendar, IndianRupee } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-
-const insuranceData = {
-  policyNumber: "POL12345",
-  openDate: "January 15th, 2023",
-  expiryDate: "January 14th, 2025",
-  deathCover: "10,00,000",
-  handicapCover: "5,00,000",
-  description: "This is a comprehensive accidental insurance policy covering various scenarios. It is provided as part of the premium membership.",
-  statements: [
-    {
-      id: 1,
-      name: "Basic Cover",
-      openingDate: "January 15th, 2023",
-      expiryDate: "January 14th, 2025",
-      years: 2,
-      status: "Active",
-    },
-  ],
-};
+import insuranceData from "@/lib/data/accidental-insurance.json";
+import { format } from "date-fns";
 
 export default function AccidentalInsurancePage() {
   return (
@@ -69,14 +52,14 @@ export default function AccidentalInsurancePage() {
                     <Calendar className="h-6 w-6 text-primary"/>
                     <div>
                         <h4 className="font-semibold text-muted-foreground">Policy Open Date</h4>
-                        <p className="font-medium">{insuranceData.openDate}</p>
+                        <p className="font-medium">{format(new Date(insuranceData.openDate), "PPP")}</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
                     <Calendar className="h-6 w-6 text-destructive"/>
                     <div>
                         <h4 className="font-semibold text-muted-foreground">Expiry Date</h4>
-                        <p className="font-medium">{insuranceData.expiryDate}</p>
+                        <p className="font-medium">{format(new Date(insuranceData.expiryDate), "PPP")}</p>
                     </div>
                 </div>
                  <div className="flex items-center gap-3">
@@ -113,11 +96,11 @@ export default function AccidentalInsurancePage() {
                         </div>
                         <div>
                             <h4 className="font-semibold text-muted-foreground">Opening Date</h4>
-                            <p className="font-medium">{statement.openingDate}</p>
+                            <p className="font-medium">{format(new Date(statement.openingDate), "PPP")}</p>
                         </div>
                         <div>
                             <h4 className="font-semibold text-muted-foreground">Expiry Date</h4>
-                            <p className="font-medium">{statement.expiryDate}</p>
+                            <p className="font-medium">{format(new Date(statement.expiryDate), "PPP")}</p>
                         </div>
                         <div>
                             <h4 className="font-semibold text-muted-foreground">Years</h4>

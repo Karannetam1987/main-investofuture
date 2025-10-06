@@ -1,6 +1,7 @@
 
 "use client";
 
+import { useState } from "react";
 import { AppHeader } from "@/components/header";
 import { AppFooter } from "@/components/footer";
 import { Button } from "@/components/ui/button";
@@ -18,16 +19,26 @@ import { Textarea } from "@/components/ui/textarea";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import userData from "@/lib/data/user-data.json";
 
 export default function BankDetailsPage() {
+  const [bankDetails, setBankDetails] = useState(userData[0].bankDetails);
   const { toast } = useToast();
 
   const handleSaveChanges = () => {
+    // Here you would typically call an API to save the changes.
+    // For this example, we'll just log it and show a toast.
+    console.log("Saving changes:", bankDetails);
     toast({
       title: "Success!",
       description: "Your bank details have been updated.",
     });
   };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { id, value } = e.target;
+    setBankDetails(prev => ({...prev, [id]: value}));
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -53,23 +64,23 @@ export default function BankDetailsPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="bankName">Bank Name</Label>
-                  <Input id="bankName" defaultValue="State Bank of India" />
+                  <Input id="bankName" value={bankDetails.bankName} onChange={handleChange} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="accountNumber">Account Number</Label>
-                  <Input id="accountNumber" defaultValue="************1234" />
+                  <Input id="accountNumber" value={bankDetails.accountNumber} onChange={handleChange} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="ifsc">IFSC Code</Label>
-                  <Input id="ifsc" defaultValue="SBIN0001234" />
+                  <Input id="ifsc" value={bankDetails.ifsc} onChange={handleChange} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="upi">UPI ID</Label>
-                  <Input id="upi" defaultValue="karan.sidar@upi" />
+                  <Input id="upi" value={bankDetails.upi} onChange={handleChange} />
                 </div>
                 <div className="space-y-2 md:col-span-2">
                   <Label htmlFor="bankAddress">Bank Address</Label>
-                  <Textarea defaultValue="Main Branch, New Delhi, India" />
+                  <Textarea id="bankAddress" value={bankDetails.bankAddress} onChange={handleChange} />
                 </div>
               </div>
             </CardContent>

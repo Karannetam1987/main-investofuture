@@ -23,39 +23,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-
-const scholarshipData = {
-  registerName: "Karan Singh Sidar",
-  childrenCount: 1,
-  scholarshipAmount: "5,000",
-  years: 1,
-  children: [
-    {
-      id: 1,
-      childName: "Aarav Singh",
-      fatherName: "Karan Singh Sidar",
-      motherName: "Priya Sidar",
-      gender: "Male",
-      dob: "October 6th, 2025",
-      paymentStatements: [
-        {
-          id: 101,
-          year: "2024",
-          amount: "2,500",
-          status: "Paid",
-          paymentDate: "July 15th, 2024",
-        },
-        {
-          id: 102,
-          year: "2025",
-          amount: "2,500",
-          status: "Pending",
-          paymentDate: null,
-        },
-      ],
-    },
-  ],
-};
+import scholarshipData from "@/lib/data/scholarship.json";
+import { format } from "date-fns";
 
 export default function ScholarshipPage() {
   return (
@@ -138,7 +107,7 @@ export default function ScholarshipPage() {
                                 <Calendar className="h-5 w-5 text-primary mt-1"/>
                                 <div>
                                     <h4 className="font-semibold text-muted-foreground">Date of Birth</h4>
-                                    <p className="font-medium">{child.dob}</p>
+                                    <p className="font-medium">{format(new Date(child.dob), "PPP")}</p>
                                 </div>
                             </div>
                         </div>
@@ -160,7 +129,7 @@ export default function ScholarshipPage() {
                                         <TableRow key={stmt.id}>
                                             <TableCell className="font-medium">{stmt.year}</TableCell>
                                             <TableCell>₹{stmt.amount}</TableCell>
-                                            <TableCell>{stmt.paymentDate ?? 'N/A'}</TableCell>
+                                            <TableCell>{stmt.paymentDate ? format(new Date(stmt.paymentDate), "PPP") : 'N/A'}</TableCell>
                                             <TableCell>
                                                 <Badge variant={stmt.status === "Paid" ? "default" : "destructive"}>
                                                     {stmt.status}

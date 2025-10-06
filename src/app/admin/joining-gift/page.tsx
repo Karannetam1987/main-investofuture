@@ -29,32 +29,7 @@ import { CalendarIcon, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
-
-const initialGiftData = {
-  joiningDate: new Date("2023-10-01"),
-  overallStatus: "Received",
-  description: "Standard joining package for new members.",
-  items: [
-    {
-      id: 1,
-      name: "Smart Watch",
-      status: "Received",
-      dateReceived: new Date("2023-10-26"),
-    },
-    {
-      id: 2,
-      name: "Bag",
-      status: "Received",
-      dateReceived: new Date("2023-10-26"),
-    },
-    {
-      id: 3,
-      name: "Agreement Document",
-      status: "Pending",
-      dateReceived: null,
-    },
-  ],
-};
+import initialGiftData from "@/lib/data/joining-gift.json";
 
 export default function JoiningGiftPage() {
   const [giftData, setGiftData] = useState(initialGiftData);
@@ -130,14 +105,14 @@ export default function JoiningGiftPage() {
                         )}
                         >
                         <CalendarIcon className="mr-2 h-4 w-4" />
-                        {giftData.joiningDate ? format(giftData.joiningDate, "PPP") : <span>Pick a date</span>}
+                        {giftData.joiningDate ? format(new Date(giftData.joiningDate), "PPP") : <span>Pick a date</span>}
                         </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0">
                         <Calendar
                         mode="single"
-                        selected={giftData.joiningDate}
-                        onSelect={(date) => setGiftData(prev => ({...prev, joiningDate: date!}))}
+                        selected={new Date(giftData.joiningDate)}
+                        onSelect={(date) => setGiftData(prev => ({...prev, joiningDate: date!.toISOString()}))}
                         initialFocus
                         />
                     </PopoverContent>
@@ -205,14 +180,14 @@ export default function JoiningGiftPage() {
                                 )}
                                 >
                                 <CalendarIcon className="mr-2 h-4 w-4" />
-                                {item.dateReceived ? format(item.dateReceived, "PPP") : <span>Pick a date</span>}
+                                {item.dateReceived ? format(new Date(item.dateReceived), "PPP") : <span>Pick a date</span>}
                                 </Button>
                             </PopoverTrigger>
                             <PopoverContent className="w-auto p-0">
                                 <Calendar
                                 mode="single"
-                                selected={item.dateReceived}
-                                onSelect={(date) => handleItemChange(item.id, "dateReceived", date)}
+                                selected={item.dateReceived ? new Date(item.dateReceived) : null}
+                                onSelect={(date) => handleItemChange(item.id, "dateReceived", date ? date.toISOString() : null)}
                                 initialFocus
                                 />
                             </PopoverContent>

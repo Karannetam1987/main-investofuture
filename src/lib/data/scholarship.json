@@ -1,0 +1,32 @@
+{
+  "registerName": "Karan Singh Sidar",
+  "childrenCount": 1,
+  "scholarshipAmount": "5,000",
+  "years": 1,
+  "children": [
+    {
+      "id": 1,
+      "childName": "Aarav Singh",
+      "fatherName": "Karan Singh Sidar",
+      "motherName": "Priya Sidar",
+      "gender": "male",
+      "dob": "2025-10-06T00:00:00.000Z",
+      "paymentStatements": [
+        {
+          "id": 101,
+          "year": "2024",
+          "amount": "2,500",
+          "status": "Paid",
+          "paymentDate": "2024-07-15T00:00:00.000Z"
+        },
+        {
+          "id": 102,
+          "year": "2025",
+          "amount": "2,500",
+          "status": "Pending",
+          "paymentDate": null
+        }
+      ]
+    }
+  ]
+}

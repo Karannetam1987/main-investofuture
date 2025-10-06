@@ -15,31 +15,8 @@ import Link from "next/link";
 import { ArrowLeft, IndianRupee, Calendar, Percent, Landmark, Wallet } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-
-const interestFundData = {
-  depositAmount: "1,00,000",
-  depositDate: "January 1st, 2024",
-  annualInterest: "12%",
-  interestReturnMode: "4th Monthly",
-  paymentMode: "UPI",
-  description: "High-yield interest fund for stable returns.",
-  statements: [
-    {
-      id: 1,
-      date: "April 1st, 2024",
-      interest: "1,000",
-      amount: "1,01,000",
-      status: "Paid",
-    },
-    {
-      id: 2,
-      date: "August 1st, 2024",
-      interest: "1,010",
-      amount: "1,02,010",
-      status: "Pending",
-    },
-  ],
-};
+import interestFundData from "@/lib/data/interest-fund.json";
+import { format } from "date-fns";
 
 export default function InterestFundPage() {
   return (
@@ -75,14 +52,14 @@ export default function InterestFundPage() {
                     <Calendar className="h-6 w-6 text-primary"/>
                     <div>
                         <h4 className="font-semibold text-muted-foreground">Deposit Date</h4>
-                        <p className="font-medium">{interestFundData.depositDate}</p>
+                        <p className="font-medium">{format(new Date(interestFundData.depositDate), "PPP")}</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
                     <Percent className="h-6 w-6 text-primary"/>
                     <div>
                         <h4 className="font-semibold text-muted-foreground">Annual Interest (%)</h4>
-                        <p className="font-medium">{interestFundData.annualInterest}</p>
+                        <p className="font-medium">{interestFundData.annualInterest}%</p>
                     </div>
                 </div>
                  <div className="flex items-center gap-3">
@@ -115,7 +92,7 @@ export default function InterestFundPage() {
                       <div className="grid grid-cols-2 md:grid-cols-5 gap-4 items-center text-sm">
                         <div>
                             <h4 className="font-semibold text-muted-foreground">4th Monthly Date</h4>
-                            <p className="font-medium">{statement.date}</p>
+                            <p className="font-medium">{format(new Date(statement.date), "PPP")}</p>
                         </div>
                         <div>
                             <h4 className="font-semibold text-muted-foreground">Interest</h4>
@@ -144,4 +121,3 @@ export default function InterestFundPage() {
     </div>
   );
 }
-

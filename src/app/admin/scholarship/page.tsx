@@ -38,33 +38,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-
-const initialScholarshipData = {
-  registerName: "Karan Singh Sidar",
-  childrenCount: 1,
-  scholarshipAmount: "5,000",
-  years: 1,
-  children: [
-    {
-      id: 1,
-      childName: "Aarav Singh",
-      fatherName: "Karan Singh Sidar",
-      motherName: "Priya Sidar",
-      gender: "male",
-      dob: new Date("2025-10-06"),
-      paymentStatements: [
-        {
-          id: 101,
-          year: "2024",
-          amount: "2,500",
-          status: "Paid",
-          paymentDate: new Date("2024-07-15"),
-        },
-      ],
-    },
-  ],
-};
+import initialScholarshipData from "@/lib/data/scholarship.json";
 
 
 export default function ScholarshipPage() {
@@ -91,7 +65,7 @@ export default function ScholarshipPage() {
           fatherName: prevData.registerName,
           motherName: "",
           gender: "male",
-          dob: new Date(),
+          dob: new Date().toISOString(),
           paymentStatements: [],
         },
       ],
@@ -139,7 +113,7 @@ export default function ScholarshipPage() {
                     year: new Date().getFullYear().toString(),
                     amount: "",
                     status: "Pending",
-                    paymentDate: new Date(),
+                    paymentDate: new Date().toISOString(),
                 };
                 return {
                     ...child,
@@ -200,7 +174,7 @@ export default function ScholarshipPage() {
                 </div>
                  <div className="space-y-2">
                     <Label htmlFor="childrenCount">No. of Children</Label>
-                    <Input id="childrenCount" type="number" value={scholarshipData.childrenCount} onChange={(e) => setScholarshipData(prev => ({...prev, childrenCount: Number(e.target.value)}))} readOnly/>
+                    <Input id="childrenCount" type="number" value={scholarshipData.childrenCount} readOnly/>
                 </div>
                  <div className="space-y-2">
                     <Label htmlFor="scholarshipAmount">Scholarship Amount</Label>
@@ -250,11 +224,11 @@ export default function ScholarshipPage() {
                                     <PopoverTrigger asChild>
                                         <Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !child.dob && "text-muted-foreground")}>
                                         <CalendarIcon className="mr-2 h-4 w-4" />
-                                        {child.dob ? format(child.dob, "PPP") : <span>Pick a date</span>}
+                                        {child.dob ? format(new Date(child.dob), "PPP") : <span>Pick a date</span>}
                                         </Button>
                                     </PopoverTrigger>
                                     <PopoverContent className="w-auto p-0">
-                                        <Calendar mode="single" selected={child.dob} onSelect={(date) => handleChildChange(child.id, "dob", date!)} initialFocus />
+                                        <Calendar mode="single" selected={new Date(child.dob)} onSelect={(date) => handleChildChange(child.id, "dob", date!.toISOString())} initialFocus />
                                     </PopoverContent>
                                 </Popover>
                             </div>
@@ -294,11 +268,11 @@ export default function ScholarshipPage() {
                                                     <PopoverTrigger asChild>
                                                         <Button variant={"outline"} size="sm" className={cn("w-[150px] justify-start text-left font-normal h-8", !stmt.paymentDate && "text-muted-foreground")}>
                                                         <CalendarIcon className="mr-2 h-4 w-4" />
-                                                        {stmt.paymentDate ? format(stmt.paymentDate, "PPP") : <span>Pick a date</span>}
+                                                        {stmt.paymentDate ? format(new Date(stmt.paymentDate), "PPP") : <span>Pick a date</span>}
                                                         </Button>
                                                     </PopoverTrigger>
                                                     <PopoverContent className="w-auto p-0">
-                                                        <Calendar mode="single" selected={stmt.paymentDate} onSelect={(date) => handleStatementChange(child.id, stmt.id, "paymentDate", date!)} initialFocus />
+                                                        <Calendar mode="single" selected={new Date(stmt.paymentDate)} onSelect={(date) => handleStatementChange(child.id, stmt.id, "paymentDate", date!.toISOString())} initialFocus />
                                                     </PopoverContent>
                                                 </Popover>
                                             </TableCell>
@@ -338,6 +312,3 @@ export default function ScholarshipPage() {
     </div>
   );
 }
-
-
-    

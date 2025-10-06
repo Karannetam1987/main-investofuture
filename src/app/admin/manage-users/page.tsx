@@ -14,14 +14,8 @@ import { Button } from "@/components/ui/button";
 import { Eye, Pencil, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import allUsers from "@/lib/data/users.json";
 
-const allUsers = Array.from({ length: 30 }, (_, i) => ({
-  id: `INF${String(i + 1).padStart(3, '0')}`,
-  name: `User Name ${i + 1}`,
-  email: `user${i + 1}@example.com`,
-  mobile: `+91-9876543${String(i + 210).padStart(3, '0')}`,
-  status: i % 4 === 0 ? "Inactive" : "Active",
-}));
 
 const USERS_PER_PAGE = 25;
 

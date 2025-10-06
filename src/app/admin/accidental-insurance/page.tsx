@@ -30,26 +30,7 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "@/components/ui/textarea";
-
-const initialInsuranceData = {
-  policyNumber: "POL12345",
-  openDate: new Date("2023-01-15"),
-  expiryDate: new Date("2025-01-14"),
-  deathCover: "10,00,000",
-  handicapCover: "5,00,000",
-  description: "This is a comprehensive accidental insurance policy covering various scenarios. It is provided as part of the premium membership.",
-  statements: [
-    {
-      id: 1,
-      name: "Basic Cover",
-      openingDate: new Date("2023-01-15"),
-      expiryDate: new Date("2025-01-14"),
-      years: 2,
-      status: "Active",
-    },
-  ],
-};
-
+import initialInsuranceData from "@/lib/data/accidental-insurance.json";
 
 export default function AccidentalInsurancePage() {
   const [insuranceData, setInsuranceData] = useState(initialInsuranceData);
@@ -72,8 +53,8 @@ export default function AccidentalInsurancePage() {
         {
           id: Date.now(),
           name: "",
-          openingDate: new Date(),
-          expiryDate: new Date(),
+          openingDate: new Date().toISOString(),
+          expiryDate: new Date().toISOString(),
           years: 0,
           status: "Active",
         },
@@ -126,11 +107,11 @@ export default function AccidentalInsurancePage() {
                         <PopoverTrigger asChild>
                             <Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !insuranceData.openDate && "text-muted-foreground")}>
                             <CalendarIcon className="mr-2 h-4 w-4" />
-                            {insuranceData.openDate ? format(insuranceData.openDate, "PPP") : <span>Pick a date</span>}
+                            {insuranceData.openDate ? format(new Date(insuranceData.openDate), "PPP") : <span>Pick a date</span>}
                             </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0">
-                            <Calendar mode="single" selected={insuranceData.openDate} onSelect={(date) => setInsuranceData(prev => ({...prev, openDate: date!}))} initialFocus />
+                            <Calendar mode="single" selected={new Date(insuranceData.openDate)} onSelect={(date) => setInsuranceData(prev => ({...prev, openDate: date!.toISOString()}))} initialFocus />
                         </PopoverContent>
                     </Popover>
                 </div>
@@ -140,11 +121,11 @@ export default function AccidentalInsurancePage() {
                         <PopoverTrigger asChild>
                             <Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !insuranceData.expiryDate && "text-muted-foreground")}>
                             <CalendarIcon className="mr-2 h-4 w-4" />
-                            {insuranceData.expiryDate ? format(insuranceData.expiryDate, "PPP") : <span>Pick a date</span>}
+                            {insuranceData.expiryDate ? format(new Date(insuranceData.expiryDate), "PPP") : <span>Pick a date</span>}
                             </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0">
-                            <Calendar mode="single" selected={insuranceData.expiryDate} onSelect={(date) => setInsuranceData(prev => ({...prev, expiryDate: date!}))} initialFocus />
+                            <Calendar mode="single" selected={new Date(insuranceData.expiryDate)} onSelect={(date) => setInsuranceData(prev => ({...prev, expiryDate: date!.toISOString()}))} initialFocus />
                         </PopoverContent>
                     </Popover>
                 </div>
@@ -177,11 +158,11 @@ export default function AccidentalInsurancePage() {
                                 <PopoverTrigger asChild>
                                     <Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !stmt.openingDate && "text-muted-foreground")}>
                                     <CalendarIcon className="mr-2 h-4 w-4" />
-                                    {stmt.openingDate ? format(stmt.openingDate, "PPP") : <span>Pick a date</span>}
+                                    {stmt.openingDate ? format(new Date(stmt.openingDate), "PPP") : <span>Pick a date</span>}
                                     </Button>
                                 </PopoverTrigger>
                                 <PopoverContent className="w-auto p-0">
-                                    <Calendar mode="single" selected={stmt.openingDate} onSelect={(date) => handleStatementChange(stmt.id, "openingDate", date!)} initialFocus />
+                                    <Calendar mode="single" selected={new Date(stmt.openingDate)} onSelect={(date) => handleStatementChange(stmt.id, "openingDate", date!.toISOString())} initialFocus />
                                 </PopoverContent>
                             </Popover>
                         </div>
@@ -191,11 +172,11 @@ export default function AccidentalInsurancePage() {
                                 <PopoverTrigger asChild>
                                     <Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !stmt.expiryDate && "text-muted-foreground")}>
                                     <CalendarIcon className="mr-2 h-4 w-4" />
-                                    {stmt.expiryDate ? format(stmt.expiryDate, "PPP") : <span>Pick a date</span>}
+                                    {stmt.expiryDate ? format(new Date(stmt.expiryDate), "PPP") : <span>Pick a date</span>}
                                     </Button>
                                 </PopoverTrigger>
                                 <PopoverContent className="w-auto p-0">
-                                    <Calendar mode="single" selected={stmt.expiryDate} onSelect={(date) => handleStatementChange(stmt.id, "expiryDate", date!)} initialFocus />
+                                    <Calendar mode="single" selected={new Date(stmt.expiryDate)} onSelect={(date) => handleStatementChange(stmt.id, "expiryDate", date!.toISOString())} initialFocus />
                                 </PopoverContent>
                             </Popover>
                         </div>

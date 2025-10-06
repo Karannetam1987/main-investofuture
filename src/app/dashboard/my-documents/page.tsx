@@ -21,13 +21,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import userDocuments from "@/lib/data/user-documents.json";
+import userData from "@/lib/data/user-data.json";
+import { format } from "date-fns";
 
-const userDocuments = [
-  { id: 1, name: "PAN Card.pdf", date: "2023-10-05", url: "#" },
-  { id: 2, name: "Aadhaar Card.pdf", date: "2023-10-05", url: "#" },
-  { id: 3, name: "Investment_slip_Q1.pdf", date: "2024-03-20", url: "#" },
-];
 
+// Assuming the first user is the logged-in user for this example.
+const currentUserId = userData[0].id;
+const documentsForCurrentUser = userDocuments.filter(doc => doc.userId === currentUserId);
 
 export default function MyDocumentsPage() {
   return (
@@ -61,16 +62,16 @@ export default function MyDocumentsPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {userDocuments.length > 0 ? (
-                      userDocuments.map((doc) => (
+                    {documentsForCurrentUser.length > 0 ? (
+                      documentsForCurrentUser.map((doc) => (
                         <TableRow key={doc.id}>
                           <TableCell className="font-medium flex items-center gap-2">
                              <FileText className="h-4 w-4 text-muted-foreground"/>
                              {doc.name}
                           </TableCell>
-                          <TableCell>{doc.date}</TableCell>
+                          <TableCell>{format(new Date(doc.date), "PPP")}</TableCell>
                           <TableCell className="text-right">
-                            <a href={doc.url} download>
+                            <a href={`/documents/${doc.name}`} download>
                               <Button variant="outline" size="sm">
                                 <Download className="mr-2 h-4 w-4" />
                                 Download

@@ -15,18 +15,8 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-
-const maturityFundData = {
-  description: "1.  75000/- ( After 03 Years)\n2.  75000/- ( After 06 Years )\n3.  150000/- ( After 09 Years )",
-  statements: [
-    {
-      id: 1,
-      amount: "75,000",
-      date: "January 1st, 2025",
-      status: "Upcoming",
-    },
-  ],
-};
+import maturityFundData from "@/lib/data/maturity-fund.json";
+import { format } from "date-fns";
 
 export default function MaturityFundPage() {
   return (
@@ -69,7 +59,7 @@ export default function MaturityFundPage() {
                         </div>
                         <div>
                             <h4 className="font-semibold text-muted-foreground">Date</h4>
-                            <p className="font-medium">{statement.date}</p>
+                            <p className="font-medium">{format(new Date(statement.date), "PPP")}</p>
                         </div>
                         <div>
                             <h4 className="font-semibold text-muted-foreground">Status</h4>

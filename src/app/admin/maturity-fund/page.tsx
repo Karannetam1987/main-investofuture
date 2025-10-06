@@ -30,18 +30,7 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "@/components/ui/textarea";
-
-const initialMaturityFundData = {
-  description: "1. 75000/- ( After 03 Years)\n2. 75000/- ( After 06 Years )\n3. 150000/- ( After 09 Years )",
-  statements: [
-    {
-      id: 1,
-      amount: "75000",
-      date: new Date("2025-01-01"),
-      status: "Upcoming",
-    },
-  ],
-};
+import initialMaturityFundData from "@/lib/data/maturity-fund.json";
 
 
 export default function MaturityFundPage() {
@@ -65,7 +54,7 @@ export default function MaturityFundPage() {
         {
           id: Date.now(),
           amount: "",
-          date: new Date(),
+          date: new Date().toISOString(),
           status: "Upcoming",
         },
       ],
@@ -131,11 +120,11 @@ export default function MaturityFundPage() {
                                 <PopoverTrigger asChild>
                                     <Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !stmt.date && "text-muted-foreground")}>
                                     <CalendarIcon className="mr-2 h-4 w-4" />
-                                    {stmt.date ? format(stmt.date, "PPP") : <span>Pick a date</span>}
+                                    {stmt.date ? format(new Date(stmt.date), "PPP") : <span>Pick a date</span>}
                                     </Button>
                                 </PopoverTrigger>
                                 <PopoverContent className="w-auto p-0">
-                                    <Calendar mode="single" selected={stmt.date} onSelect={(date) => handleStatementChange(stmt.id, "date", date!)} initialFocus />
+                                    <Calendar mode="single" selected={new Date(stmt.date)} onSelect={(date) => handleStatementChange(stmt.id, "date", date!.toISOString())} initialFocus />
                                 </PopoverContent>
                             </Popover>
                         </div>
