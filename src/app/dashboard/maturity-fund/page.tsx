@@ -1,0 +1,92 @@
+
+"use client";
+
+import { AppHeader } from "@/components/header";
+import { AppFooter } from "@/components/footer";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+
+const maturityFundData = {
+  description: "1.  75000/- ( After 03 Years)\n2.  75000/- ( After 06 Years )\n3.  150000/- ( After 09 Years )",
+  statements: [
+    {
+      id: 1,
+      amount: "75,000",
+      date: "January 1st, 2025",
+      status: "Upcoming",
+    },
+  ],
+};
+
+export default function MaturityFundPage() {
+  return (
+    <div className="flex min-h-screen flex-col bg-background">
+      <AppHeader />
+      <main className="flex-1 py-12 md:py-16">
+        <div className="container">
+          <div className="mb-6">
+            <Link href="/dashboard">
+              <Button variant="outline">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to Dashboard
+              </Button>
+            </Link>
+          </div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Maturity Fund Details</CardTitle>
+              <CardDescription>
+                Details of your maturity fund investment.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-2">
+                  <h4 className="font-semibold text-muted-foreground">Description</h4>
+                  <p className="whitespace-pre-line">{maturityFundData.description}</p>
+              </div>
+
+              <Separator />
+
+              <div>
+                <h3 className="text-xl font-semibold text-secondary font-headline mb-4">Statement of Maturity Fund</h3>
+                <div className="space-y-4">
+                  {maturityFundData.statements.map((statement) => (
+                    <Card key={statement.id} className="p-4">
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 items-center text-sm">
+                        <div>
+                            <h4 className="font-semibold text-muted-foreground">Maturity Amount</h4>
+                            <p className="font-medium">₹{statement.amount}</p>
+                        </div>
+                        <div>
+                            <h4 className="font-semibold text-muted-foreground">Date</h4>
+                            <p className="font-medium">{statement.date}</p>
+                        </div>
+                        <div>
+                            <h4 className="font-semibold text-muted-foreground">Status</h4>
+                             <Badge variant={statement.status === "Paid" ? "default" : "secondary"}>
+                                {statement.status}
+                             </Badge>
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </main>
+      <AppFooter />
+    </div>
+  );
+}

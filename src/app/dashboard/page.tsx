@@ -69,7 +69,7 @@ const dashboardItems = [
     icon: <HeartHandshake className="w-8 h-8 text-primary" />,
     title: "Maturity Fund",
     description: "View your maturity fund deposits and statements.",
-    href: "#",
+    href: "/dashboard/maturity-fund",
   },
   {
     icon: <Library className="w-8 h-8 text-primary" />,
