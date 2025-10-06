@@ -63,7 +63,7 @@ const dashboardItems = [
     icon: <PiggyBank className="w-8 h-8 text-primary" />,
     title: "Interest Fund",
     description: "View your interest fund deposits and statements.",
-    href: "#",
+    href: "/dashboard/interest-fund",
   },
   {
     icon: <HeartHandshake className="w-8 h-8 text-primary" />,
