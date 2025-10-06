@@ -1,3 +1,4 @@
+"use client";
 
 import {
   Banknote,
@@ -10,6 +11,7 @@ import {
   PiggyBank,
   ShieldAlert,
   User,
+  LoaderCircle
 } from "lucide-react";
 import Link from "next/link";
 import { AppHeader } from "@/components/header";
@@ -22,7 +24,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import userData from "@/lib/data/user-data.json";
+import { useUser } from "@/firebase";
 
 const dashboardItems = [
   {
@@ -82,7 +84,23 @@ const dashboardItems = [
 ];
 
 export default function DashboardPage() {
-  const currentUser = userData[0]; // For demonstration, we'll use the first user.
+  const { profile, loading } = useUser();
+
+  if (loading) {
+      return (
+          <div className="flex min-h-screen flex-col bg-background">
+            <AppHeader />
+             <div className="flex-1 flex items-center justify-center">
+                <div className="flex items-center gap-2">
+                    <LoaderCircle className="h-8 w-8 animate-spin text-primary"/>
+                    <p className="text-muted-foreground">Loading dashboard...</p>
+                </div>
+            </div>
+            <AppFooter />
+        </div>
+      )
+  }
+
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -94,7 +112,7 @@ export default function DashboardPage() {
               Dashboard
             </h1>
             <p className="text-muted-foreground mt-2">
-              Welcome back, {currentUser.personalInfo.fullName}! Here's a summary of your
+              Welcome back, {profile?.personalInfo.fullName || "User"}! Here's a summary of your
               account.
             </p>
           </div>
