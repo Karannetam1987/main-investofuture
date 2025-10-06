@@ -23,6 +23,22 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
 
 const initialScholarshipData = {
   registerName: "Karan Singh Sidar",
@@ -32,11 +48,20 @@ const initialScholarshipData = {
   children: [
     {
       id: 1,
-      childName: "Child's Name",
+      childName: "Aarav Singh",
       fatherName: "Karan Singh Sidar",
-      motherName: "Mother's Name",
+      motherName: "Priya Sidar",
       gender: "male",
       dob: new Date("2025-10-06"),
+      paymentStatements: [
+        {
+          id: 101,
+          year: "2024",
+          amount: "2,500",
+          status: "Paid",
+          paymentDate: new Date("2024-07-15"),
+        },
+      ],
     },
   ],
 };
@@ -67,6 +92,7 @@ export default function ScholarshipPage() {
           motherName: "",
           gender: "male",
           dob: new Date(),
+          paymentStatements: [],
         },
       ],
       childrenCount: prevData.children.length + 1,
@@ -83,6 +109,65 @@ export default function ScholarshipPage() {
       title: "Child Removed",
       description: "The child's details have been removed.",
       variant: "destructive",
+    });
+  };
+
+  const handleStatementChange = (childId: number, stmtId: number, field: string, value: any) => {
+    setScholarshipData(prevData => ({
+        ...prevData,
+        children: prevData.children.map(child => {
+            if (child.id === childId) {
+                return {
+                    ...child,
+                    paymentStatements: child.paymentStatements.map(stmt => 
+                        stmt.id === stmtId ? { ...stmt, [field]: value } : stmt
+                    )
+                };
+            }
+            return child;
+        })
+    }));
+  };
+
+  const handleAddStatement = (childId: number) => {
+      setScholarshipData(prevData => ({
+        ...prevData,
+        children: prevData.children.map(child => {
+            if (child.id === childId) {
+                const newStatement = {
+                    id: Date.now(),
+                    year: new Date().getFullYear().toString(),
+                    amount: "",
+                    status: "Pending",
+                    paymentDate: new Date(),
+                };
+                return {
+                    ...child,
+                    paymentStatements: [...child.paymentStatements, newStatement]
+                };
+            }
+            return child;
+        })
+    }));
+  };
+
+  const handleRemoveStatement = (childId: number, stmtId: number) => {
+     setScholarshipData(prevData => ({
+        ...prevData,
+        children: prevData.children.map(child => {
+            if (child.id === childId) {
+                return {
+                    ...child,
+                    paymentStatements: child.paymentStatements.filter(stmt => stmt.id !== stmtId)
+                };
+            }
+            return child;
+        })
+    }));
+    toast({
+        title: "Statement Removed",
+        description: "The payment statement has been removed.",
+        variant: "destructive",
     });
   };
   
@@ -130,10 +215,10 @@ export default function ScholarshipPage() {
             <div className="space-y-4">
                 <h3 className="text-xl font-semibold text-secondary font-headline">Children Details</h3>
                 <p className="text-sm text-muted-foreground">Manage user's children for scholarship purposes.</p>
-                 <div className="space-y-4 rounded-lg border p-4">
+                 <div className="space-y-6">
                     {scholarshipData.children.map((child) => (
-                    <div key={child.id} className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start border-b pb-6 last:border-b-0 last:pb-0">
-                        <div className="md:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div key={child.id} className="rounded-lg border p-4 space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
                            <div className="space-y-2">
                                 <Label htmlFor={`child-name-${child.id}`}>Child's Name</Label>
                                 <Input id={`child-name-${child.id}`} value={child.childName} onChange={(e) => handleChildChange(child.id, "childName", e.target.value)}/>
@@ -173,12 +258,71 @@ export default function ScholarshipPage() {
                                     </PopoverContent>
                                 </Popover>
                             </div>
+                             <div className="flex justify-end items-end">
+                                <Button variant="destructive" size="sm" onClick={() => handleRemoveChild(child.id)}>
+                                    <Trash2 className="h-4 w-4 mr-2"/>
+                                    Remove Child
+                                </Button>
+                            </div>
                         </div>
-                        
-                        <div className="flex justify-end md:col-span-3">
-                            <Button variant="destructive" size="sm" onClick={() => handleRemoveChild(child.id)}>
-                                <Trash2 className="h-4 w-4 mr-2"/>
-                                Remove Child
+
+                        {/* Payment Statements */}
+                        <div className="space-y-2">
+                            <h4 className="text-md font-semibold">Payment Statements</h4>
+                            <div className="border rounded-md">
+                               <Table>
+                                 <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Year</TableHead>
+                                        <TableHead>Amount (₹)</TableHead>
+                                        <TableHead>Payment Date</TableHead>
+                                        <TableHead>Status</TableHead>
+                                        <TableHead className="text-right">Action</TableHead>
+                                    </TableRow>
+                                 </TableHeader>
+                                 <TableBody>
+                                    {child.paymentStatements.map(stmt => (
+                                        <TableRow key={stmt.id}>
+                                            <TableCell>
+                                                <Input value={stmt.year} onChange={(e) => handleStatementChange(child.id, stmt.id, "year", e.target.value)} className="h-8"/>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Input value={stmt.amount} onChange={(e) => handleStatementChange(child.id, stmt.id, "amount", e.target.value)} className="h-8"/>
+                                            </TableCell>
+                                            <TableCell>
+                                                 <Popover>
+                                                    <PopoverTrigger asChild>
+                                                        <Button variant={"outline"} size="sm" className={cn("w-[150px] justify-start text-left font-normal h-8", !stmt.paymentDate && "text-muted-foreground")}>
+                                                        <CalendarIcon className="mr-2 h-4 w-4" />
+                                                        {stmt.paymentDate ? format(stmt.paymentDate, "PPP") : <span>Pick a date</span>}
+                                                        </Button>
+                                                    </PopoverTrigger>
+                                                    <PopoverContent className="w-auto p-0">
+                                                        <Calendar mode="single" selected={stmt.paymentDate} onSelect={(date) => handleStatementChange(child.id, stmt.id, "paymentDate", date!)} initialFocus />
+                                                    </PopoverContent>
+                                                </Popover>
+                                            </TableCell>
+                                            <TableCell>
+                                                 <Select value={stmt.status} onValueChange={(value) => handleStatementChange(child.id, stmt.id, "status", value)}>
+                                                    <SelectTrigger className="h-8 w-[120px]"><SelectValue/></SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="Paid">Paid</SelectItem>
+                                                        <SelectItem value="Pending">Pending</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </TableCell>
+                                            <TableCell className="text-right">
+                                                 <Button variant="destructive" size="icon" className="h-8 w-8" onClick={() => handleRemoveStatement(child.id, stmt.id)}>
+                                                    <Trash2 className="h-4 w-4"/>
+                                                </Button>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                 </TableBody>
+                               </Table>
+                            </div>
+                            <Button variant="outline" size="sm" onClick={() => handleAddStatement(child.id)} className="mt-2">
+                                Add Statement
                             </Button>
                         </div>
                     </div>
@@ -194,5 +338,3 @@ export default function ScholarshipPage() {
     </div>
   );
 }
-
-    
