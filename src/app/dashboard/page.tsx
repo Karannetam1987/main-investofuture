@@ -75,7 +75,7 @@ const dashboardItems = [
     icon: <Library className="w-8 h-8 text-primary" />,
     title: "My Documents",
     description: "View and download your credential documents.",
-    href: "#",
+    href: "/dashboard/my-documents",
   },
 ];
 
