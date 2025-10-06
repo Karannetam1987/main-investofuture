@@ -1,3 +1,4 @@
+
 import {
   ArrowRight,
   BrainCircuit,
@@ -22,6 +23,7 @@ import {
 } from "@/components/ui/card";
 import { AdPlaceholder } from "@/components/ad-placeholder";
 import adsData from "@/lib/data/ads.json";
+import siteConfig from "@/lib/data/site-config.json";
 
 const features = [
   {
@@ -88,7 +90,7 @@ export default function Home() {
         <section id="cta" className="py-16 md:py-24">
           <div className="container text-center">
             <h1 className="font-headline text-5xl font-bold tracking-tight text-secondary md:text-6xl lg:text-7xl">
-              Secure Your Financial Future with InvestoFuture
+              Secure Your Financial Future with {siteConfig.siteName}
             </h1>
             <p className="mx-auto mt-6 max-w-3xl text-xl text-muted-foreground">
               Innovative investment solutions designed for your growth. We provide the tools and expertise to help you navigate the financial markets with confidence.
@@ -113,7 +115,7 @@ export default function Home() {
                 Features for Your Financial Success
               </h2>
               <p className="mt-4 text-xl text-muted-foreground">
-                Discover the powerful tools and features that make InvestoFuture the right choice for your financial journey.
+                Discover the powerful tools and features that make {siteConfig.siteName} the right choice for your financial journey.
               </p>
             </div>
             <div className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-4">
@@ -136,10 +138,10 @@ export default function Home() {
           <div className="container">
             <div className="mx-auto max-w-3xl text-center">
               <h2 className="font-headline text-4xl font-bold text-secondary md:text-5xl">
-                About InvestoFuture
+                {siteConfig.aboutUs.title}
               </h2>
               <p className="mt-4 text-xl text-muted-foreground">
-                We are dedicated to empowering individuals to achieve financial independence through smart and secure investing.
+                {siteConfig.aboutUs.description}
               </p>
             </div>
             <div className="mt-12 grid gap-8 md:grid-cols-3">
@@ -163,3 +165,5 @@ export default function Home() {
     </div>
   );
 }
+
+    

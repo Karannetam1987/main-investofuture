@@ -1,8 +1,10 @@
+
 import Link from "next/link";
 import { Facebook, Instagram, Twitter } from "lucide-react";
 import { Logo } from "./logo";
 import { AdPlaceholder } from "./ad-placeholder";
 import adsData from "@/lib/data/ads.json";
+import siteConfig from "@/lib/data/site-config.json";
 
 const socialLinks = [
   { name: "Facebook", href: "#", icon: <Facebook className="h-6 w-6" /> },
@@ -47,7 +49,7 @@ export function AppFooter() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="col-span-1 md:col-span-1">
               <Logo />
-              <p className="mt-4 text-sm text-secondary-foreground/80">© {new Date().getFullYear()} InvestoFuture. All rights reserved.</p>
+              <p className="mt-4 text-sm text-secondary-foreground/80">© {new Date().getFullYear()} {siteConfig.siteName}. All rights reserved.</p>
             </div>
             <div>
               <h3 className="font-semibold text-secondary-foreground">About Us</h3>
@@ -60,8 +62,8 @@ export function AppFooter() {
             <div>
               <h3 className="font-semibold text-secondary-foreground">Contact Us</h3>
               <div className="mt-4 flex flex-col gap-2 text-sm text-secondary-foreground/80">
-                <a href="mailto:support@investofuture.com" className="hover:text-secondary-foreground transition-colors">support@investofuture.com</a>
-                <a href="tel:+1234567890" className="hover:text-secondary-foreground transition-colors">(123) 456-7890</a>
+                <a href={`mailto:${siteConfig.contact.email}`} className="hover:text-secondary-foreground transition-colors">{siteConfig.contact.email}</a>
+                <a href={`tel:${siteConfig.contact.phone}`} className="hover:text-secondary-foreground transition-colors">{siteConfig.contact.phone}</a>
               </div>
             </div>
             <div>
@@ -81,3 +83,5 @@ export function AppFooter() {
     </>
   );
 }
+
+    

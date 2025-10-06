@@ -25,6 +25,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Trash2 } from "lucide-react";
 import initialHeroSlides from "@/lib/data/hero-slides.json";
 import initialAdsData from "@/lib/data/ads.json";
+import initialSiteConfig from "@/lib/data/site-config.json";
 
 type SlideButton = {
   text: string;
@@ -55,10 +56,23 @@ type AdsConfig = {
   aboveFooter: AdSlot;
 };
 
+type SiteConfig = {
+    siteName: string;
+    aboutUs: {
+        title: string;
+        description: string;
+    };
+    contact: {
+        email: string;
+        phone: string;
+    };
+};
+
 
 export default function SettingsPage() {
   const [heroSlides, setHeroSlides] = useState<Slide[]>(initialHeroSlides);
   const [adsConfig, setAdsConfig] = useState<AdsConfig>(initialAdsData);
+  const [siteConfig, setSiteConfig] = useState<SiteConfig>(initialSiteConfig);
   const { toast } = useToast();
 
   const handleSlideChange = (id: number, field: string, value: any) => {
@@ -122,6 +136,23 @@ export default function SettingsPage() {
     }));
   };
 
+  const handleSiteConfigChange = (section: keyof SiteConfig, field: string, value: string) => {
+      if (section === 'aboutUs' || section === 'contact') {
+          setSiteConfig(prev => ({
+              ...prev,
+              [section]: {
+                  ...(prev[section]),
+                  [field]: value
+              }
+          }));
+      } else {
+           setSiteConfig(prev => ({
+              ...prev,
+              [field]: value
+          }));
+      }
+  }
+
   const handleSaveChanges = () => {
     toast({
       title: "Settings Saved",
@@ -129,6 +160,7 @@ export default function SettingsPage() {
     });
     console.log("Saving Hero Slides:", heroSlides);
     console.log("Saving Ads Config:", adsConfig);
+    console.log("Saving Site Config:", siteConfig);
   };
 
   return (
@@ -138,12 +170,44 @@ export default function SettingsPage() {
          <Button onClick={handleSaveChanges} size="lg">Save All Settings</Button>
       </div>
 
-      <Tabs defaultValue="hero">
-        <TabsList className="grid w-full grid-cols-2">
+      <Tabs defaultValue="general">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="general">General</TabsTrigger>
           <TabsTrigger value="hero">Hero Section</TabsTrigger>
           <TabsTrigger value="ads">Advertisements</TabsTrigger>
         </TabsList>
         
+        <TabsContent value="general">
+            <Card>
+                <CardHeader>
+                    <CardTitle>General Settings</CardTitle>
+                    <CardDescription>Manage general website information like site name, about us content, and contact details.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                    <div className="space-y-2">
+                        <Label htmlFor="siteName">Site Name / Logo Text</Label>
+                        <Input id="siteName" value={siteConfig.siteName} onChange={(e) => handleSiteConfigChange('siteName', 'siteName', e.target.value)} />
+                    </div>
+                     <div className="space-y-2">
+                        <Label htmlFor="aboutTitle">About Us Title</Label>
+                        <Input id="aboutTitle" value={siteConfig.aboutUs.title} onChange={(e) => handleSiteConfigChange('aboutUs', 'title', e.target.value)} />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="aboutDescription">About Us Description</Label>
+                        <Textarea id="aboutDescription" value={siteConfig.aboutUs.description} onChange={(e) => handleSiteConfigChange('aboutUs', 'description', e.target.value)} />
+                    </div>
+                     <div className="space-y-2">
+                        <Label htmlFor="contactEmail">Contact Email</Label>
+                        <Input id="contactEmail" type="email" value={siteConfig.contact.email} onChange={(e) => handleSiteConfigChange('contact', 'email', e.target.value)} />
+                    </div>
+                     <div className="space-y-2">
+                        <Label htmlFor="contactPhone">Contact Phone</Label>
+                        <Input id="contactPhone" value={siteConfig.contact.phone} onChange={(e) => handleSiteConfigChange('contact', 'phone', e.target.value)} />
+                    </div>
+                </CardContent>
+            </Card>
+        </TabsContent>
+
         <TabsContent value="hero">
           <Card>
             <CardHeader>
