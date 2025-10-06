@@ -12,7 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import Link from "next/link";
-import { ArrowLeft, User, Users, IndianRupee, Calendar, Hash } from "lucide-react";
+import { ArrowLeft, User, Users, IndianRupee, Calendar, Hash, LoaderCircle } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import {
   Table,
@@ -23,10 +23,47 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import scholarshipData from "@/lib/data/scholarship.json";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
+import { useUser, useFirestore } from "@/firebase";
+import { useDoc } from "@/firebase/firestore/use-doc";
+import { doc } from "firebase/firestore";
+
+
+type PaymentStatement = {
+    id: number;
+    year: string;
+    amount: string;
+    status: "Paid" | "Pending";
+    paymentDate: string | null;
+};
+
+type Child = {
+    id: number;
+    childName: string;
+    fatherName: string;
+    motherName: string;
+    gender: "male" | "female";
+    dob: string;
+    paymentStatements: PaymentStatement[];
+};
+
+type Scholarship = {
+    registerName: string;
+    childrenCount: number;
+    scholarshipAmount: string;
+    years: number;
+    children: Child[];
+};
 
 export default function ScholarshipPage() {
+  const { profile, loading: userLoading } = useUser();
+  const firestore = useFirestore();
+
+  const scholarshipRef = profile ? doc(firestore, `users/${profile.uid}/scholarship/details`) : null;
+  const { data: scholarshipData, loading: scholarshipLoading } = useDoc<Scholarship>(scholarshipRef);
+
+  const loading = userLoading || scholarshipLoading;
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <AppHeader />
@@ -48,104 +85,116 @@ export default function ScholarshipPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 text-sm">
-                <div className="flex items-center gap-3">
-                    <User className="h-6 w-6 text-primary"/>
-                    <div>
-                        <h4 className="font-semibold text-muted-foreground">Register Name</h4>
-                        <p className="font-medium">{scholarshipData.registerName}</p>
+              {loading ? (
+                 <div className="flex items-center justify-center py-12">
+                    <LoaderCircle className="h-8 w-8 animate-spin text-primary" />
+                 </div>
+              ) : !scholarshipData ? (
+                 <div className="text-center py-12 text-muted-foreground">
+                    No scholarship data found for your account.
+                 </div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 text-sm">
+                    <div className="flex items-center gap-3">
+                        <User className="h-6 w-6 text-primary"/>
+                        <div>
+                            <h4 className="font-semibold text-muted-foreground">Register Name</h4>
+                            <p className="font-medium">{scholarshipData.registerName}</p>
+                        </div>
                     </div>
-                </div>
-                <div className="flex items-center gap-3">
-                    <Users className="h-6 w-6 text-primary"/>
-                    <div>
-                        <h4 className="font-semibold text-muted-foreground">No. of Children</h4>
-                        <p className="font-medium">{scholarshipData.childrenCount}</p>
+                    <div className="flex items-center gap-3">
+                        <Users className="h-6 w-6 text-primary"/>
+                        <div>
+                            <h4 className="font-semibold text-muted-foreground">No. of Children</h4>
+                            <p className="font-medium">{scholarshipData.childrenCount}</p>
+                        </div>
                     </div>
-                </div>
-                <div className="flex items-center gap-3">
-                    <IndianRupee className="h-6 w-6 text-primary"/>
-                    <div>
-                        <h4 className="font-semibold text-muted-foreground">Scholarship Amount</h4>
-                        <p className="font-medium">₹{scholarshipData.scholarshipAmount}</p>
+                    <div className="flex items-center gap-3">
+                        <IndianRupee className="h-6 w-6 text-primary"/>
+                        <div>
+                            <h4 className="font-semibold text-muted-foreground">Scholarship Amount</h4>
+                            <p className="font-medium">₹{scholarshipData.scholarshipAmount}</p>
+                        </div>
                     </div>
-                </div>
-                <div className="flex items-center gap-3">
-                    <Hash className="h-6 w-6 text-primary"/>
-                    <div>
-                        <h4 className="font-semibold text-muted-foreground">Years</h4>
-                        <p className="font-medium">{scholarshipData.years}</p>
+                    <div className="flex items-center gap-3">
+                        <Hash className="h-6 w-6 text-primary"/>
+                        <div>
+                            <h4 className="font-semibold text-muted-foreground">Years</h4>
+                            <p className="font-medium">{scholarshipData.years}</p>
+                        </div>
                     </div>
-                </div>
-              </div>
+                  </div>
 
-              <Separator />
+                  <Separator />
 
-              <div>
-                <h3 className="text-xl font-semibold text-secondary font-headline mb-4">Children Details</h3>
-                <div className="space-y-6">
-                  {scholarshipData.children.map((child) => (
-                    <Card key={child.id} className="p-4 md:p-6">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm mb-6">
-                            <div>
-                                <h4 className="font-semibold text-muted-foreground">Child's Name</h4>
-                                <p className="font-medium">{child.childName}</p>
-                            </div>
-                            <div>
-                                <h4 className="font-semibold text-muted-foreground">Father's Name</h4>
-                                <p className="font-medium">{child.fatherName}</p>
-                            </div>
-                            <div>
-                                <h4 className="font-semibold text-muted-foreground">Mother's Name</h4>
-                                <p className="font-medium">{child.motherName}</p>
-                            </div>
-                            <div>
-                                <h4 className="font-semibold text-muted-foreground">Gender</h4>
-                                <p className="font-medium">{child.gender}</p>
-                            </div>
-                            <div className="flex items-start gap-3 md:col-span-2">
-                                <Calendar className="h-5 w-5 text-primary mt-1"/>
+                  <div>
+                    <h3 className="text-xl font-semibold text-secondary font-headline mb-4">Children Details</h3>
+                    <div className="space-y-6">
+                      {scholarshipData.children.map((child) => (
+                        <Card key={child.id} className="p-4 md:p-6">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm mb-6">
                                 <div>
-                                    <h4 className="font-semibold text-muted-foreground">Date of Birth</h4>
-                                    <p className="font-medium">{format(new Date(child.dob), "PPP")}</p>
+                                    <h4 className="font-semibold text-muted-foreground">Child's Name</h4>
+                                    <p className="font-medium">{child.childName}</p>
+                                </div>
+                                <div>
+                                    <h4 className="font-semibold text-muted-foreground">Father's Name</h4>
+                                    <p className="font-medium">{child.fatherName}</p>
+                                </div>
+                                <div>
+                                    <h4 className="font-semibold text-muted-foreground">Mother's Name</h4>
+                                    <p className="font-medium">{child.motherName}</p>
+                                </div>
+                                <div>
+                                    <h4 className="font-semibold text-muted-foreground">Gender</h4>
+                                    <p className="font-medium capitalize">{child.gender}</p>
+                                </div>
+                                <div className="flex items-start gap-3 md:col-span-2">
+                                    <Calendar className="h-5 w-5 text-primary mt-1"/>
+                                    <div>
+                                        <h4 className="font-semibold text-muted-foreground">Date of Birth</h4>
+                                        <p className="font-medium">{format(parseISO(child.dob), "PPP")}</p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        
-                        <div className="space-y-2">
-                            <h4 className="text-md font-semibold">Payment Statements</h4>
-                            <div className="border rounded-md overflow-hidden">
-                               <Table>
-                                 <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Year</TableHead>
-                                        <TableHead>Amount</TableHead>
-                                        <TableHead>Payment Date</TableHead>
-                                        <TableHead>Status</TableHead>
-                                    </TableRow>
-                                 </TableHeader>
-                                 <TableBody>
-                                    {child.paymentStatements.map(stmt => (
-                                        <TableRow key={stmt.id}>
-                                            <TableCell className="font-medium">{stmt.year}</TableCell>
-                                            <TableCell>₹{stmt.amount}</TableCell>
-                                            <TableCell>{stmt.paymentDate ? format(new Date(stmt.paymentDate), "PPP") : 'N/A'}</TableCell>
-                                            <TableCell>
-                                                <Badge variant={stmt.status === "Paid" ? "default" : "destructive"}>
-                                                    {stmt.status}
-                                                </Badge>
-                                            </TableCell>
+                            
+                            <div className="space-y-2">
+                                <h4 className="text-md font-semibold">Payment Statements</h4>
+                                <div className="border rounded-md overflow-hidden">
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead>Year</TableHead>
+                                            <TableHead>Amount</TableHead>
+                                            <TableHead>Payment Date</TableHead>
+                                            <TableHead>Status</TableHead>
                                         </TableRow>
-                                    ))}
-                                 </TableBody>
-                               </Table>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {child.paymentStatements.map(stmt => (
+                                            <TableRow key={stmt.id}>
+                                                <TableCell className="font-medium">{stmt.year}</TableCell>
+                                                <TableCell>₹{stmt.amount}</TableCell>
+                                                <TableCell>{stmt.paymentDate ? format(parseISO(stmt.paymentDate), "PPP") : 'N/A'}</TableCell>
+                                                <TableCell>
+                                                    <Badge variant={stmt.status === "Paid" ? "default" : "destructive"}>
+                                                        {stmt.status}
+                                                    </Badge>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                                </div>
                             </div>
-                        </div>
 
-                    </Card>
-                  ))}
-                </div>
-              </div>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
             </CardContent>
           </Card>
         </div>

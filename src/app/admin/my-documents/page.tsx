@@ -21,7 +21,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Upload, Trash2, FileText, Search, Users, LoaderCircle } from "lucide-react";
+import { Upload, Trash2, FileText, Search, Users, LoaderCircle, Download } from "lucide-react";
 import Link from "next/link";
 import { useFirestore } from "@/firebase";
 import { collection, query, where, getDocs, addDoc, deleteDoc, doc, serverTimestamp } from "firebase/firestore";
@@ -242,4 +242,3 @@ export default function MyDocumentsPage() {
   );
 }
 
-    
