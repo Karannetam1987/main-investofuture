@@ -57,7 +57,7 @@ const dashboardItems = [
     icon: <Handshake className="w-8 h-8 text-primary" />,
     title: "Scholarship",
     description: "View scholarship details for your children.",
-    href: "#",
+    href: "/dashboard/scholarship",
   },
   {
     icon: <PiggyBank className="w-8 h-8 text-primary" />,
