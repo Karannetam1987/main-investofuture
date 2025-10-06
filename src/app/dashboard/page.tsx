@@ -45,7 +45,7 @@ const dashboardItems = [
     icon: <Gift className="w-8 h-8 text-primary" />,
     title: "Joining Gift",
     description: "View your joining gift items and details.",
-    href: "#",
+    href: "/dashboard/joining-gift",
   },
   {
     icon: <ShieldAlert className="w-8 h-8 text-primary" />,
