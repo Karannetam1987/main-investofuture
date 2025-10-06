@@ -6,8 +6,10 @@ import { FirestorePermissionError, type SecurityRuleContext } from '@/firebase/e
 // This type will be generated from backend.json
 // For now, we define it manually based on the form schema.
 export type UserProfile = {
-  id: string;
+  uid?: string; // Document ID, which is the Firebase Auth UID
+  id: string; // Custom Registration ID like INF001
   email: string;
+  status?: "Active" | "Inactive";
   personalInfo: {
     fullName: string;
     fatherName: string;
@@ -54,11 +56,13 @@ export type UserProfile = {
  * @param {string} uid - The user's unique ID from Firebase Auth.
  * @param {UserProfile} data - The user's profile data.
  */
-export function setUserProfile(db: Firestore, uid: string, data: UserProfile) {
+export function setUserProfile(db: Firestore, uid: string, data: Omit<UserProfile, 'uid'>) {
   const userDocRef = doc(db, 'users', uid);
 
-  const profileData: Partial<UserProfile> = {
+  const profileData: UserProfile = {
       ...data,
+      uid: uid, // Add the UID to the document data
+      status: data.status || 'Active', // Default status to Active
       updatedAt: serverTimestamp(),
   };
 
