@@ -1,7 +1,9 @@
 
 "use client";
 
-import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createUserWithEmailAndPassword } from "firebase/auth";
@@ -32,55 +34,165 @@ import { ArrowLeft, CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { useAuth } from "@/firebase";
+import { useAuth, useFirestore } from "@/firebase";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { setUserProfile } from "@/firebase/firestore/users";
+
+const addressSchema = z.object({
+  permanent: z.string().min(1, "Permanent address is required"),
+  current: z.string().min(1, "Current address is required"),
+});
+
+const bankDetailsSchema = z.object({
+  bankName: z.string().min(1, "Bank name is required"),
+  accountNumber: z.string().min(1, "Account number is required"),
+  ifsc: z.string().min(1, "IFSC code is required"),
+  upi: z.string().optional(),
+  bankAddress: z.string().min(1, "Bank address is required"),
+});
+
+const nomineeDetailsSchema = z.object({
+  nomineeName: z.string().min(1, "Nominee name is required"),
+  nomineeFatherName: z.string().min(1, "Father's name is required"),
+  relationship: z.string().min(1, "Relationship is required"),
+  nomineeMobile: z.string().min(1, "Mobile number is required"),
+  nomineeDob: z.date({ required_error: "Nominee's date of birth is required." }),
+});
+
+const personalInfoSchema = z.object({
+  fullName: z.string().min(1, "Full name is required"),
+  fatherName: z.string().min(1, "Father's name is required"),
+  motherName: z.string().min(1, "Mother's name is required"),
+  mobile: z.string().min(1, "Mobile number is required"),
+  dob: z.date({ required_error: "Date of birth is required." }),
+  gender: z.enum(["male", "female", "other"]),
+  maritalStatus: z.enum(["single", "married", "divorced", "widowed"]),
+  religion: z.string().min(1, "Religion is required"),
+  caste: z.string().min(1, "Caste is required"),
+  children: z.string().optional(),
+  bloodGroup: z.string().optional(),
+  identificationMark: z.string().optional(),
+  pan: z.string().min(1, "PAN number is required"),
+  aadhaar: z.string().min(1, "Aadhaar number is required"),
+});
+
+
+const formSchema = z.object({
+    email: z.string().email(),
+    password: z.string().min(6, "Password must be at least 6 characters."),
+    confirmPassword: z.string(),
+    personalInfo: personalInfoSchema,
+    address: addressSchema,
+    bankDetails: bankDetailsSchema,
+    nomineeDetails: nomineeDetailsSchema,
+    sameAsPermanent: z.boolean().default(false),
+    termsAccepted: z.boolean().refine(val => val === true, {
+        message: "You must accept the terms and conditions.",
+    }),
+}).refine(data => data.password === data.confirmPassword, {
+    message: "Passwords do not match.",
+    path: ["confirmPassword"],
+});
 
 export default function RegisterPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [dob, setDob] = useState<Date>();
-  const [nomineeDob, setNomineeDob] = useState<Date>();
-  const [sameAsPermanent, setSameAsPermanent] = useState(false);
-  const [termsAccepted, setTermsAccepted] = useState(false);
-
   const auth = useAuth();
+  const firestore = useFirestore();
   const router = useRouter();
   const { toast } = useToast();
 
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (password !== confirmPassword) {
-      toast({
-        title: "Error",
-        description: "Passwords do not match.",
-        variant: "destructive",
-      });
-      return;
-    }
-    if (!termsAccepted) {
-      toast({
-        title: "Error",
-        description: "You must accept the terms and conditions.",
-        variant: "destructive",
-      });
-      return;
-    }
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+      confirmPassword: "",
+      personalInfo: {
+        fullName: "",
+        fatherName: "",
+        motherName: "",
+        mobile: "",
+        gender: "male",
+        maritalStatus: "single",
+        religion: "",
+        caste: "",
+        children: "0",
+        bloodGroup: "",
+        identificationMark: "",
+        pan: "",
+        aadhaar: "",
+      },
+      address: {
+        permanent: "",
+        current: "",
+      },
+      bankDetails: {
+        bankName: "",
+        accountNumber: "",
+        ifsc: "",
+        upi: "",
+        bankAddress: "",
+      },
+      nomineeDetails: {
+          nomineeName: "",
+          nomineeFatherName: "",
+          relationship: "",
+          nomineeMobile: "",
+      },
+      sameAsPermanent: false,
+      termsAccepted: false,
+    },
+  });
+
+  const sameAsPermanent = form.watch("sameAsPermanent");
+  const permanentAddress = form.watch("address.permanent");
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
+      const user = userCredential.user;
+      
+      const profileData = {
+          personalInfo: {
+            ...values.personalInfo,
+            dob: values.personalInfo.dob.toISOString(),
+          },
+          address: {
+              permanent: values.address.permanent,
+              current: values.sameAsPermanent ? values.address.permanent : values.address.current,
+          },
+          bankDetails: values.bankDetails,
+          nomineeDetails: {
+            ...values.nomineeDetails,
+            nomineeDob: values.nomineeDetails.nomineeDob.toISOString(),
+          },
+          email: values.email,
+          id: `INF${String(Math.floor(1000 + Math.random() * 9000)).padStart(4, '0')}` // Example ID
+      };
+
+      await setUserProfile(firestore, user.uid, profileData);
+
       toast({
         title: "Registration Successful",
-        description: "Redirecting to your dashboard...",
+        description: "Your account has been created. Redirecting to your dashboard...",
       });
       router.push("/dashboard");
     } catch (error: any) {
       toast({
         title: "Registration Failed",
-        description: error.message,
+        description: error.message || "An unknown error occurred.",
         variant: "destructive",
       });
     }
-  };
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -103,283 +215,359 @@ export default function RegisterPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleRegister} className="space-y-8">
-                {/* Personal Details */}
-                <div className="space-y-4">
-                  <h3 className="text-xl font-semibold text-secondary font-headline">Personal Details</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="regId">Registration ID</Label>
-                      <Input id="regId" defaultValue="INF001" readOnly />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="fullName">Full Name</Label>
-                      <Input id="fullName" placeholder="John Doe" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="fatherName">Father&apos;s Name</Label>
-                      <Input id="fatherName" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="motherName">Mother&apos;s Name</Label>
-                      <Input id="motherName" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="mobile">Mobile Number</Label>
-                      <Input id="mobile" placeholder="123-456-7890" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
-                      <Input id="email" type="email" placeholder="m@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required/>
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Date of Birth</Label>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant={"outline"}
-                            className={cn(
-                              "w-full justify-start text-left font-normal bg-card",
-                              !dob && "text-muted-foreground"
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                  
+                  {/* Account Details */}
+                   <div className="space-y-4">
+                     <h3 className="text-xl font-semibold text-secondary font-headline">Account Details</h3>
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <FormField
+                            control={form.control}
+                            name="email"
+                            render={({ field }) => (
+                                <FormItem>
+                                <FormLabel>Email</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="your.email@example.com" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                                </FormItem>
                             )}
-                          >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {dob ? format(dob, "PPP") : <span>Pick a date</span>}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
-                          <Calendar
-                            mode="single"
-                            selected={dob}
-                            onSelect={setDob}
-                            captionLayout="dropdown-buttons"
-                            fromYear={1900}
-                            toYear={new Date().getFullYear()}
-                          />
-                        </PopoverContent>
-                      </Popover>
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Gender</Label>
-                      <RadioGroup defaultValue="male" className="flex gap-4">
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="male" id="male" />
-                          <Label htmlFor="male">Male</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="female" id="female" />
-                          <Label htmlFor="female">Female</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="other" id="other" />
-                          <Label htmlFor="other">Other</Label>
-                        </div>
-                      </RadioGroup>
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Marital Status</Label>
-                      <RadioGroup defaultValue="single" className="flex flex-wrap gap-4">
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="single" id="single" />
-                          <Label htmlFor="single">Single</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="married" id="married" />
-                          <Label htmlFor="married">Married</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="divorced" id="divorced" />
-                          <Label htmlFor="divorced">Divorced</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="widowed" id="widowed" />
-                          <Label htmlFor="widowed">Widowed</Label>
-                        </div>
-                      </RadioGroup>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="religion">Religion</Label>
-                      <Input id="religion" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="caste">Caste</Label>
-                      <Input id="caste" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="children">Children (Optional)</Label>
-                      <Input id="children" type="number" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="bloodGroup">Blood Group (Optional)</Label>
-                      <Input id="bloodGroup" />
-                    </div>
-                    <div className="space-y-2 md:col-span-2">
-                      <Label htmlFor="identificationMark">Identification Mark (Optional)</Label>
-                      <Input id="identificationMark" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="pan">PAN Number</Label>
-                      <Input id="pan" placeholder="ABCDE1234F" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="aadhaar">Aadhaar Number</Label>
-                      <Input id="aadhaar" placeholder="1234 5678 9012" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Address Details */}
-                <div className="space-y-4">
-                  <h3 className="text-xl font-semibold text-secondary font-headline">Address Details</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="md:col-span-2 space-y-4">
-                          <Label className="text-md font-medium">Permanent Address</Label>
-                          <div className="space-y-2">
-                              <Label htmlFor="address1">Address Line 1</Label>
-                              <Input id="address1" placeholder="1234 Main St" />
-                          </div>
-                          <div className="space-y-2">
-                              <Label htmlFor="address2">Address Line 2 (Optional)</Label>
-                              <Input id="address2" placeholder="Apartment, studio, or floor" />
-                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                              <div className="space-y-2">
-                                  <Label htmlFor="city">City</Label>
-                                  <Input id="city" placeholder="Anytown" />
-                              </div>
-                              <div className="space-y-2">
-                                  <Label htmlFor="state">State</Label>
-                                  <Input id="state" placeholder="State" />
-                              </div>
-                              <div className="space-y-2">
-                                  <Label htmlFor="pincode">Pincode</Label>
-                                  <Input id="pincode" placeholder="123456" />
-                              </div>
-                          </div>
-                      </div>
-                      <div className="md:col-span-2 flex items-center space-x-2">
-                          <Checkbox id="sameAsPermanent" checked={sameAsPermanent} onCheckedChange={(checked) => setSameAsPermanent(checked as boolean)} />
-                          <Label htmlFor="sameAsPermanent" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                              Current address is the same as permanent address
-                          </Label>
-                      </div>
-
-                      {!sameAsPermanent && (
-                          <div className="md:col-span-2 space-y-2">
-                              <Label htmlFor="currentAddress">Full Current Address</Label>
-                              <Textarea id="currentAddress" placeholder="Enter your full current address" />
-                          </div>
-                      )}
-                  </div>
-                </div>
-
-                {/* Bank Details */}
-                <div className="space-y-4">
-                  <h3 className="text-xl font-semibold text-secondary font-headline">Bank Details</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="bankName">Bank Name</Label>
-                      <Input id="bankName" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="accountNumber">Account Number</Label>
-                      <Input id="accountNumber" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="ifsc">IFSC Code</Label>
-                      <Input id="ifsc" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="upi">UPI ID (Optional)</Label>
-                      <Input id="upi" />
-                    </div>
-                    <div className="space-y-2 md:col-span-2">
-                      <Label htmlFor="bankAddress">Bank Address</Label>
-                      <Textarea id="bankAddress" />
-                    </div>
-                  </div>
-                  <p className="text-sm text-muted-foreground">Other details like Joining Gifts, Insurance, Funds, and Children can be managed from the Admin Panel after registration.</p>
-                </div>
-
-                {/* Nominee Details */}
-                <div className="space-y-4">
-                  <h3 className="text-xl font-semibold text-secondary font-headline">Nominee Details</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="nomineeName">Nominee Name</Label>
-                      <Input id="nomineeName" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="nomineeFatherName">Nominee&apos;s Father Name</Label>
-                      <Input id="nomineeFatherName" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="relationship">Relationship</Label>
-                      <Input id="relationship" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="nomineeMobile">Nominee Mobile Number</Label>
-                      <Input id="nomineeMobile" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Nominee&apos;s Date of Birth</Label>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant={"outline"}
-                            className={cn(
-                              "w-full justify-start text-left font-normal bg-card",
-                              !nomineeDob && "text-muted-foreground"
+                        />
+                         <FormField
+                            control={form.control}
+                            name="personalInfo.mobile"
+                            render={({ field }) => (
+                                <FormItem>
+                                <FormLabel>Mobile Number</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="123-456-7890" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                                </FormItem>
                             )}
-                          >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {nomineeDob ? format(nomineeDob, "PPP") : <span>Pick a date</span>}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
-                          <Calendar
-                            mode="single"
-                            selected={nomineeDob}
-                            onSelect={setNomineeDob}
-                            captionLayout="dropdown-buttons"
-                            fromYear={1900}
-                            toYear={new Date().getFullYear()}
-                          />
-                        </PopoverContent>
-                      </Popover>
+                        />
+                        <FormField
+                            control={form.control}
+                            name="password"
+                            render={({ field }) => (
+                                <FormItem>
+                                <FormLabel>Password</FormLabel>
+                                <FormControl>
+                                    <Input type="password" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="confirmPassword"
+                            render={({ field }) => (
+                                <FormItem>
+                                <FormLabel>Confirm Password</FormLabel>
+                                <FormControl>
+                                    <Input type="password" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                     </div>
+                   </div>
+
+
+                  {/* Personal Details */}
+                  <div className="space-y-4">
+                    <h3 className="text-xl font-semibold text-secondary font-headline">Personal Details</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <FormField
+                            control={form.control}
+                            name="personalInfo.fullName"
+                            render={({ field }) => (
+                                <FormItem>
+                                <FormLabel>Full Name</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="John Doe" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                         <FormField
+                            control={form.control}
+                            name="personalInfo.fatherName"
+                            render={({ field }) => (
+                                <FormItem>
+                                <FormLabel>Father&apos;s Name</FormLabel>
+                                <FormControl>
+                                    <Input {...field} />
+                                </FormControl>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                         <FormField
+                            control={form.control}
+                            name="personalInfo.motherName"
+                            render={({ field }) => (
+                                <FormItem>
+                                <FormLabel>Mother&apos;s Name</FormLabel>
+                                <FormControl>
+                                    <Input {...field} />
+                                </FormControl>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="personalInfo.dob"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-col">
+                                <FormLabel>Date of Birth</FormLabel>
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                    <FormControl>
+                                        <Button
+                                        variant={"outline"}
+                                        className={cn(
+                                            "w-full pl-3 text-left font-normal",
+                                            !field.value && "text-muted-foreground"
+                                        )}
+                                        >
+                                        {field.value ? (
+                                            format(field.value, "PPP")
+                                        ) : (
+                                            <span>Pick a date</span>
+                                        )}
+                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                        </Button>
+                                    </FormControl>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0" align="start">
+                                    <Calendar
+                                        mode="single"
+                                        selected={field.value}
+                                        onSelect={field.onChange}
+                                        captionLayout="dropdown-buttons"
+                                        fromYear={1900}
+                                        toYear={new Date().getFullYear()}
+                                        disabled={(date) =>
+                                        date > new Date() || date < new Date("1900-01-01")
+                                        }
+                                        initialFocus
+                                    />
+                                    </PopoverContent>
+                                </Popover>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                         <FormField
+                            control={form.control}
+                            name="personalInfo.gender"
+                            render={({ field }) => (
+                                <FormItem className="space-y-3">
+                                <FormLabel>Gender</FormLabel>
+                                <FormControl>
+                                    <RadioGroup
+                                    onValueChange={field.onChange}
+                                    defaultValue={field.value}
+                                    className="flex gap-4"
+                                    >
+                                    <FormItem className="flex items-center space-x-2 space-y-0">
+                                        <FormControl>
+                                        <RadioGroupItem value="male" />
+                                        </FormControl>
+                                        <FormLabel className="font-normal">Male</FormLabel>
+                                    </FormItem>
+                                    <FormItem className="flex items-center space-x-2 space-y-0">
+                                        <FormControl>
+                                        <RadioGroupItem value="female" />
+                                        </FormControl>
+                                        <FormLabel className="font-normal">Female</FormLabel>
+                                    </FormItem>
+                                     <FormItem className="flex items-center space-x-2 space-y-0">
+                                        <FormControl>
+                                        <RadioGroupItem value="other" />
+                                        </FormControl>
+                                        <FormLabel className="font-normal">Other</FormLabel>
+                                    </FormItem>
+                                    </RadioGroup>
+                                </FormControl>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="personalInfo.maritalStatus"
+                            render={({ field }) => (
+                                <FormItem className="space-y-3">
+                                <FormLabel>Marital Status</FormLabel>
+                                <FormControl>
+                                    <RadioGroup
+                                    onValueChange={field.onChange}
+                                    defaultValue={field.value}
+                                    className="flex flex-wrap gap-4"
+                                    >
+                                    <FormItem className="flex items-center space-x-2 space-y-0">
+                                        <FormControl><RadioGroupItem value="single" /></FormControl>
+                                        <FormLabel className="font-normal">Single</FormLabel>
+                                    </FormItem>
+                                    <FormItem className="flex items-center space-x-2 space-y-0">
+                                        <FormControl><RadioGroupItem value="married" /></FormControl>
+                                        <FormLabel className="font-normal">Married</FormLabel>
+                                    </FormItem>
+                                    <FormItem className="flex items-center space-x-2 space-y-0">
+                                        <FormControl><RadioGroupItem value="divorced" /></FormControl>
+                                        <FormLabel className="font-normal">Divorced</FormLabel>
+                                    </FormItem>
+                                      <FormItem className="flex items-center space-x-2 space-y-0">
+                                        <FormControl><RadioGroupItem value="widowed" /></FormControl>
+                                        <FormLabel className="font-normal">Widowed</FormLabel>
+                                    </FormItem>
+                                    </RadioGroup>
+                                </FormControl>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField control={form.control} name="personalInfo.religion" render={({ field }) => (<FormItem><FormLabel>Religion</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                        <FormField control={form.control} name="personalInfo.caste" render={({ field }) => (<FormItem><FormLabel>Caste</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                        <FormField control={form.control} name="personalInfo.children" render={({ field }) => (<FormItem><FormLabel>Children (Optional)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                        <FormField control={form.control} name="personalInfo.bloodGroup" render={({ field }) => (<FormItem><FormLabel>Blood Group (Optional)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                        <FormField control={form.control} name="personalInfo.identificationMark" render={({ field }) => (<FormItem className="md:col-span-2"><FormLabel>Identification Mark (Optional)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                        <FormField control={form.control} name="personalInfo.pan" render={({ field }) => (<FormItem><FormLabel>PAN Number</FormLabel><FormControl><Input placeholder="ABCDE1234F" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                        <FormField control={form.control} name="personalInfo.aadhaar" render={({ field }) => (<FormItem><FormLabel>Aadhaar Number</FormLabel><FormControl><Input placeholder="1234 5678 9012" {...field} /></FormControl><FormMessage /></FormItem>)} />
                     </div>
                   </div>
-                </div>
-                
-                {/* Set Password */}
-                <div className="space-y-4">
-                  <h3 className="text-xl font-semibold text-secondary font-headline">Set Password</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                          <Label htmlFor="password">Password</Label>
-                          <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required/>
-                      </div>
-                      <div className="space-y-2">
-                          <Label htmlFor="confirmPassword">Confirm Password</Label>
-                          <Input id="confirmPassword" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required/>
-                      </div>
+
+                  {/* Address Details */}
+                  <div className="space-y-4">
+                    <h3 className="text-xl font-semibold text-secondary font-headline">Address Details</h3>
+                    <div className="space-y-4">
+                        <FormField control={form.control} name="address.permanent" render={({ field }) => (<FormItem><FormLabel>Permanent Address</FormLabel><FormControl><Textarea placeholder="Enter your full permanent address" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                        <FormField
+                            control={form.control}
+                            name="sameAsPermanent"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                                <FormControl>
+                                    <Checkbox
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                    />
+                                </FormControl>
+                                <div className="space-y-1 leading-none">
+                                    <FormLabel>
+                                    Current address is the same as permanent address
+                                    </FormLabel>
+                                </div>
+                                </FormItem>
+                            )}
+                        />
+                        {!sameAsPermanent && (
+                            <FormField control={form.control} name="address.current" render={({ field }) => (<FormItem><FormLabel>Current Address</FormLabel><FormControl><Textarea placeholder="Enter your full current address" {...field} value={sameAsPermanent ? permanentAddress : field.value} /></FormControl><FormMessage /></FormItem>)} />
+                        )}
+                    </div>
                   </div>
-                </div>
+                  
+                  {/* Bank Details */}
+                  <div className="space-y-4">
+                    <h3 className="text-xl font-semibold text-secondary font-headline">Bank Details</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <FormField control={form.control} name="bankDetails.bankName" render={({ field }) => (<FormItem><FormLabel>Bank Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                        <FormField control={form.control} name="bankDetails.accountNumber" render={({ field }) => (<FormItem><FormLabel>Account Number</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                        <FormField control={form.control} name="bankDetails.ifsc" render={({ field }) => (<FormItem><FormLabel>IFSC Code</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                        <FormField control={form.control} name="bankDetails.upi" render={({ field }) => (<FormItem><FormLabel>UPI ID (Optional)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                        <FormField control={form.control} name="bankDetails.bankAddress" render={({ field }) => (<FormItem className="md:col-span-2"><FormLabel>Bank Address</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>)} />
+                    </div>
+                  </div>
 
-                <div className="flex items-center space-x-2">
-                  <Checkbox id="terms" checked={termsAccepted} onCheckedChange={(checked) => setTermsAccepted(checked as boolean)}/>
-                  <label
-                    htmlFor="terms"
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    I agree to the Terms and Conditions
-                  </label>
-                </div>
+                  {/* Nominee Details */}
+                  <div className="space-y-4">
+                    <h3 className="text-xl font-semibold text-secondary font-headline">Nominee Details</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <FormField control={form.control} name="nomineeDetails.nomineeName" render={({ field }) => (<FormItem><FormLabel>Nominee Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                        <FormField control={form.control} name="nomineeDetails.nomineeFatherName" render={({ field }) => (<FormItem><FormLabel>Nominee&apos;s Father Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                        <FormField control={form.control} name="nomineeDetails.relationship" render={({ field }) => (<FormItem><FormLabel>Relationship</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                        <FormField control={form.control} name="nomineeDetails.nomineeMobile" render={({ field }) => (<FormItem><FormLabel>Nominee Mobile Number</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                        <FormField
+                            control={form.control}
+                            name="nomineeDetails.nomineeDob"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-col">
+                                <FormLabel>Nominee's Date of Birth</FormLabel>
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                    <FormControl>
+                                        <Button
+                                        variant={"outline"}
+                                        className={cn(
+                                            "w-full pl-3 text-left font-normal",
+                                            !field.value && "text-muted-foreground"
+                                        )}
+                                        >
+                                        {field.value ? (
+                                            format(field.value, "PPP")
+                                        ) : (
+                                            <span>Pick a date</span>
+                                        )}
+                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                        </Button>
+                                    </FormControl>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0" align="start">
+                                    <Calendar
+                                        mode="single"
+                                        selected={field.value}
+                                        onSelect={field.onChange}
+                                        captionLayout="dropdown-buttons"
+                                        fromYear={1900}
+                                        toYear={new Date().getFullYear()}
+                                        disabled={(date) =>
+                                        date > new Date() || date < new Date("1900-01-01")
+                                        }
+                                        initialFocus
+                                    />
+                                    </PopoverContent>
+                                </Popover>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
+                  </div>
+                  
+                  <FormField
+                    control={form.control}
+                    name="termsAccepted"
+                    render={({ field }) => (
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                        <FormControl>
+                            <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                            <FormLabel>
+                            I agree to the Terms and Conditions
+                            </FormLabel>
+                            <FormMessage />
+                        </div>
+                        </FormItem>
+                    )}
+                    />
 
-                <Button type="submit" className="w-full" size="lg">
-                  Create an account
-                </Button>
-              </form>
+                  <Button type="submit" className="w-full" size="lg" disabled={form.formState.isSubmitting}>
+                    {form.formState.isSubmitting ? "Creating Account..." : "Create an account"}
+                  </Button>
+                </form>
+              </Form>
             </CardContent>
           </Card>
         </div>
@@ -388,5 +576,4 @@ export default function RegisterPage() {
     </div>
   );
 }
-
     
