@@ -14,7 +14,7 @@ import * as nodemailer from "nodemailer";
 import smtpConfig from "@/lib/data/smtp-config.json";
 import siteConfig from "@/lib/data/site-config.json";
 
-export const SendEmailInputSchema = z.object({
+const SendEmailInputSchema = z.object({
   name: z.string().describe("The name of the person sending the message."),
   from: z.string().email().describe("The email address of the sender."),
   subject: z.string().describe("The subject of the email."),
