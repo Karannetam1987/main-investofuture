@@ -21,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Trash2 } from "lucide-react";
 import initialHeroSlides from "@/lib/data/hero-slides.json";
 import initialAdsData from "@/lib/data/ads.json";
@@ -134,189 +135,197 @@ export default function SettingsPage() {
     <div className="flex-1 space-y-8 p-4 md:p-8">
       <div className="flex items-center justify-between space-y-2">
         <h2 className="text-3xl font-bold tracking-tight">Website Settings</h2>
+         <Button onClick={handleSaveChanges} size="lg">Save All Settings</Button>
       </div>
-      <Card>
-        <CardHeader>
-          <CardTitle>Hero Section</CardTitle>
-          <CardDescription>
-            Customize the slides in your homepage hero section. You can add up to
-            10 slides.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="space-y-4">
-            {heroSlides.map((slide) => (
-              <div key={slide.id} className="rounded-lg border p-4 space-y-4 relative">
-                 <Button
-                  variant="destructive"
-                  size="icon"
-                  className="absolute top-4 right-4 h-8 w-8"
-                  onClick={() => handleRemoveSlide(slide.id)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor={`heading-${slide.id}`}>Heading</Label>
-                    <Input
-                      id={`heading-${slide.id}`}
-                      value={slide.heading}
-                      onChange={(e) => handleSlideChange(slide.id, "heading", e.target.value)}
-                    />
-                  </div>
-                   <div className="space-y-2">
-                    <Label htmlFor={`imageUrl-${slide.id}`}>Image URL</Label>
-                    <Input
-                      id={`imageUrl-${slide.id}`}
-                      value={slide.imageUrl}
-                      onChange={(e) => handleSlideChange(slide.id, "imageUrl", e.target.value)}
-                    />
-                  </div>
-                   <div className="space-y-2 md:col-span-2">
-                    <Label htmlFor={`description-${slide.id}`}>Description</Label>
-                    <Textarea
-                      id={`description-${slide.id}`}
-                      value={slide.description}
-                      onChange={(e) => handleSlideChange(slide.id, "description", e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor={`button-text-${slide.id}`}>Button Text</Label>
-                    <Input
-                      id={`button-text-${slide.id}`}
-                      value={slide.button.text}
-                      onChange={(e) => handleButtonChange(slide.id, "text", e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor={`button-link-${slide.id}`}>Button Link</Label>
-                    <Input
-                      id={`button-link-${slide.id}`}
-                      value={slide.button.link}
-                      onChange={(e) => handleButtonChange(slide.id, "link", e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor={`button-position-${slide.id}`}>Button Position</Label>
-                    <Select
-                      value={slide.button.position}
-                      onValueChange={(value) => handleButtonChange(slide.id, "position", value)}
+
+      <Tabs defaultValue="hero">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="hero">Hero Section</TabsTrigger>
+          <TabsTrigger value="ads">Advertisements</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="hero">
+          <Card>
+            <CardHeader>
+              <CardTitle>Hero Section</CardTitle>
+              <CardDescription>
+                Customize the slides in your homepage hero section. You can add up to 10 slides.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                {heroSlides.map((slide) => (
+                  <div key={slide.id} className="rounded-lg border p-4 space-y-4 relative">
+                     <Button
+                      variant="destructive"
+                      size="icon"
+                      className="absolute top-4 right-4 h-8 w-8"
+                      onClick={() => handleRemoveSlide(slide.id)}
                     >
-                      <SelectTrigger id={`button-position-${slide.id}`}>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="center">Center</SelectItem>
-                        <SelectItem value="left">Left</SelectItem>
-                        <SelectItem value="right">Right</SelectItem>
-                      </SelectContent>
-                    </Select>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor={`heading-${slide.id}`}>Heading</Label>
+                        <Input
+                          id={`heading-${slide.id}`}
+                          value={slide.heading}
+                          onChange={(e) => handleSlideChange(slide.id, "heading", e.target.value)}
+                        />
+                      </div>
+                       <div className="space-y-2">
+                        <Label htmlFor={`imageUrl-${slide.id}`}>Image URL</Label>
+                        <Input
+                          id={`imageUrl-${slide.id}`}
+                          value={slide.imageUrl}
+                          onChange={(e) => handleSlideChange(slide.id, "imageUrl", e.target.value)}
+                        />
+                      </div>
+                       <div className="space-y-2 md:col-span-2">
+                        <Label htmlFor={`description-${slide.id}`}>Description</Label>
+                        <Textarea
+                          id={`description-${slide.id}`}
+                          value={slide.description}
+                          onChange={(e) => handleSlideChange(slide.id, "description", e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor={`button-text-${slide.id}`}>Button Text</Label>
+                        <Input
+                          id={`button-text-${slide.id}`}
+                          value={slide.button.text}
+                          onChange={(e) => handleButtonChange(slide.id, "text", e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor={`button-link-${slide.id}`}>Button Link</Label>
+                        <Input
+                          id={`button-link-${slide.id}`}
+                          value={slide.button.link}
+                          onChange={(e) => handleButtonChange(slide.id, "link", e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor={`button-position-${slide.id}`}>Button Position</Label>
+                        <Select
+                          value={slide.button.position}
+                          onValueChange={(value) => handleButtonChange(slide.id, "position", value)}
+                        >
+                          <SelectTrigger id={`button-position-${slide.id}`}>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="center">Center</SelectItem>
+                            <SelectItem value="left">Left</SelectItem>
+                            <SelectItem value="right">Right</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
                   </div>
-                </div>
+                ))}
+                 <Button variant="outline" onClick={handleAddSlide}>
+                  Add Slide
+                </Button>
               </div>
-            ))}
-             <Button variant="outline" onClick={handleAddSlide}>
-              Add Slide
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-      <Card>
-        <CardHeader>
-            <CardTitle>Advertisement Settings</CardTitle>
-            <CardDescription>Manage ad placeholders on your website.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-8">
-            {/* Ad Slot 1: Below Hero */}
-            <div className="rounded-lg border p-4 space-y-4">
-                <h3 className="text-lg font-semibold">Ad Slot: Below Hero Section</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                        <Label>Ad Network</Label>
-                        <Select value={adsConfig.belowHero.network} onValueChange={(value) => handleAdChange("belowHero", "network", value)}>
-                            <SelectTrigger><SelectValue/></SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="none">None</SelectItem>
-                                <SelectItem value="adsense">Google AdSense</SelectItem>
-                                <SelectItem value="adsterra">Adsterra</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <div className="space-y-2 md:col-span-2">
-                        <Label htmlFor="ad-code-below-hero">Ad Code</Label>
-                        <Textarea id="ad-code-below-hero" placeholder="Paste your ad code snippet here" rows={6} value={adsConfig.belowHero.code} onChange={(e) => handleAdChange("belowHero", "code", e.target.value)} disabled={adsConfig.belowHero.network === 'none'}/>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
+        <TabsContent value="ads">
+          <Card>
+            <CardHeader>
+                <CardTitle>Advertisement Settings</CardTitle>
+                <CardDescription>Manage ad placeholders on your website.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-8">
+                {/* Ad Slot 1: Below Hero */}
+                <div className="rounded-lg border p-4 space-y-4">
+                    <h3 className="text-lg font-semibold">Ad Slot: Below Hero Section</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
-                            <Label htmlFor="ad-desktop-width-below-hero">Desktop Width</Label>
-                            <Input id="ad-desktop-width-below-hero" placeholder="e.g., 728" value={adsConfig.belowHero.desktopWidth} onChange={(e) => handleAdChange("belowHero", "desktopWidth", e.target.value)} disabled={adsConfig.belowHero.network === 'none'}/>
+                            <Label>Ad Network</Label>
+                            <Select value={adsConfig.belowHero.network} onValueChange={(value) => handleAdChange("belowHero", "network", value as any)}>
+                                <SelectTrigger><SelectValue/></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="none">None</SelectItem>
+                                    <SelectItem value="adsense">Google AdSense</SelectItem>
+                                    <SelectItem value="adsterra">Adsterra</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="ad-desktop-height-below-hero">Desktop Height</Label>
-                            <Input id="ad-desktop-height-below-hero" placeholder="e.g., 90" value={adsConfig.belowHero.desktopHeight} onChange={(e) => handleAdChange("belowHero", "desktopHeight", e.target.value)} disabled={adsConfig.belowHero.network === 'none'}/>
+                        <div className="space-y-2 md:col-span-2">
+                            <Label htmlFor="ad-code-below-hero">Ad Code</Label>
+                            <Textarea id="ad-code-below-hero" placeholder="Paste your ad code snippet here" rows={6} value={adsConfig.belowHero.code} onChange={(e) => handleAdChange("belowHero", "code", e.target.value)} disabled={adsConfig.belowHero.network === 'none'}/>
                         </div>
-                    </div>
-                     <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="ad-mobile-width-below-hero">Mobile Width</Label>
-                            <Input id="ad-mobile-width-below-hero" placeholder="e.g., 320" value={adsConfig.belowHero.mobileWidth} onChange={(e) => handleAdChange("belowHero", "mobileWidth", e.target.value)} disabled={adsConfig.belowHero.network === 'none'}/>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="ad-desktop-width-below-hero">Desktop Width</Label>
+                                <Input id="ad-desktop-width-below-hero" placeholder="e.g., 728" value={adsConfig.belowHero.desktopWidth} onChange={(e) => handleAdChange("belowHero", "desktopWidth", e.target.value)} disabled={adsConfig.belowHero.network === 'none'}/>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="ad-desktop-height-below-hero">Desktop Height</Label>
+                                <Input id="ad-desktop-height-below-hero" placeholder="e.g., 90" value={adsConfig.belowHero.desktopHeight} onChange={(e) => handleAdChange("belowHero", "desktopHeight", e.target.value)} disabled={adsConfig.belowHero.network === 'none'}/>
+                            </div>
                         </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="ad-mobile-height-below-hero">Mobile Height</Label>
-                            <Input id="ad-mobile-height-below-hero" placeholder="e.g., 100" value={adsConfig.belowHero.mobileHeight} onChange={(e) => handleAdChange("belowHero", "mobileHeight", e.target.value)} disabled={adsConfig.belowHero.network === 'none'}/>
+                         <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="ad-mobile-width-below-hero">Mobile Width</Label>
+                                <Input id="ad-mobile-width-below-hero" placeholder="e.g., 320" value={adsConfig.belowHero.mobileWidth} onChange={(e) => handleAdChange("belowHero", "mobileWidth", e.target.value)} disabled={adsConfig.belowHero.network === 'none'}/>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="ad-mobile-height-below-hero">Mobile Height</Label>
+                                <Input id="ad-mobile-height-below-hero" placeholder="e.g., 100" value={adsConfig.belowHero.mobileHeight} onChange={(e) => handleAdChange("belowHero", "mobileHeight", e.target.value)} disabled={adsConfig.belowHero.network === 'none'}/>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-             {/* Ad Slot 2: Above Footer */}
-            <div className="rounded-lg border p-4 space-y-4">
-                <h3 className="text-lg font-semibold">Ad Slot: Above Footer</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                        <Label>Ad Network</Label>
-                        <Select value={adsConfig.aboveFooter.network} onValueChange={(value) => handleAdChange("aboveFooter", "network", value)}>
-                            <SelectTrigger><SelectValue/></SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="none">None</SelectItem>
-                                <SelectItem value="adsense">Google AdSense</SelectItem>
-                                <SelectItem value="adsterra">Adsterra</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <div className="space-y-2 md:col-span-2">
-                        <Label htmlFor="ad-code-above-footer">Ad Code</Label>
-                        <Textarea id="ad-code-above-footer" placeholder="Paste your ad code snippet here" rows={6} value={adsConfig.aboveFooter.code} onChange={(e) => handleAdChange("aboveFooter", "code", e.target.value)} disabled={adsConfig.aboveFooter.network === 'none'}/>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
+                 {/* Ad Slot 2: Above Footer */}
+                <div className="rounded-lg border p-4 space-y-4">
+                    <h3 className="text-lg font-semibold">Ad Slot: Above Footer</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
-                            <Label htmlFor="ad-desktop-width-above-footer">Desktop Width</Label>
-                            <Input id="ad-desktop-width-above-footer" placeholder="e.g., 728" value={adsConfig.aboveFooter.desktopWidth} onChange={(e) => handleAdChange("aboveFooter", "desktopWidth", e.target.value)} disabled={adsConfig.aboveFooter.network === 'none'}/>
+                            <Label>Ad Network</Label>
+                            <Select value={adsConfig.aboveFooter.network} onValueChange={(value) => handleAdChange("aboveFooter", "network", value as any)}>
+                                <SelectTrigger><SelectValue/></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="none">None</SelectItem>
+                                    <SelectItem value="adsense">Google AdSense</SelectItem>
+                                    <SelectItem value="adsterra">Adsterra</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="ad-desktop-height-above-footer">Desktop Height</Label>
-                            <Input id="ad-desktop-height-above-footer" placeholder="e.g., 90" value={adsConfig.aboveFooter.desktopHeight} onChange={(e) => handleAdChange("aboveFooter", "desktopHeight", e.target.value)} disabled={adsConfig.aboveFooter.network === 'none'}/>
+                        <div className="space-y-2 md:col-span-2">
+                            <Label htmlFor="ad-code-above-footer">Ad Code</Label>
+                            <Textarea id="ad-code-above-footer" placeholder="Paste your ad code snippet here" rows={6} value={adsConfig.aboveFooter.code} onChange={(e) => handleAdChange("aboveFooter", "code", e.target.value)} disabled={adsConfig.aboveFooter.network === 'none'}/>
                         </div>
-                    </div>
-                     <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="ad-mobile-width-above-footer">Mobile Width</Label>
-                            <Input id="ad-mobile-width-above-footer" placeholder="e.g., 320" value={adsConfig.aboveFooter.mobileWidth} onChange={(e) => handleAdChange("aboveFooter", "mobileWidth", e.target.value)} disabled={adsConfig.aboveFooter.network === 'none'}/>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="ad-desktop-width-above-footer">Desktop Width</Label>
+                                <Input id="ad-desktop-width-above-footer" placeholder="e.g., 728" value={adsConfig.aboveFooter.desktopWidth} onChange={(e) => handleAdChange("aboveFooter", "desktopWidth", e.target.value)} disabled={adsConfig.aboveFooter.network === 'none'}/>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="ad-desktop-height-above-footer">Desktop Height</Label>
+                                <Input id="ad-desktop-height-above-footer" placeholder="e.g., 90" value={adsConfig.aboveFooter.desktopHeight} onChange={(e) => handleAdChange("aboveFooter", "desktopHeight", e.target.value)} disabled={adsConfig.aboveFooter.network === 'none'}/>
+                            </div>
                         </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="ad-mobile-height-above-footer">Mobile Height</Label>
-                            <Input id="ad-mobile-height-above-footer" placeholder="e.g., 100" value={adsConfig.aboveFooter.mobileHeight} onChange={(e) => handleAdChange("aboveFooter", "mobileHeight", e.target.value)} disabled={adsConfig.aboveFooter.network === 'none'}/>
+                         <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="ad-mobile-width-above-footer">Mobile Width</Label>
+                                <Input id="ad-mobile-width-above-footer" placeholder="e.g., 320" value={adsConfig.aboveFooter.mobileWidth} onChange={(e) => handleAdChange("aboveFooter", "mobileWidth", e.target.value)} disabled={adsConfig.aboveFooter.network === 'none'}/>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="ad-mobile-height-above-footer">Mobile Height</Label>
+                                <Input id="ad-mobile-height-above-footer" placeholder="e.g., 100" value={adsConfig.aboveFooter.mobileHeight} onChange={(e) => handleAdChange("aboveFooter", "mobileHeight", e.target.value)} disabled={adsConfig.aboveFooter.network === 'none'}/>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </CardContent>
-      </Card>
-
-      <div className="mt-8">
-        <Button onClick={handleSaveChanges} size="lg">Save All Settings</Button>
-      </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
