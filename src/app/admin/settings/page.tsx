@@ -22,11 +22,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Trash2 } from "lucide-react";
+import { AlertTriangle, Trash2 } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import initialHeroSlides from "@/lib/data/hero-slides.json";
 import initialAdsData from "@/lib/data/ads.json";
 import initialSiteConfig from "@/lib/data/site-config.json";
+import initialSmtpConfig from "@/lib/data/smtp-config.json";
 
 type SlideButton = {
   text: string;
@@ -73,11 +75,20 @@ type SiteConfig = {
     };
 };
 
+type SmtpConfig = {
+    host: string;
+    port: number;
+    user: string;
+    pass: string;
+    sender: string;
+}
+
 
 export default function SettingsPage() {
   const [heroSlides, setHeroSlides] = useState<Slide[]>(initialHeroSlides);
   const [adsConfig, setAdsConfig] = useState<AdsConfig>(initialAdsData);
   const [siteConfig, setSiteConfig] = useState<SiteConfig>(initialSiteConfig);
+  const [smtpConfig, setSmtpConfig] = useState<SmtpConfig>(initialSmtpConfig);
   const { toast } = useToast();
 
   const handleSlideChange = (id: number, field: string, value: any) => {
@@ -158,6 +169,10 @@ export default function SettingsPage() {
       }
   }
 
+  const handleSmtpChange = (field: keyof SmtpConfig, value: string | number) => {
+    setSmtpConfig(prev => ({ ...prev, [field]: value }));
+  }
+
   const handleSaveChanges = () => {
     toast({
       title: "Settings Saved",
@@ -166,6 +181,7 @@ export default function SettingsPage() {
     console.log("Saving Hero Slides:", heroSlides);
     console.log("Saving Ads Config:", adsConfig);
     console.log("Saving Site Config:", siteConfig);
+    console.log("Saving SMTP Config:", smtpConfig);
   };
 
   return (
@@ -176,10 +192,11 @@ export default function SettingsPage() {
       </div>
 
       <Tabs defaultValue="general">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="general">General</TabsTrigger>
           <TabsTrigger value="hero">Hero Section</TabsTrigger>
           <TabsTrigger value="ads">Advertisements</TabsTrigger>
+          <TabsTrigger value="smtp">Email (SMTP)</TabsTrigger>
         </TabsList>
         
         <TabsContent value="general">
@@ -434,9 +451,49 @@ export default function SettingsPage() {
             </CardContent>
           </Card>
         </TabsContent>
+
+        <TabsContent value="smtp">
+            <Card>
+                <CardHeader>
+                    <CardTitle>Email (SMTP) Settings</CardTitle>
+                    <CardDescription>Configure your SMTP server to send emails from your website.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                    <Alert variant="destructive">
+                        <AlertTriangle className="h-4 w-4" />
+                        <AlertTitle>Security Warning</AlertTitle>
+                        <AlertDescription>
+                            Storing SMTP passwords directly in the website's configuration is highly insecure. This feature is for UI demonstration only. For a production environment, use a secure backend service (like a Genkit Flow or Firebase Functions) to handle email sending. Do not enter real passwords here.
+                        </AlertDescription>
+                    </Alert>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                            <Label htmlFor="smtpHost">SMTP Host</Label>
+                            <Input id="smtpHost" value={smtpConfig.host} onChange={(e) => handleSmtpChange('host', e.target.value)} placeholder="smtp.example.com" />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="smtpPort">SMTP Port</Label>
+                            <Input id="smtpPort" type="number" value={smtpConfig.port} onChange={(e) => handleSmtpChange('port', Number(e.target.value))} placeholder="587" />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="smtpUser">Username</Label>
+                            <Input id="smtpUser" value={smtpConfig.user} onChange={(e) => handleSmtpChange('user', e.target.value)} placeholder="your-email@example.com" />
+                        </div>
+                         <div className="space-y-2">
+                            <Label htmlFor="smtpPass">Password</Label>
+                            <Input id="smtpPass" type="password" value={smtpConfig.pass} onChange={(e) => handleSmtpChange('pass', e.target.value)} placeholder="••••••••" />
+                        </div>
+                         <div className="space-y-2 md:col-span-2">
+                            <Label htmlFor="smtpSender">Sender Email</Label>
+                            <Input id="smtpSender" value={smtpConfig.sender} onChange={(e) => handleSmtpChange('sender', e.target.value)} placeholder="noreply@yourdomain.com" />
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+        </TabsContent>
+
       </Tabs>
     </div>
   );
-}
 
     
