@@ -51,7 +51,7 @@ const dashboardItems = [
     icon: <ShieldAlert className="w-8 h-8 text-primary" />,
     title: "Accidental Insurance",
     description: "View your accidental insurance policy details.",
-    href: "#",
+    href: "/dashboard/accidental-insurance",
   },
   {
     icon: <Handshake className="w-8 h-8 text-primary" />,
