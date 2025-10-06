@@ -1,0 +1,21 @@
+
+{
+    "belowHero": {
+        "network": "none",
+        "code": "",
+        "desktopWidth": "728",
+        "desktopHeight": "90",
+        "mobileWidth": "320",
+        "mobileHeight": "100"
+    },
+    "aboveFooter": {
+        "network": "none",
+        "code": "",
+        "desktopWidth": "728",
+        "desktopHeight": "90",
+        "mobileWidth": "320",
+        "mobileHeight": "100"
+    }
+}
+
+    

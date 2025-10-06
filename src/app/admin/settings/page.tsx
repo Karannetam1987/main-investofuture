@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/select";
 import { Trash2 } from "lucide-react";
 import initialHeroSlides from "@/lib/data/hero-slides.json";
+import initialAdsData from "@/lib/data/ads.json";
 
 type SlideButton = {
   text: string;
@@ -39,8 +40,24 @@ type Slide = {
   button: SlideButton;
 };
 
+type AdSlot = {
+  network: "none" | "adsense" | "adsterra";
+  code: string;
+  desktopWidth: string;
+  desktopHeight: string;
+  mobileWidth: string;
+  mobileHeight: string;
+};
+
+type AdsConfig = {
+  belowHero: AdSlot;
+  aboveFooter: AdSlot;
+};
+
+
 export default function SettingsPage() {
   const [heroSlides, setHeroSlides] = useState<Slide[]>(initialHeroSlides);
+  const [adsConfig, setAdsConfig] = useState<AdsConfig>(initialAdsData);
   const { toast } = useToast();
 
   const handleSlideChange = (id: number, field: string, value: any) => {
@@ -94,12 +111,23 @@ export default function SettingsPage() {
     });
   };
 
+  const handleAdChange = (slot: keyof AdsConfig, field: keyof AdSlot, value: string) => {
+    setAdsConfig(prev => ({
+        ...prev,
+        [slot]: {
+            ...prev[slot],
+            [field]: value
+        }
+    }));
+  };
+
   const handleSaveChanges = () => {
     toast({
       title: "Settings Saved",
       description: "Your website settings have been updated.",
     });
     console.log("Saving Hero Slides:", heroSlides);
+    console.log("Saving Ads Config:", adsConfig);
   };
 
   return (
@@ -191,11 +219,106 @@ export default function SettingsPage() {
               Add Slide
             </Button>
           </div>
-          <div className="mt-8 border-t pt-6">
-             <Button onClick={handleSaveChanges}>Save All Settings</Button>
-          </div>
         </CardContent>
       </Card>
+
+      <Card>
+        <CardHeader>
+            <CardTitle>Advertisement Settings</CardTitle>
+            <CardDescription>Manage ad placeholders on your website.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-8">
+            {/* Ad Slot 1: Below Hero */}
+            <div className="rounded-lg border p-4 space-y-4">
+                <h3 className="text-lg font-semibold">Ad Slot: Below Hero Section</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                        <Label>Ad Network</Label>
+                        <Select value={adsConfig.belowHero.network} onValueChange={(value) => handleAdChange("belowHero", "network", value)}>
+                            <SelectTrigger><SelectValue/></SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="none">None</SelectItem>
+                                <SelectItem value="adsense">Google AdSense</SelectItem>
+                                <SelectItem value="adsterra">Adsterra</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="space-y-2 md:col-span-2">
+                        <Label htmlFor="ad-code-below-hero">Ad Code</Label>
+                        <Textarea id="ad-code-below-hero" placeholder="Paste your ad code snippet here" rows={6} value={adsConfig.belowHero.code} onChange={(e) => handleAdChange("belowHero", "code", e.target.value)} disabled={adsConfig.belowHero.network === 'none'}/>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="ad-desktop-width-below-hero">Desktop Width</Label>
+                            <Input id="ad-desktop-width-below-hero" placeholder="e.g., 728" value={adsConfig.belowHero.desktopWidth} onChange={(e) => handleAdChange("belowHero", "desktopWidth", e.target.value)} disabled={adsConfig.belowHero.network === 'none'}/>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="ad-desktop-height-below-hero">Desktop Height</Label>
+                            <Input id="ad-desktop-height-below-hero" placeholder="e.g., 90" value={adsConfig.belowHero.desktopHeight} onChange={(e) => handleAdChange("belowHero", "desktopHeight", e.target.value)} disabled={adsConfig.belowHero.network === 'none'}/>
+                        </div>
+                    </div>
+                     <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="ad-mobile-width-below-hero">Mobile Width</Label>
+                            <Input id="ad-mobile-width-below-hero" placeholder="e.g., 320" value={adsConfig.belowHero.mobileWidth} onChange={(e) => handleAdChange("belowHero", "mobileWidth", e.target.value)} disabled={adsConfig.belowHero.network === 'none'}/>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="ad-mobile-height-below-hero">Mobile Height</Label>
+                            <Input id="ad-mobile-height-below-hero" placeholder="e.g., 100" value={adsConfig.belowHero.mobileHeight} onChange={(e) => handleAdChange("belowHero", "mobileHeight", e.target.value)} disabled={adsConfig.belowHero.network === 'none'}/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+             {/* Ad Slot 2: Above Footer */}
+            <div className="rounded-lg border p-4 space-y-4">
+                <h3 className="text-lg font-semibold">Ad Slot: Above Footer</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                        <Label>Ad Network</Label>
+                        <Select value={adsConfig.aboveFooter.network} onValueChange={(value) => handleAdChange("aboveFooter", "network", value)}>
+                            <SelectTrigger><SelectValue/></SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="none">None</SelectItem>
+                                <SelectItem value="adsense">Google AdSense</SelectItem>
+                                <SelectItem value="adsterra">Adsterra</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="space-y-2 md:col-span-2">
+                        <Label htmlFor="ad-code-above-footer">Ad Code</Label>
+                        <Textarea id="ad-code-above-footer" placeholder="Paste your ad code snippet here" rows={6} value={adsConfig.aboveFooter.code} onChange={(e) => handleAdChange("aboveFooter", "code", e.target.value)} disabled={adsConfig.aboveFooter.network === 'none'}/>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="ad-desktop-width-above-footer">Desktop Width</Label>
+                            <Input id="ad-desktop-width-above-footer" placeholder="e.g., 728" value={adsConfig.aboveFooter.desktopWidth} onChange={(e) => handleAdChange("aboveFooter", "desktopWidth", e.target.value)} disabled={adsConfig.aboveFooter.network === 'none'}/>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="ad-desktop-height-above-footer">Desktop Height</Label>
+                            <Input id="ad-desktop-height-above-footer" placeholder="e.g., 90" value={adsConfig.aboveFooter.desktopHeight} onChange={(e) => handleAdChange("aboveFooter", "desktopHeight", e.target.value)} disabled={adsConfig.aboveFooter.network === 'none'}/>
+                        </div>
+                    </div>
+                     <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="ad-mobile-width-above-footer">Mobile Width</Label>
+                            <Input id="ad-mobile-width-above-footer" placeholder="e.g., 320" value={adsConfig.aboveFooter.mobileWidth} onChange={(e) => handleAdChange("aboveFooter", "mobileWidth", e.target.value)} disabled={adsConfig.aboveFooter.network === 'none'}/>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="ad-mobile-height-above-footer">Mobile Height</Label>
+                            <Input id="ad-mobile-height-above-footer" placeholder="e.g., 100" value={adsConfig.aboveFooter.mobileHeight} onChange={(e) => handleAdChange("aboveFooter", "mobileHeight", e.target.value)} disabled={adsConfig.aboveFooter.network === 'none'}/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </CardContent>
+      </Card>
+
+      <div className="mt-8">
+        <Button onClick={handleSaveChanges} size="lg">Save All Settings</Button>
+      </div>
     </div>
   );
 }
+
+    

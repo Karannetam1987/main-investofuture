@@ -20,6 +20,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { AdPlaceholder } from "@/components/ad-placeholder";
+import adsData from "@/lib/data/ads.json";
 
 const features = [
   {
@@ -73,6 +75,15 @@ export default function Home() {
         <section id="home">
           <HeroSlider />
         </section>
+        
+        {adsData.belowHero.network !== 'none' && (
+            <section id="ad-below-hero" className="py-8">
+                <div className="container flex justify-center">
+                    <AdPlaceholder adSlot={adsData.belowHero} />
+                </div>
+            </section>
+        )}
+
 
         <section id="cta" className="py-16 md:py-24">
           <div className="container text-center">
@@ -146,8 +157,19 @@ export default function Home() {
             </div>
           </div>
         </section>
+        
+        {adsData.aboveFooter.network !== 'none' && (
+            <section id="ad-above-footer" className="py-8">
+                <div className="container flex justify-center">
+                    <AdPlaceholder adSlot={adsData.aboveFooter} />
+                </div>
+            </section>
+        )}
+
       </main>
       <AppFooter />
     </div>
   );
 }
+
+    
