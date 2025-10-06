@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Trash2 } from "lucide-react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import initialHeroSlides from "@/lib/data/hero-slides.json";
 import initialAdsData from "@/lib/data/ads.json";
 import initialSiteConfig from "@/lib/data/site-config.json";
@@ -58,6 +59,10 @@ type AdsConfig = {
 
 type SiteConfig = {
     siteName: string;
+    logoType: "text" | "image";
+    logoImageUrl: string;
+    logoWidth: number;
+    logoHeight: number;
     aboutUs: {
         title: string;
         description: string;
@@ -136,19 +141,19 @@ export default function SettingsPage() {
     }));
   };
 
-  const handleSiteConfigChange = (section: keyof SiteConfig, field: string, value: string) => {
+  const handleSiteConfigChange = (section: keyof SiteConfig | 'aboutUs' | 'contact', field: string, value: string | number) => {
       if (section === 'aboutUs' || section === 'contact') {
           setSiteConfig(prev => ({
               ...prev,
               [section]: {
-                  ...(prev[section]),
+                  ...(prev[section as 'aboutUs' | 'contact']),
                   [field]: value
               }
           }));
       } else {
            setSiteConfig(prev => ({
               ...prev,
-              [field]: value
+              [field as keyof SiteConfig]: value
           }));
       }
   }
@@ -181,13 +186,53 @@ export default function SettingsPage() {
             <Card>
                 <CardHeader>
                     <CardTitle>General Settings</CardTitle>
-                    <CardDescription>Manage general website information like site name, about us content, and contact details.</CardDescription>
+                    <CardDescription>Manage general website information like site name, logo, about us content, and contact details.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                     <div className="space-y-2">
-                        <Label htmlFor="siteName">Site Name / Logo Text</Label>
-                        <Input id="siteName" value={siteConfig.siteName} onChange={(e) => handleSiteConfigChange('siteName', 'siteName', e.target.value)} />
+                        <Label>Logo Type</Label>
+                        <RadioGroup 
+                            value={siteConfig.logoType} 
+                            onValueChange={(value) => handleSiteConfigChange('logoType', 'logoType', value)}
+                            className="flex gap-4"
+                        >
+                            <div className="flex items-center space-x-2">
+                                <RadioGroupItem value="text" id="logo-text" />
+                                <Label htmlFor="logo-text">Text</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <RadioGroupItem value="image" id="logo-image" />
+                                <Label htmlFor="logo-image">Image</Label>
+                            </div>
+                        </RadioGroup>
                     </div>
+
+                    {siteConfig.logoType === 'text' ? (
+                        <div className="space-y-2">
+                            <Label htmlFor="siteName">Site Name / Logo Text</Label>
+                            <Input id="siteName" value={siteConfig.siteName} onChange={(e) => handleSiteConfigChange('siteName', 'siteName', e.target.value)} />
+                        </div>
+                    ) : (
+                        <div className="p-4 border rounded-md space-y-4">
+                             <h4 className="font-medium text-sm">Custom Logo Image</h4>
+                             <div className="space-y-2">
+                                <Label htmlFor="logoImageUrl">Logo Image URL</Label>
+                                <Input id="logoImageUrl" placeholder="https://example.com/logo.png" value={siteConfig.logoImageUrl} onChange={(e) => handleSiteConfigChange('logoImageUrl', 'logoImageUrl', e.target.value)} />
+                             </div>
+                             <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="logoWidth">Logo Width (px)</Label>
+                                    <Input id="logoWidth" type="number" value={siteConfig.logoWidth} onChange={(e) => handleSiteConfigChange('logoWidth', 'logoWidth', Number(e.target.value))} />
+                                </div>
+                                 <div className="space-y-2">
+                                    <Label htmlFor="logoHeight">Logo Height (px)</Label>
+                                    <Input id="logoHeight" type="number" value={siteConfig.logoHeight} onChange={(e) => handleSiteConfigChange('logoHeight', 'logoHeight', Number(e.target.value))} />
+                                </div>
+                             </div>
+                        </div>
+                    )}
+
+
                      <div className="space-y-2">
                         <Label htmlFor="aboutTitle">About Us Title</Label>
                         <Input id="aboutTitle" value={siteConfig.aboutUs.title} onChange={(e) => handleSiteConfigChange('aboutUs', 'title', e.target.value)} />

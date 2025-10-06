@@ -1,6 +1,10 @@
 
 {
     "siteName": "InvestoFuture",
+    "logoType": "text",
+    "logoImageUrl": "",
+    "logoWidth": 120,
+    "logoHeight": 40,
     "aboutUs": {
         "title": "About InvestoFuture",
         "description": "We are dedicated to empowering individuals to achieve financial independence through smart and secure investing."
