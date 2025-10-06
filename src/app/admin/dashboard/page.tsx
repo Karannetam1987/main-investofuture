@@ -30,6 +30,10 @@ const chartData = [
   { name: 'Jun', users: 90 },
 ];
 
+const formatYAxis = (tick: number) => {
+    return `₹${tick}`;
+};
+
 export default function AdminDashboardPage() {
   return (
     <div className="flex-1 space-y-8 p-4 md:p-8">
@@ -92,10 +96,10 @@ export default function AdminDashboardPage() {
                 <BarChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
+                  <YAxis tickFormatter={formatYAxis} />
+                  <Tooltip formatter={(value: number) => [`${value} users`, 'Users']} />
                   <Legend />
-                  <Bar dataKey="users" fill="hsl(var(--primary))" />
+                  <Bar dataKey="users" fill="hsl(var(--primary))" name="New Users" />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
