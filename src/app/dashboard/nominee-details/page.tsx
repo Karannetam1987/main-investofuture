@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AppHeader } from "@/components/header";
 import { AppFooter } from "@/components/footer";
 import { Button } from "@/components/ui/button";
@@ -16,17 +16,41 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, LoaderCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import userData from "@/lib/data/user-data.json";
+import { useUser, useFirestore } from "@/firebase";
+import { setUserProfile, UserProfile } from "@/firebase/firestore/users";
+import { format, parseISO } from 'date-fns';
+
+
+type NomineeDetails = UserProfile['nomineeDetails'];
 
 export default function NomineeDetailsPage() {
-    const [nomineeDetails, setNomineeDetails] = useState(userData[0].nomineeDetails);
+    const { user, profile, loading } = useUser();
+    const firestore = useFirestore();
     const { toast } = useToast();
+    
+    const [nomineeDetails, setNomineeDetails] = useState<NomineeDetails | null>(null);
+
+    useEffect(() => {
+        if (profile) {
+            setNomineeDetails(profile.nomineeDetails);
+        }
+    }, [profile]);
 
     const handleSaveChanges = () => {
-        // In a real app, you'd call an API to save this.
-        console.log("Saving nominee details:", nomineeDetails);
+        if (!user || !firestore || !profile || !nomineeDetails) {
+            toast({ title: "Error", description: "User not logged in or data not available.", variant: "destructive"});
+            return;
+        };
+
+        const updatedProfileData: UserProfile = {
+            ...profile,
+            nomineeDetails: nomineeDetails,
+        };
+        
+        setUserProfile(firestore, user.uid, updatedProfileData);
+        
         toast({
             title: "Success!",
             description: "Your nominee details have been updated.",
@@ -35,8 +59,28 @@ export default function NomineeDetailsPage() {
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { id, value } = e.target;
-        setNomineeDetails(prev => ({...prev, [id]: value}));
+        setNomineeDetails(prev => prev ? {...prev, [id]: value} : null);
     }
+    
+    const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const { id, value } = e.target;
+       setNomineeDetails(prev => prev ? {...prev, [id]: new Date(value).toISOString()} : null);
+    }
+
+  if (loading || !nomineeDetails) {
+    return (
+      <div className="flex min-h-screen flex-col bg-background">
+        <AppHeader />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="flex items-center gap-2">
+            <LoaderCircle className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-muted-foreground">Loading nominee details...</p>
+          </div>
+        </main>
+        <AppFooter />
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -78,7 +122,12 @@ export default function NomineeDetailsPage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="nomineeDob">Nominee's Date of Birth</Label>
-                  <Input id="nomineeDob" value={nomineeDetails.nomineeDob} onChange={handleChange} />
+                  <Input 
+                    id="nomineeDob" 
+                    type="date" 
+                    value={format(parseISO(nomineeDetails.nomineeDob), 'yyyy-MM-dd')} 
+                    onChange={handleDateChange} 
+                  />
                 </div>
               </div>
             </CardContent>

@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AppHeader } from "@/components/header";
 import { AppFooter } from "@/components/footer";
 import { Button } from "@/components/ui/button";
@@ -17,18 +17,40 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, LoaderCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import userData from "@/lib/data/user-data.json";
+import { useUser, useFirestore } from "@/firebase";
+import { setUserProfile, UserProfile } from "@/firebase/firestore/users";
+
+type BankDetails = UserProfile['bankDetails'];
 
 export default function BankDetailsPage() {
-  const [bankDetails, setBankDetails] = useState(userData[0].bankDetails);
+  const { user, profile, loading } = useUser();
+  const firestore = useFirestore();
   const { toast } = useToast();
+  
+  const [bankDetails, setBankDetails] = useState<BankDetails | null>(null);
+
+  useEffect(() => {
+    if (profile) {
+      setBankDetails(profile.bankDetails);
+    }
+  }, [profile]);
+
 
   const handleSaveChanges = () => {
-    // Here you would typically call an API to save the changes.
-    // For this example, we'll just log it and show a toast.
-    console.log("Saving changes:", bankDetails);
+    if (!user || !firestore || !profile || !bankDetails) {
+        toast({ title: "Error", description: "User not logged in or data not available.", variant: "destructive"});
+        return;
+    };
+
+    const updatedProfileData: UserProfile = {
+        ...profile,
+        bankDetails: bankDetails,
+    };
+    
+    setUserProfile(firestore, user.uid, updatedProfileData);
+    
     toast({
       title: "Success!",
       description: "Your bank details have been updated.",
@@ -37,8 +59,24 @@ export default function BankDetailsPage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;
-    setBankDetails(prev => ({...prev, [id]: value}));
+    setBankDetails(prev => prev ? {...prev, [id]: value} : null);
   }
+
+  if (loading || !bankDetails) {
+    return (
+      <div className="flex min-h-screen flex-col bg-background">
+        <AppHeader />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="flex items-center gap-2">
+            <LoaderCircle className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-muted-foreground">Loading bank details...</p>
+          </div>
+        </main>
+        <AppFooter />
+      </div>
+    );
+  }
+
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -76,7 +114,7 @@ export default function BankDetailsPage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="upi">UPI ID</Label>
-                  <Input id="upi" value={bankDetails.upi} onChange={handleChange} />
+                  <Input id="upi" value={bankDetails.upi || ''} onChange={handleChange} />
                 </div>
                 <div className="space-y-2 md:col-span-2">
                   <Label htmlFor="bankAddress">Bank Address</Label>
