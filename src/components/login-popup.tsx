@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -15,6 +16,8 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/firebase";
+import { signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
 
 interface LoginPopupProps {
   open: boolean;
@@ -23,7 +26,6 @@ interface LoginPopupProps {
 }
 
 const ADMIN_EMAIL = "karannetam4@gmail.com";
-const ADMIN_PASSWORD = "randompassword123"; // This should be in an env file in a real app
 
 export function LoginPopup({
   open,
@@ -32,81 +34,83 @@ export function LoginPopup({
 }: LoginPopupProps) {
   const router = useRouter();
   const { toast } = useToast();
+  const auth = useAuth();
+
   const [emailOrId, setEmailOrId] = useState("");
   const [password, setPassword] = useState("");
-  const [isPasswordDisabled, setIsPasswordDisabled] = useState(true);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [forgotPasswordEmail, setForgotPasswordEmail] = useState("");
-  const [canSendOtp, setCanSendOtp] = useState(false);
 
   useEffect(() => {
-    if (loginType === "Admin") {
-      setIsPasswordDisabled(emailOrId.toLowerCase() !== ADMIN_EMAIL);
-    } else {
-      setIsPasswordDisabled(false);
-    }
-  }, [emailOrId, loginType]);
-  
-  useEffect(() => {
-    // Reset state when dialog opens or login type changes
     if (open) {
       setEmailOrId("");
       setPassword("");
       setShowForgotPassword(false);
       setForgotPasswordEmail("");
-      setCanSendOtp(false);
-       if (loginType === 'User') {
-        setIsPasswordDisabled(false);
-      } else {
-        setIsPasswordDisabled(true);
-      }
     }
   }, [open, loginType]);
 
 
-  const handleSignIn = (e: React.FormEvent) => {
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (loginType === "User") {
-      // In a real app, you would verify user credentials here
-      toast({ title: "Login Successful", description: "Redirecting to your dashboard..." });
-      router.push("/dashboard");
-      onOpenChange(false);
-    } else if (loginType === "Admin") {
-      if (emailOrId.toLowerCase() === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-        toast({ title: "Admin Login Successful" });
-        router.push('/admin/dashboard'); 
-        onOpenChange(false);
-      } else {
-        toast({
-          title: "Invalid Credentials",
-          description: "Please check your email and password.",
+    try {
+      if (loginType === "Admin" && emailOrId.toLowerCase() !== ADMIN_EMAIL) {
+         toast({
+          title: "Admin Login Failed",
+          description: "The provided email is not an administrator.",
           variant: "destructive",
         });
+        return;
       }
+      
+      await signInWithEmailAndPassword(auth, emailOrId, password);
+      
+      toast({ title: "Login Successful", description: "Redirecting..." });
+      
+      if (loginType === "Admin") {
+        router.push("/admin/dashboard");
+      } else {
+        router.push("/dashboard");
+      }
+      onOpenChange(false);
+      
+    } catch (error: any) {
+       toast({
+        title: "Login Failed",
+        description: error.message,
+        variant: "destructive",
+      });
     }
   };
 
   const handleForgotPasswordClick = () => {
-    setForgotPasswordEmail(loginType === 'Admin' ? emailOrId : '');
+    setForgotPasswordEmail(emailOrId);
     setShowForgotPassword(true);
   };
   
-  const handleForgotPasswordEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const email = e.target.value;
-    setForgotPasswordEmail(email);
-    // Enable OTP button only if it's the admin email (for this demo)
-    setCanSendOtp(loginType === 'Admin' && email.toLowerCase() === ADMIN_EMAIL);
-  }
-
-  const handleSendOtp = () => {
-    // In a real app, this would trigger a backend API call to send an email.
-    // For now, we simulate the action.
-    toast({
-        title: "OTP Sent",
-        description: `If an account exists for ${forgotPasswordEmail}, an OTP has been sent.`
-    });
-    // Reset to login form after "sending"
-    setShowForgotPassword(false);
+  const handleSendOtp = async () => {
+    if (!forgotPasswordEmail) {
+       toast({
+        title: "Email Required",
+        description: "Please enter your email address.",
+        variant: "destructive",
+      });
+      return;
+    }
+    try {
+        await sendPasswordResetEmail(auth, forgotPasswordEmail);
+        toast({
+            title: "Password Reset Email Sent",
+            description: `If an account exists for ${forgotPasswordEmail}, a password reset link has been sent.`
+        });
+        setShowForgotPassword(false);
+    } catch(error: any) {
+        toast({
+            title: "Error",
+            description: error.message,
+            variant: "destructive",
+        });
+    }
   }
 
   return (
@@ -118,7 +122,7 @@ export function LoginPopup({
           </DialogTitle>
           <DialogDescription className="text-center">
             {showForgotPassword
-              ? `Enter your account's email address to receive an OTP.`
+              ? `Enter your account's email address to receive a password reset link.`
               : `Access your ${loginType.toLowerCase()} account.`}
           </DialogDescription>
         </DialogHeader>
@@ -133,16 +137,15 @@ export function LoginPopup({
                       type="email"
                       placeholder="Enter your email"
                       value={forgotPasswordEmail}
-                      onChange={handleForgotPasswordEmailChange}
+                      onChange={(e) => setForgotPasswordEmail(e.target.value)}
                       required
                     />
                 </div>
                  <Button 
                     onClick={handleSendOtp} 
                     className="w-full"
-                    disabled={loginType === 'Admin' && !canSendOtp}
                  >
-                    Send OTP
+                    Send Reset Link
                 </Button>
                 <div className="text-center text-sm">
                     <button onClick={() => setShowForgotPassword(false)} className="text-primary hover:underline">
@@ -154,11 +157,12 @@ export function LoginPopup({
               <form className="space-y-4" onSubmit={handleSignIn}>
                 <div className="space-y-2">
                   <Label htmlFor="emailOrId">
-                    {loginType === "Admin" ? "Admin Email" : "Email or Registration ID"}
+                    {loginType === "Admin" ? "Admin Email" : "Email"}
                   </Label>
                   <Input
                     id="emailOrId"
-                    placeholder={loginType === 'Admin' ? "Enter your email" : "Enter your email or ID"}
+                    type="email"
+                    placeholder={loginType === 'Admin' ? "Enter your email" : "Enter your email"}
                     required
                     value={emailOrId}
                     onChange={(e) => setEmailOrId(e.target.value)}
@@ -173,7 +177,6 @@ export function LoginPopup({
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    disabled={loginType === 'Admin' && isPasswordDisabled}
                   />
                 </div>
                 <Button type="submit" className="w-full">
@@ -209,3 +212,5 @@ export function LoginPopup({
     </Dialog>
   );
 }
+
+    
