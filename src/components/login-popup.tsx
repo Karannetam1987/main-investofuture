@@ -26,6 +26,7 @@ interface LoginPopupProps {
 }
 
 const ADMIN_EMAIL = "karannetam4@gmail.com";
+const ADMIN_PASSWORD = "Karan@123";
 
 export function LoginPopup({
   open,
@@ -54,24 +55,27 @@ export function LoginPopup({
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      if (loginType === "Admin" && emailOrId.toLowerCase() !== ADMIN_EMAIL) {
-         toast({
-          title: "Admin Login Failed",
-          description: "The provided email is not an administrator.",
-          variant: "destructive",
-        });
-        return;
+      if (loginType === "Admin") {
+        if (emailOrId.toLowerCase() === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+           toast({ title: "Admin Login Successful", description: "Redirecting to dashboard..." });
+           router.push("/admin/dashboard");
+           onOpenChange(false);
+           return;
+        } else {
+            toast({
+              title: "Admin Login Failed",
+              description: "Invalid credentials for administrator.",
+              variant: "destructive",
+            });
+            return;
+        }
       }
       
       await signInWithEmailAndPassword(auth, emailOrId, password);
       
       toast({ title: "Login Successful", description: "Redirecting..." });
       
-      if (loginType === "Admin") {
-        router.push("/admin/dashboard");
-      } else {
-        router.push("/dashboard");
-      }
+      router.push("/dashboard");
       onOpenChange(false);
       
     } catch (error: any) {
@@ -113,7 +117,7 @@ export function LoginPopup({
     }
   }
   
-  const isPasswordDisabled = loginType === 'Admin' && emailOrId.toLowerCase() !== ADMIN_EMAIL && emailOrId !== "";
+  const isPasswordDisabled = false;
   const isForgotPassDisabled = loginType === 'Admin' && forgotPasswordEmail.toLowerCase() !== ADMIN_EMAIL && forgotPasswordEmail !== "";
 
   return (
