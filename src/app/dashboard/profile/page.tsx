@@ -34,16 +34,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 type EditableProfile = Omit<UserProfile, 'id' | 'email' | 'uid' | 'createdAt' | 'updatedAt' | 'status'>;
 
-const passwordFormSchema = z.object({
-  currentPassword: z.string().min(1, "Current password is required."),
-  newPassword: z.string().min(6, "New password must be at least 6 characters."),
-  confirmPassword: z.string(),
-}).refine(data => data.newPassword === data.confirmPassword, {
-  message: "New passwords do not match.",
-  path: ["confirmPassword"],
-});
-
-
 function ProfileEditor() {
   const { user, profile, loading, isAdminView, refreshProfile } = useUser();
   const firestore = useFirestore();
@@ -52,15 +42,6 @@ function ProfileEditor() {
   
   const [editableProfile, setEditableProfile] = useState<EditableProfile | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-
-  const passwordForm = useForm<z.infer<typeof passwordFormSchema>>({
-    resolver: zodResolver(passwordFormSchema),
-    defaultValues: {
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
-    },
-  });
 
   useEffect(() => {
     if (profile) {
@@ -120,39 +101,6 @@ function ProfileEditor() {
       description: "Profile has been updated.",
     });
   };
-
-  const handlePasswordChange = async (values: z.infer<typeof passwordFormSchema>) => {
-    if (!user) {
-        toast({ title: "Not Authenticated", description: "You must be logged in to change your password.", variant: "destructive"});
-        return;
-    }
-
-    const credential = EmailAuthProvider.credential(user.email!, values.currentPassword);
-
-    try {
-        await reauthenticateWithCredential(user, credential);
-        await updatePassword(user, values.newPassword);
-        toast({
-            title: "Password Updated",
-            description: "Your password has been changed successfully."
-        });
-        passwordForm.reset();
-    } catch (error: any) {
-        let errorMessage = "An unknown error occurred.";
-        if (error.code === 'auth/wrong-password') {
-            errorMessage = "The current password you entered is incorrect.";
-        } else if (error.code === 'auth/weak-password') {
-            errorMessage = "The new password is too weak. It must be at least 6 characters long.";
-        } else {
-            errorMessage = error.message;
-        }
-         toast({
-            title: "Error Changing Password",
-            description: errorMessage,
-            variant: "destructive",
-        });
-    }
-  }
 
   const handlePictureUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -340,74 +288,6 @@ function ProfileEditor() {
                     <Button onClick={handleSaveChanges}>Save Changes</Button>
                 </CardFooter>
             </Card>
-
-            {!isAdminView && (
-                 <Card>
-                    <CardHeader>
-                        <CardTitle>Change Password</CardTitle>
-                        <CardDescription>
-                            For security, you will be required to enter your current password.
-                        </CardDescription>
-                    </CardHeader>
-                    <Form {...passwordForm}>
-                        <form onSubmit={passwordForm.handleSubmit(handlePasswordChange)}>
-                            <CardContent className="space-y-4">
-                                <FormField
-                                    control={passwordForm.control}
-                                    name="currentPassword"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Current Password</FormLabel>
-                                            <FormControl>
-                                                <Input type="password" {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <FormField
-                                        control={passwordForm.control}
-                                        name="newPassword"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>New Password</FormLabel>
-                                                <FormControl>
-                                                    <Input type="password" {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <FormField
-                                        control={passwordForm.control}
-                                        name="confirmPassword"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Confirm New Password</FormLabel>
-                                                <FormControl>
-                                                    <Input type="password" {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                </div>
-                            </CardContent>
-                            <CardFooter>
-                                <Button type="submit" disabled={passwordForm.formState.isSubmitting}>
-                                    {passwordForm.formState.isSubmitting ? (
-                                        <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>
-                                    ) : (
-                                        <ShieldCheck className="mr-2 h-4 w-4"/>
-                                    )}
-                                    {passwordForm.formState.isSubmitting ? "Updating..." : "Update Password"}
-                                </Button>
-                            </CardFooter>
-                        </form>
-                    </Form>
-                 </Card>
-            )}
           </div>
         </div>
       </main>

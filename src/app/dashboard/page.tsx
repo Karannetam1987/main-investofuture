@@ -12,7 +12,8 @@ import {
   PiggyBank,
   ShieldAlert,
   User,
-  LoaderCircle
+  LoaderCircle,
+  Settings
 } from "lucide-react";
 import Link from "next/link";
 import { AppHeader } from "@/components/header";
@@ -82,6 +83,12 @@ const dashboardItems = [
     description: "View and download your credential documents.",
     href: "/dashboard/my-documents",
   },
+  {
+    icon: <Settings className="w-8 h-8 text-primary" />,
+    title: "Settings",
+    description: "Manage your account settings.",
+    href: "/dashboard/settings",
+  },
 ];
 
 export default function DashboardPage() {
@@ -144,5 +151,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-    
