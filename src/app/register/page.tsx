@@ -18,7 +18,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -30,7 +29,7 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { ArrowLeft, CalendarIcon } from "lucide-react";
+import { ArrowLeft, CalendarIcon, LoaderCircle } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
@@ -75,8 +74,8 @@ const personalInfoSchema = z.object({
   motherName: z.string().min(1, "Mother's name is required"),
   mobile: z.string().min(1, "Mobile number is required"),
   dob: z.date({ required_error: "Date of birth is required." }),
-  gender: z.enum(["male", "female", "other"]),
-  maritalStatus: z.enum(["single", "married", "divorced", "widowed"]),
+  gender: z.enum(["male", "female", "other"], {required_error: "Gender is required"}),
+  maritalStatus: z.enum(["single", "married", "divorced", "widowed"], {required_error: "Marital status is required"}),
   religion: z.string().min(1, "Religion is required"),
   caste: z.string().min(1, "Caste is required"),
   children: z.string().optional(),
@@ -102,6 +101,11 @@ const formSchema = z.object({
 }).refine(data => data.password === data.confirmPassword, {
     message: "Passwords do not match.",
     path: ["confirmPassword"],
+}).refine(data => {
+    if (data.sameAsPermanent) {
+        data.address.current = data.address.permanent;
+    }
+    return true;
 });
 
 export default function RegisterPage() {
@@ -121,8 +125,8 @@ export default function RegisterPage() {
         fatherName: "",
         motherName: "",
         mobile: "",
-        gender: "male",
-        maritalStatus: "single",
+        gender: undefined, // Let placeholder show
+        maritalStatus: undefined, // Let placeholder show
         religion: "",
         caste: "",
         children: "0",
@@ -161,7 +165,6 @@ export default function RegisterPage() {
       const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
       const user = userCredential.user;
 
-      // Generate a new, unique user ID
       const usersCollection = collection(firestore, 'users');
       const usersSnapshot = await getDocs(usersCollection);
       const newIdNumber = usersSnapshot.size + 1;
@@ -171,7 +174,7 @@ export default function RegisterPage() {
           uid: user.uid,
           id: newUserId,
           email: values.email,
-          photoURL: '', // Default empty photoURL
+          photoURL: '', 
           status: 'Active',
           personalInfo: {
             ...values.personalInfo,
@@ -228,223 +231,25 @@ export default function RegisterPage() {
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                   
-                  {/* Account Details */}
                    <div className="space-y-4">
                      <h3 className="text-xl font-semibold text-secondary font-headline">Account Details</h3>
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <FormField
-                            control={form.control}
-                            name="email"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Email</FormLabel>
-                                <FormControl>
-                                    <Input placeholder="your.email@example.com" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                         <FormField
-                            control={form.control}
-                            name="personalInfo.mobile"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Mobile Number</FormLabel>
-                                <FormControl>
-                                    <Input placeholder="123-456-7890" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="password"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Password</FormLabel>
-                                <FormControl>
-                                    <Input type="password" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="confirmPassword"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Confirm Password</FormLabel>
-                                <FormControl>
-                                    <Input type="password" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                        <FormField control={form.control} name="email" render={({ field }) => (<FormItem><FormLabel>Email</FormLabel><FormControl><Input placeholder="your.email@example.com" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                        <FormField control={form.control} name="personalInfo.mobile" render={({ field }) => (<FormItem><FormLabel>Mobile Number</FormLabel><FormControl><Input placeholder="123-456-7890" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                        <FormField control={form.control} name="password" render={({ field }) => (<FormItem><FormLabel>Password</FormLabel><FormControl><Input type="password" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                        <FormField control={form.control} name="confirmPassword" render={({ field }) => (<FormItem><FormLabel>Confirm Password</FormLabel><FormControl><Input type="password" {...field} /></FormControl><FormMessage /></FormItem>)} />
                      </div>
                    </div>
 
-
-                  {/* Personal Details */}
                   <div className="space-y-4">
                     <h3 className="text-xl font-semibold text-secondary font-headline">Personal Details</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <FormField
-                            control={form.control}
-                            name="personalInfo.fullName"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Full Name</FormLabel>
-                                <FormControl>
-                                    <Input placeholder="John Doe" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                         <FormField
-                            control={form.control}
-                            name="personalInfo.fatherName"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Father&apos;s Name</FormLabel>
-                                <FormControl>
-                                    <Input {...field} />
-                                </FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                         <FormField
-                            control={form.control}
-                            name="personalInfo.motherName"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Mother&apos;s Name</FormLabel>
-                                <FormControl>
-                                    <Input {...field} />
-                                </FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="personalInfo.dob"
-                            render={({ field }) => (
-                                <FormItem className="flex flex-col">
-                                <FormLabel>Date of Birth</FormLabel>
-                                <Popover>
-                                    <PopoverTrigger asChild>
-                                    <FormControl>
-                                        <Button
-                                        variant={"outline"}
-                                        className={cn(
-                                            "w-full pl-3 text-left font-normal",
-                                            !field.value && "text-muted-foreground"
-                                        )}
-                                        >
-                                        {field.value ? (
-                                            format(field.value, "PPP")
-                                        ) : (
-                                            <span>Pick a date</span>
-                                        )}
-                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                        </Button>
-                                    </FormControl>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-auto p-0" align="start">
-                                    <Calendar
-                                        mode="single"
-                                        selected={field.value}
-                                        onSelect={field.onChange}
-                                        captionLayout="dropdown-buttons"
-                                        fromYear={1900}
-                                        toYear={new Date().getFullYear()}
-                                        disabled={(date) =>
-                                        date > new Date() || date < new Date("1900-01-01")
-                                        }
-                                        initialFocus
-                                    />
-                                    </PopoverContent>
-                                </Popover>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                         <FormField
-                            control={form.control}
-                            name="personalInfo.gender"
-                            render={({ field }) => (
-                                <FormItem className="space-y-3">
-                                <FormLabel>Gender</FormLabel>
-                                <FormControl>
-                                    <RadioGroup
-                                    onValueChange={field.onChange}
-                                    defaultValue={field.value}
-                                    className="flex gap-4"
-                                    >
-                                    <FormItem className="flex items-center space-x-2 space-y-0">
-                                        <FormControl>
-                                        <RadioGroupItem value="male" />
-                                        </FormControl>
-                                        <FormLabel className="font-normal">Male</FormLabel>
-                                    </FormItem>
-                                    <FormItem className="flex items-center space-x-2 space-y-0">
-                                        <FormControl>
-                                        <RadioGroupItem value="female" />
-                                        </FormControl>
-                                        <FormLabel className="font-normal">Female</FormLabel>
-                                    </FormItem>
-                                     <FormItem className="flex items-center space-x-2 space-y-0">
-                                        <FormControl>
-                                        <RadioGroupItem value="other" />
-                                        </FormControl>
-                                        <FormLabel className="font-normal">Other</FormLabel>
-                                    </FormItem>
-                                    </RadioGroup>
-                                </FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="personalInfo.maritalStatus"
-                            render={({ field }) => (
-                                <FormItem className="space-y-3">
-                                <FormLabel>Marital Status</FormLabel>
-                                <FormControl>
-                                    <RadioGroup
-                                    onValueChange={field.onChange}
-                                    defaultValue={field.value}
-                                    className="flex flex-wrap gap-4"
-                                    >
-                                    <FormItem className="flex items-center space-x-2 space-y-0">
-                                        <FormControl><RadioGroupItem value="single" /></FormControl>
-                                        <FormLabel className="font-normal">Single</FormLabel>
-                                    </FormItem>
-                                    <FormItem className="flex items-center space-x-2 space-y-0">
-                                        <FormControl><RadioGroupItem value="married" /></FormControl>
-                                        <FormLabel className="font-normal">Married</FormLabel>
-                                    </FormItem>
-                                    <FormItem className="flex items-center space-x-2 space-y-0">
-                                        <FormControl><RadioGroupItem value="divorced" /></FormControl>
-                                        <FormLabel className="font-normal">Divorced</FormLabel>
-                                    </FormItem>
-                                      <FormItem className="flex items-center space-x-2 space-y-0">
-                                        <FormControl><RadioGroupItem value="widowed" /></FormControl>
-                                        <FormLabel className="font-normal">Widowed</FormLabel>
-                                    </FormItem>
-                                    </RadioGroup>
-                                </FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                        <FormField control={form.control} name="personalInfo.fullName" render={({ field }) => (<FormItem><FormLabel>Full Name</FormLabel><FormControl><Input placeholder="John Doe" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                        <FormField control={form.control} name="personalInfo.fatherName" render={({ field }) => (<FormItem><FormLabel>Father&apos;s Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                        <FormField control={form.control} name="personalInfo.motherName" render={({ field }) => (<FormItem><FormLabel>Mother&apos;s Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                        <FormField control={form.control} name="personalInfo.dob" render={({ field }) => (<FormItem className="flex flex-col"><FormLabel>Date of Birth</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full pl-3 text-left font-normal",!field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "PPP")) : (<span>Pick a date</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} captionLayout="dropdown-buttons" fromYear={1900} toYear={new Date().getFullYear()} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>)} />
+                        <FormField control={form.control} name="personalInfo.gender" render={({ field }) => (<FormItem className="space-y-3"><FormLabel>Gender</FormLabel><FormControl><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex gap-4"><FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="male" /></FormControl><FormLabel className="font-normal">Male</FormLabel></FormItem><FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="female" /></FormControl><FormLabel className="font-normal">Female</FormLabel></FormItem><FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="other" /></FormControl><FormLabel className="font-normal">Other</FormLabel></FormItem></RadioGroup></FormControl><FormMessage /></FormItem>)} />
+                        <FormField control={form.control} name="personalInfo.maritalStatus" render={({ field }) => (<FormItem><FormLabel>Marital Status</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select marital status" /></SelectTrigger></FormControl><SelectContent><SelectItem value="single">Single</SelectItem><SelectItem value="married">Married</SelectItem><SelectItem value="divorced">Divorced</SelectItem><SelectItem value="widowed">Widowed</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
                         <FormField control={form.control} name="personalInfo.religion" render={({ field }) => (<FormItem><FormLabel>Religion</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                         <FormField control={form.control} name="personalInfo.caste" render={({ field }) => (<FormItem><FormLabel>Caste</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                         <FormField control={form.control} name="personalInfo.children" render={({ field }) => (<FormItem><FormLabel>Children (Optional)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>)} />
@@ -455,37 +260,15 @@ export default function RegisterPage() {
                     </div>
                   </div>
 
-                  {/* Address Details */}
                   <div className="space-y-4">
                     <h3 className="text-xl font-semibold text-secondary font-headline">Address Details</h3>
                     <div className="space-y-4">
                         <FormField control={form.control} name="address.permanent" render={({ field }) => (<FormItem><FormLabel>Permanent Address</FormLabel><FormControl><Textarea placeholder="Enter your full permanent address" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                        <FormField
-                            control={form.control}
-                            name="sameAsPermanent"
-                            render={({ field }) => (
-                                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                                <FormControl>
-                                    <Checkbox
-                                    checked={field.value}
-                                    onCheckedChange={field.onChange}
-                                    />
-                                </FormControl>
-                                <div className="space-y-1 leading-none">
-                                    <FormLabel>
-                                    Current address is the same as permanent address
-                                    </FormLabel>
-                                </div>
-                                </FormItem>
-                            )}
-                        />
-                        {!sameAsPermanent && (
-                            <FormField control={form.control} name="address.current" render={({ field }) => (<FormItem><FormLabel>Current Address</FormLabel><FormControl><Textarea placeholder="Enter your full current address" {...field} value={sameAsPermanent ? permanentAddress : field.value} /></FormControl><FormMessage /></FormItem>)} />
-                        )}
+                        <FormField control={form.control} name="sameAsPermanent" render={({ field }) => (<FormItem className="flex flex-row items-start space-x-3 space-y-0"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><div className="space-y-1 leading-none"><FormLabel>Current address is the same as permanent address</FormLabel></div></FormItem>)} />
+                        {!sameAsPermanent && (<FormField control={form.control} name="address.current" render={({ field }) => (<FormItem><FormLabel>Current Address</FormLabel><FormControl><Textarea placeholder="Enter your full current address" {...field} value={sameAsPermanent ? permanentAddress : field.value} /></FormControl><FormMessage /></FormItem>)} />)}
                     </div>
                   </div>
                   
-                  {/* Bank Details */}
                   <div className="space-y-4">
                     <h3 className="text-xl font-semibold text-secondary font-headline">Bank Details</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -497,7 +280,6 @@ export default function RegisterPage() {
                     </div>
                   </div>
 
-                  {/* Nominee Details */}
                   <div className="space-y-4">
                     <h3 className="text-xl font-semibold text-secondary font-headline">Nominee Details</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -505,76 +287,14 @@ export default function RegisterPage() {
                         <FormField control={form.control} name="nomineeDetails.nomineeFatherName" render={({ field }) => (<FormItem><FormLabel>Nominee&apos;s Father Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                         <FormField control={form.control} name="nomineeDetails.relationship" render={({ field }) => (<FormItem><FormLabel>Relationship</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                         <FormField control={form.control} name="nomineeDetails.nomineeMobile" render={({ field }) => (<FormItem><FormLabel>Nominee Mobile Number</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                        <FormField
-                            control={form.control}
-                            name="nomineeDetails.nomineeDob"
-                            render={({ field }) => (
-                                <FormItem className="flex flex-col">
-                                <FormLabel>Nominee's Date of Birth</FormLabel>
-                                <Popover>
-                                    <PopoverTrigger asChild>
-                                    <FormControl>
-                                        <Button
-                                        variant={"outline"}
-                                        className={cn(
-                                            "w-full pl-3 text-left font-normal",
-                                            !field.value && "text-muted-foreground"
-                                        )}
-                                        >
-                                        {field.value ? (
-                                            format(field.value, "PPP")
-                                        ) : (
-                                            <span>Pick a date</span>
-                                        )}
-                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                        </Button>
-                                    </FormControl>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-auto p-0" align="start">
-                                    <Calendar
-                                        mode="single"
-                                        selected={field.value}
-                                        onSelect={field.onChange}
-                                        captionLayout="dropdown-buttons"
-                                        fromYear={1900}
-                                        toYear={new Date().getFullYear()}
-                                        disabled={(date) =>
-                                        date > new Date() || date < new Date("1900-01-01")
-                                        }
-                                        initialFocus
-                                    />
-                                    </PopoverContent>
-                                </Popover>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                        <FormField control={form.control} name="nomineeDetails.nomineeDob" render={({ field }) => (<FormItem className="flex flex-col"><FormLabel>Nominee's Date of Birth</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full pl-3 text-left font-normal",!field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "PPP")) : (<span>Pick a date</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} captionLayout="dropdown-buttons" fromYear={1900} toYear={new Date().getFullYear()} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>)} />
                     </div>
                   </div>
                   
-                  <FormField
-                    control={form.control}
-                    name="termsAccepted"
-                    render={({ field }) => (
-                        <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                        <FormControl>
-                            <Checkbox
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                            />
-                        </FormControl>
-                        <div className="space-y-1 leading-none">
-                            <FormLabel>
-                            I agree to the Terms and Conditions
-                            </FormLabel>
-                            <FormMessage />
-                        </div>
-                        </FormItem>
-                    )}
-                    />
+                  <FormField control={form.control} name="termsAccepted" render={({ field }) => (<FormItem className="flex flex-row items-start space-x-3 space-y-0"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><div className="space-y-1 leading-none"><FormLabel>I agree to the Terms and Conditions</FormLabel><FormMessage /></div></FormItem>)} />
 
                   <Button type="submit" className="w-full" size="lg" disabled={form.formState.isSubmitting}>
-                    {form.formState.isSubmitting ? "Creating Account..." : "Create an account"}
+                    {form.formState.isSubmitting ? <><LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>Creating Account...</> : "Create an account"}
                   </Button>
                 </form>
               </Form>
@@ -586,3 +306,5 @@ export default function RegisterPage() {
     </div>
   );
 }
+
+    
