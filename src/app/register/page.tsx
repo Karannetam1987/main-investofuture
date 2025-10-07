@@ -45,7 +45,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { setUserProfile } from "@/firebase/firestore/users";
+import { setUserProfile, UserProfile } from "@/firebase/firestore/users";
+import { collection, getDocs } from "firebase/firestore";
 
 const addressSchema = z.object({
   permanent: z.string().min(1, "Permanent address is required"),
@@ -159,8 +160,19 @@ export default function RegisterPage() {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
       const user = userCredential.user;
+
+      // Generate a new, unique user ID
+      const usersCollection = collection(firestore, 'users');
+      const usersSnapshot = await getDocs(usersCollection);
+      const newIdNumber = usersSnapshot.size + 1;
+      const newUserId = `INF${String(newIdNumber).padStart(3, '0')}`;
       
-      const profileData = {
+      const profileData: UserProfile = {
+          uid: user.uid,
+          id: newUserId,
+          email: values.email,
+          photoURL: '', // Default empty photoURL
+          status: 'Active',
           personalInfo: {
             ...values.personalInfo,
             dob: values.personalInfo.dob.toISOString(),
@@ -174,15 +186,13 @@ export default function RegisterPage() {
             ...values.nomineeDetails,
             nomineeDob: values.nomineeDetails.nomineeDob.toISOString(),
           },
-          email: values.email,
-          id: `INF${String(Math.floor(1000 + Math.random() * 9000)).padStart(4, '0')}` // Example ID
       };
 
       await setUserProfile(firestore, user.uid, profileData);
 
       toast({
         title: "Registration Successful",
-        description: "Your account has been created. Redirecting to your dashboard...",
+        description: `Your account has been created with ID: ${newUserId}. Redirecting to your dashboard...`,
       });
       router.push("/dashboard");
     } catch (error: any) {
@@ -576,4 +586,5 @@ export default function RegisterPage() {
     </div>
   );
 }
+
     
