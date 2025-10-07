@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { AppHeader } from "@/components/header";
 import { AppFooter } from "@/components/footer";
@@ -72,7 +73,7 @@ const personalInfoSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),
   fatherName: z.string().min(1, "Father's name is required"),
   motherName: z.string().min(1, "Mother's name is required"),
-  mobile: z.string().min(1, "Mobile number is required"),
+  mobile: z.string().min(10, "Mobile number must be at least 10 digits"),
   dob: z.date({ required_error: "Date of birth is required." }),
   gender: z.enum(["male", "female", "other"], {required_error: "Gender is required"}),
   maritalStatus: z.enum(["single", "married", "divorced", "widowed"], {required_error: "Marital status is required"}),
@@ -101,11 +102,6 @@ const formSchema = z.object({
 }).refine(data => data.password === data.confirmPassword, {
     message: "Passwords do not match.",
     path: ["confirmPassword"],
-}).refine(data => {
-    if (data.sameAsPermanent) {
-        data.address.current = data.address.permanent;
-    }
-    return true;
 });
 
 export default function RegisterPage() {
@@ -125,8 +121,8 @@ export default function RegisterPage() {
         fatherName: "",
         motherName: "",
         mobile: "",
-        gender: undefined, // Let placeholder show
-        maritalStatus: undefined, // Let placeholder show
+        gender: undefined,
+        maritalStatus: undefined,
         religion: "",
         caste: "",
         children: "0",
@@ -160,13 +156,23 @@ export default function RegisterPage() {
   const sameAsPermanent = form.watch("sameAsPermanent");
   const permanentAddress = form.watch("address.permanent");
 
+  useEffect(() => {
+    if (sameAsPermanent) {
+      form.setValue('address.current', permanentAddress);
+    } else {
+      // Optional: Clear current address if unchecked, or let user edit it
+      // form.setValue('address.current', ''); 
+    }
+  }, [sameAsPermanent, permanentAddress, form]);
+
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
       const user = userCredential.user;
 
-      const usersCollection = collection(firestore, 'users');
-      const usersSnapshot = await getDocs(usersCollection);
+      const usersCollectionRef = collection(firestore, 'users');
+      const usersSnapshot = await getDocs(usersCollectionRef);
       const newIdNumber = usersSnapshot.size + 1;
       const newUserId = `INF${String(newIdNumber).padStart(3, '0')}`;
       
@@ -265,7 +271,7 @@ export default function RegisterPage() {
                     <div className="space-y-4">
                         <FormField control={form.control} name="address.permanent" render={({ field }) => (<FormItem><FormLabel>Permanent Address</FormLabel><FormControl><Textarea placeholder="Enter your full permanent address" {...field} /></FormControl><FormMessage /></FormItem>)} />
                         <FormField control={form.control} name="sameAsPermanent" render={({ field }) => (<FormItem className="flex flex-row items-start space-x-3 space-y-0"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><div className="space-y-1 leading-none"><FormLabel>Current address is the same as permanent address</FormLabel></div></FormItem>)} />
-                        {!sameAsPermanent && (<FormField control={form.control} name="address.current" render={({ field }) => (<FormItem><FormLabel>Current Address</FormLabel><FormControl><Textarea placeholder="Enter your full current address" {...field} value={sameAsPermanent ? permanentAddress : field.value} /></FormControl><FormMessage /></FormItem>)} />)}
+                        {!sameAsPermanent && (<FormField control={form.control} name="address.current" render={({ field }) => (<FormItem><FormLabel>Current Address</FormLabel><FormControl><Textarea placeholder="Enter your full current address" {...field} /></FormControl><FormMessage /></FormItem>)} />)}
                     </div>
                   </div>
                   
@@ -306,5 +312,3 @@ export default function RegisterPage() {
     </div>
   );
 }
-
-    
