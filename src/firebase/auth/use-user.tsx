@@ -1,9 +1,9 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { onAuthStateChanged, User } from "firebase/auth";
-import { doc, DocumentReference } from "firebase/firestore";
+import { doc, DocumentReference, getDocFromServer } from "firebase/firestore";
 import { useSearchParams } from 'next/navigation';
 
 import { useAuth, useFirestore } from "@/firebase/provider";
@@ -16,41 +16,69 @@ export function useUser() {
   const firestore = useFirestore();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [profileLoading, setProfileLoading] = useState(true);
+  const [profileError, setProfileError] = useState<any>(null);
+
   
   const searchParams = useSearchParams();
   const adminViewingUserId = searchParams.get("userId");
 
-  useEffect(() => {
-    // If an admin is viewing a user, we don't need to check auth state
-    if (adminViewingUserId) {
-        setLoading(false);
-        return;
+  const fetchProfile = useCallback(async (userId: string) => {
+    if (!firestore) return;
+    setProfileLoading(true);
+    try {
+        const userDocRef = doc(firestore, "users", userId);
+        const docSnap = await getDocFromServer(userDocRef);
+        if (docSnap.exists()) {
+            setProfile({ uid: docSnap.id, ...docSnap.data() } as UserProfile);
+        } else {
+            setProfile(null);
+        }
+        setProfileError(null);
+    } catch (err) {
+        setProfileError(err);
+        console.error("Error fetching user profile:", err);
+    } finally {
+        setProfileLoading(false);
     }
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
+  }, [firestore]);
+
+
+  useEffect(() => {
+    if (adminViewingUserId) {
       setLoading(false);
-    });
-    return () => unsubscribe();
-  }, [auth, adminViewingUserId]);
+      fetchProfile(adminViewingUserId);
+    } else {
+        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+            setUser(currentUser);
+            setLoading(false);
+            if(currentUser) {
+                fetchProfile(currentUser.uid);
+            } else {
+                setProfile(null);
+                setProfileLoading(false);
+            }
+        });
+        return () => unsubscribe();
+    }
+  }, [auth, adminViewingUserId, fetchProfile]);
 
-  const userIdToFetch = adminViewingUserId || user?.uid;
-
-  const userDocRef = useMemoFirebase(() => {
-    if (!firestore || !userIdToFetch) return null;
-    return doc(firestore, "users", userIdToFetch) as DocumentReference<UserProfile>;
-  }, [firestore, userIdToFetch]);
-
-  const { data: profile, loading: profileLoading, error: profileError } = useDoc(userDocRef);
+  const refreshProfile = useCallback(() => {
+    const userIdToFetch = adminViewingUserId || user?.uid;
+    if(userIdToFetch) {
+        fetchProfile(userIdToFetch);
+    }
+  }, [adminViewingUserId, user, fetchProfile]);
   
   const finalLoading = adminViewingUserId ? profileLoading : (loading || (user ? profileLoading : false));
 
   return {
-    user: adminViewingUserId ? null : user, // If admin is viewing, the concept of a "logged in" user is null
+    user: adminViewingUserId ? null : user,
     profile,
     loading: finalLoading,
     error: profileError,
     isAdminView: !!adminViewingUserId,
+    refreshProfile,
   };
 }
-
-    

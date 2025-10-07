@@ -1,10 +1,11 @@
 
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, Suspense, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import Image from "next/image";
 import { AppHeader } from "@/components/header";
 import { AppFooter } from "@/components/footer";
 import { Button } from "@/components/ui/button";
@@ -20,7 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import Link from "next/link";
-import { ArrowLeft, LoaderCircle, ShieldCheck } from "lucide-react";
+import { ArrowLeft, LoaderCircle, ShieldCheck, User as UserIcon, Upload } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { useUser, useFirestore } from "@/firebase";
@@ -28,6 +29,8 @@ import { setUserProfile, UserProfile } from "@/firebase/firestore/users";
 import { format, parseISO } from "date-fns";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from "firebase/auth";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 type EditableProfile = Omit<UserProfile, 'id' | 'email' | 'uid' | 'createdAt' | 'updatedAt' | 'status'>;
 
@@ -42,11 +45,13 @@ const passwordFormSchema = z.object({
 
 
 function ProfileEditor() {
-  const { user, profile, loading, isAdminView } = useUser();
+  const { user, profile, loading, isAdminView, refreshProfile } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [editableProfile, setEditableProfile] = useState<EditableProfile | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   const passwordForm = useForm<z.infer<typeof passwordFormSchema>>({
     resolver: zodResolver(passwordFormSchema),
@@ -60,6 +65,7 @@ function ProfileEditor() {
   useEffect(() => {
     if (profile) {
       setEditableProfile({
+        photoURL: profile.photoURL,
         personalInfo: { ...profile.personalInfo, dob: profile.personalInfo.dob },
         address: { ...profile.address },
         bankDetails: { ...profile.bankDetails },
@@ -148,6 +154,39 @@ function ProfileEditor() {
     }
   }
 
+  const handlePictureUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    const userToUpdateUid = profile?.uid;
+    if (!file || !userToUpdateUid || !firestore) return;
+
+    setIsUploading(true);
+    const storage = getStorage();
+    const filePath = `profile_pictures/${userToUpdateUid}/${file.name}`;
+    const storageRef = ref(storage, filePath);
+
+    try {
+        const uploadResult = await uploadBytes(storageRef, file);
+        const downloadURL = await getDownloadURL(uploadResult.ref);
+
+        await setUserProfile(firestore, userToUpdateUid, { ...profile, photoURL: downloadURL });
+        
+        refreshProfile();
+
+        toast({
+            title: "Profile Picture Updated",
+            description: "Your new profile picture has been saved."
+        });
+    } catch (error: any) {
+         toast({
+            title: "Upload Failed",
+            description: error.message,
+            variant: "destructive"
+        });
+    } finally {
+        setIsUploading(false);
+    }
+  }
+
   if (loading || !editableProfile || !profile) {
     return (
         <main className="flex-1 flex items-center justify-center">
@@ -173,10 +212,40 @@ function ProfileEditor() {
           <div className="space-y-8">
             <Card>
                 <CardHeader>
-                <CardTitle>{isAdminView ? "Edit User Profile" : "Profile Details"}</CardTitle>
-                <CardDescription>
-                    {isAdminView ? `You are editing the profile for ${profile.personalInfo.fullName}.` : "Manage your personal details."}
-                </CardDescription>
+                <div className="flex flex-col sm:flex-row sm:items-start sm:gap-6">
+                    <div className="relative group w-24 h-24">
+                        <Avatar className="w-24 h-24 text-lg">
+                            <AvatarImage src={profile.photoURL} alt={profile.personalInfo.fullName} />
+                            <AvatarFallback>
+                                <UserIcon className="w-10 h-10" />
+                            </AvatarFallback>
+                        </Avatar>
+                        <Button
+                            variant="outline"
+                            size="icon"
+                            className="absolute bottom-0 right-0 rounded-full h-8 w-8 bg-background/80 group-hover:bg-background"
+                            onClick={() => fileInputRef.current?.click()}
+                            disabled={isUploading}
+                        >
+                            {isUploading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                            <span className="sr-only">Upload picture</span>
+                        </Button>
+                        <Input 
+                            type="file" 
+                            ref={fileInputRef}
+                            className="hidden"
+                            accept="image/png, image/jpeg, image/gif"
+                            onChange={handlePictureUpload}
+                        />
+                    </div>
+                    <div>
+                        <CardTitle className="text-3xl">{isAdminView ? "Edit User Profile" : "Profile Details"}</CardTitle>
+                        <CardDescription className="mt-1">
+                            {isAdminView ? `You are editing the profile for ${profile.personalInfo.fullName}.` : "Manage your personal details."}
+                        </CardDescription>
+                    </div>
+                </div>
+
                 </CardHeader>
                 <CardContent className="space-y-8">
                 {/* Personal Information */}
@@ -364,5 +433,3 @@ export default function ProfilePage() {
         </div>
     );
 }
-
-    

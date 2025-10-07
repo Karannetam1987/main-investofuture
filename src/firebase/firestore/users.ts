@@ -9,6 +9,7 @@ export type UserProfile = {
   uid?: string; // Document ID, which is the Firebase Auth UID
   id: string; // Custom Registration ID like INF001
   email: string;
+  photoURL?: string;
   status?: "Active" | "Inactive";
   personalInfo: {
     fullName: string;
@@ -56,10 +57,10 @@ export type UserProfile = {
  * @param {string} uid - The user's unique ID from Firebase Auth.
  * @param {UserProfile} data - The user's profile data.
  */
-export function setUserProfile(db: Firestore, uid: string, data: Omit<UserProfile, 'uid'>) {
+export async function setUserProfile(db: Firestore, uid: string, data: Partial<UserProfile>) {
   const userDocRef = doc(db, 'users', uid);
 
-  const profileData: UserProfile = {
+  const profileData: Partial<UserProfile> = {
       ...data,
       uid: uid, // Add the UID to the document data
       status: data.status || 'Active', // Default status to Active
@@ -72,7 +73,7 @@ export function setUserProfile(db: Firestore, uid: string, data: Omit<UserProfil
   }
 
 
-  setDoc(userDocRef, profileData, { merge: true })
+  return setDoc(userDocRef, profileData, { merge: true })
     .catch(async (serverError) => {
       const permissionError = new FirestorePermissionError({
         path: userDocRef.path,
@@ -81,5 +82,7 @@ export function setUserProfile(db: Firestore, uid: string, data: Omit<UserProfil
       } satisfies SecurityRuleContext);
       
       errorEmitter.emit('permission-error', permissionError);
+      // Re-throw the original error to be caught by the caller if needed
+      throw serverError;
     });
 }
