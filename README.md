@@ -18,24 +18,23 @@ This application is ready to be deployed on any Node.js hosting platform like Ho
 
 ### Environment Variables
 
-For deployment, you need to set up environment variables to securely connect to your Firebase project.
+For local development and deployment, you need to set up environment variables to securely connect to your Firebase project.
 
-1.  **Create a `.env.local` file** in the root of your project for local development.
-2.  **Copy the contents** from `.env.local.example` into your new `.env.local` file.
-3.  **Replace the placeholder values** with your actual Firebase project configuration. You can find these values in your Firebase project settings under Project settings > General > Your apps > SDK setup and configuration.
+1.  **Open the `.env` file** in the root of your project.
+2.  **Replace the placeholder values** (`...`) with your actual Firebase project configuration. You can find these values in your Firebase project settings under **Project settings > General > Your apps > SDK setup and configuration**.
 
 When you deploy to your hosting provider (like Hostinger), you will need to set these same key-value pairs in the environment variables section of your hosting platform's dashboard.
 
-**Example Environment Variables:**
+**Example `.env` file:**
 
 ```
-NEXT_PUBLIC_FIREBASE_API_KEY="..."
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="..."
-NEXT_PUBLIC_FIREBASE_PROJECT_ID="..."
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET="..."
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID="..."
-NEXT_PUBLIC_FIREBASE_APP_ID="..."
-NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID="..."
+NEXT_PUBLIC_FIREBASE_API_KEY="AIzaSy..."
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="your-project-id.firebaseapp.com"
+NEXT_PUBLIC_FIREBASE_PROJECT_ID="your-project-id"
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET="your-project-id.appspot.com"
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID="123456789012"
+NEXT_PUBLIC_FIREBASE_APP_ID="1:123456789012:web:abcdef1234567890"
+NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID="G-ABCDEFGHIJ"
 ```
 
 ### Build and Run Commands
