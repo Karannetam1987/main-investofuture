@@ -6,11 +6,6 @@ import { Firestore, getFirestore } from "firebase/firestore";
 import { FirebaseApp, getApp } from "firebase/app";
 import React, { createContext, useContext, useMemo } from "react";
 
-// The initial return value for the use(Context) hook is the default value of the context.
-// In this case, the default value is an object with a null firebaseApp property.
-// During the initial render, the use(Context) hook will return this default value.
-// On subsequent renders, after the FirebaseProvider component has rendered and updated the context value,
-// the use(Context) hook will return the new context value, which is the firebaseApp object.
 const FirebaseContext = createContext<{
   firebaseApp: FirebaseApp | null;
   firestore: Firestore | null;
@@ -23,18 +18,21 @@ const FirebaseContext = createContext<{
  * @param {object} props - The properties of the component.
  * @param {React.ReactNode} props.children - The children of the component.
  * @param {FirebaseApp} props.firebaseApp - The Firebase app instance.
+ * @param {Firestore} props.firestore - The Firestore instance.
+ * @param {Auth} props.auth - The Auth instance.
  * @returns {JSX.Element} - The Firebase provider.
  */
 export const FirebaseProvider = ({
   children,
   firebaseApp,
+  firestore,
+  auth,
 }: {
   children: React.ReactNode;
   firebaseApp: FirebaseApp;
+  firestore: Firestore;
+  auth: Auth;
 }) => {
-  const firestore = useMemo(() => getFirestore(firebaseApp), [firebaseApp]);
-  const auth = useMemo(() => getAuth(firebaseApp), [firebaseApp]);
-
   return (
     <FirebaseContext.Provider
       value={{

@@ -8,9 +8,9 @@ export function FirebaseClientProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const firebaseApp = useMemo(() => {
+  const firebaseInstances = useMemo(() => {
     return initializeFirebase();
   }, []);
 
-  return <FirebaseProvider {...firebaseApp}>{children}</FirebaseProvider>;
+  return <FirebaseProvider {...firebaseInstances}>{children}</FirebaseProvider>;
 }
