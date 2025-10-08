@@ -31,7 +31,7 @@ export function useUser() {
         const userDocRef = doc(firestore, "users", userId);
         const docSnap = await getDocFromServer(userDocRef);
         if (docSnap.exists()) {
-            setProfile({ uid: docSnap.id, ...docSnap.data() } as UserProfile);
+            setProfile({ ...docSnap.data(), uid: docSnap.id } as UserProfile);
         } else {
             setProfile(null);
         }
