@@ -16,32 +16,22 @@ import { ArrowLeft, LoaderCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { format, parseISO } from "date-fns";
-import { useUser, useFirestore } from "@/firebase";
-import { useDoc } from "@/firebase/firestore/use-doc";
-import { doc } from "firebase/firestore";
+import { useState, useEffect } from "react";
+import initialMaturityFundData from "@/lib/data/maturity-fund.json";
 
-
-type Statement = {
-    id: number;
-    amount: string;
-    date: string;
-    status: "Upcoming" | "Paid" | "Delayed";
-};
-
-type MaturityFund = {
-    description: string;
-    statements: Statement[];
-};
-
+type MaturityFund = typeof initialMaturityFundData;
 
 export default function MaturityFundPage() {
-  const { profile, loading: userLoading } = useUser();
-  const firestore = useFirestore();
+  const [maturityFundData, setMaturityFundData] = useState<MaturityFund | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const fundRef = profile ? doc(firestore, `users/${profile.uid}/maturity-fund/details`) : null;
-  const { data: maturityFundData, loading: fundLoading } = useDoc<MaturityFund>(fundRef);
-
-  const loading = userLoading || fundLoading;
+  useEffect(() => {
+    // Simulate fetching data
+    setTimeout(() => {
+      setMaturityFundData(initialMaturityFundData);
+      setLoading(false);
+    }, 500);
+  }, []);
 
   return (
     <div className="flex min-h-screen flex-col bg-background">

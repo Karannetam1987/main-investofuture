@@ -26,7 +26,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useUser } from "@/firebase";
+import { useState, useEffect } from "react";
+import initialUserData from "@/lib/data/user-data.json";
 
 const dashboardItems = [
   {
@@ -92,7 +93,16 @@ const dashboardItems = [
 ];
 
 export default function DashboardPage() {
-  const { profile, loading } = useUser();
+  const [profile, setProfile] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulate fetching user profile
+    setTimeout(() => {
+        setProfile(initialUserData[0]); // Use mock data
+        setLoading(false);
+    }, 500);
+  }, []);
 
   if (loading) {
       return (

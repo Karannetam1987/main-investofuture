@@ -23,22 +23,12 @@ import {
 } from "@/components/ui/table";
 import { Upload, Trash2, FileText, Search, Users, LoaderCircle, Download } from "lucide-react";
 import Link from "next/link";
-import { useFirestore } from "@/firebase";
-import { collection, query, where, getDocs, addDoc, deleteDoc, doc, serverTimestamp } from "firebase/firestore";
-import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
-import { useCollection } from "@/firebase/firestore/use-collection";
-import type { UserProfile } from "@/firebase/firestore/users";
 import { format } from "date-fns";
+import initialUsers from "@/lib/data/user-data.json";
+import initialDocs from "@/lib/data/user-documents.json";
 
-
-type Document = {
-  uid?: string; // Firestore document ID
-  name: string;
-  url: string;
-  path: string; // Storage path
-  userId: string;
-  createdAt: any;
-};
+type UserProfile = typeof initialUsers[0];
+type Document = typeof initialDocs[0] & { uid?: string };
 
 export default function MyDocumentsPage() {
     const [searchTerm, setSearchTerm] = useState("");
@@ -47,10 +37,9 @@ export default function MyDocumentsPage() {
     const [fileToUpload, setFileToUpload] = useState<File | null>(null);
     const [isUploading, setIsUploading] = useState(false);
     const { toast } = useToast();
-    const firestore = useFirestore();
 
-    const documentsCollection = foundUser ? collection(firestore, `users/${foundUser.uid}/documents`) : null;
-    const { data: userDocuments, loading: docsLoading, error } = useCollection<Document>(documentsCollection);
+    const [userDocuments, setUserDocuments] = useState<Document[]>([]);
+    const [docsLoading, setDocsLoading] = useState(false);
 
 
     const handleSearchUser = async () => {
@@ -62,18 +51,22 @@ export default function MyDocumentsPage() {
         setFoundUser(null);
         
         try {
-            const usersRef = collection(firestore, "users");
-            const q = query(usersRef, where("id", "==", searchTerm.trim().toUpperCase()));
-            const querySnapshot = await getDocs(q);
+            const user = initialUsers.find(u => u.id === searchTerm.trim().toUpperCase());
 
-            if (querySnapshot.empty) {
+            if (!user) {
                 toast({ title: "User Not Found", variant: "destructive" });
                 setFoundUser(null);
+                setUserDocuments([]);
             } else {
-                const userDoc = querySnapshot.docs[0];
-                const userData = { uid: userDoc.id, ...userDoc.data() } as UserProfile;
-                setFoundUser(userData);
-                toast({ title: "User Found", description: `Managing documents for ${userData.personalInfo.fullName}.` });
+                setFoundUser(user);
+                toast({ title: "User Found", description: `Managing documents for ${user.personalInfo.fullName}.` });
+                setDocsLoading(true);
+                // Simulate fetching docs
+                setTimeout(() => {
+                    const docsForUser = initialDocs.filter(d => d.userId === user.id);
+                    setUserDocuments(docsForUser.map(d => ({...d, uid: String(d.id)})));
+                    setDocsLoading(false);
+                }, 500);
             }
         } catch (error: any) {
             toast({ title: "Search Error", description: error.message, variant: "destructive" });
@@ -83,48 +76,30 @@ export default function MyDocumentsPage() {
     };
 
     const handleFileUpload = async () => {
-        if (!fileToUpload || !foundUser || !documentsCollection) return;
+        if (!fileToUpload || !foundUser) return;
         
         setIsUploading(true);
-        const storage = getStorage();
-        const filePath = `user_documents/${foundUser.uid}/${Date.now()}_${fileToUpload.name}`;
-        const storageRef = ref(storage, filePath);
-
-        try {
-            const uploadResult = await uploadBytes(storageRef, fileToUpload);
-            const downloadURL = await getDownloadURL(uploadResult.ref);
-            
-            await addDoc(documentsCollection, {
+        // Simulate upload
+        setTimeout(() => {
+            const newDoc = {
+                id: Date.now(),
+                uid: String(Date.now()),
                 name: fileToUpload.name,
-                url: downloadURL,
-                path: filePath,
-                userId: foundUser.uid,
-                createdAt: serverTimestamp(),
-            });
-            
-            toast({ title: "Upload Successful", description: `${fileToUpload.name} has been uploaded for ${foundUser.personalInfo.fullName}.` });
-            setFileToUpload(null);
-        } catch (error: any) {
-            toast({ title: "Upload Failed", description: error.message, variant: "destructive" });
-        } finally {
+                url: "#",
+                userId: foundUser.id,
+                date: new Date().toISOString(),
+            };
+            setUserDocuments(prev => [...prev, newDoc]);
             setIsUploading(false);
-        }
+            setFileToUpload(null);
+            toast({ title: "Upload Successful", description: `${fileToUpload.name} has been uploaded for ${foundUser.personalInfo.fullName}.` });
+        }, 1000);
     };
 
     const handleRemoveDocument = async (docToDelete: Document) => {
-        if (!foundUser || !docToDelete.uid || !docToDelete.path) return;
-        
-        const docRef = doc(firestore, `users/${foundUser.uid}/documents`, docToDelete.uid);
-        const storage = getStorage();
-        const storageRef = ref(storage, docToDelete.path);
-
-        try {
-            await deleteObject(storageRef);
-            await deleteDoc(docRef);
-            toast({ title: "Document Removed", variant: "destructive" });
-        } catch (error: any) {
-            toast({ title: "Deletion Failed", description: error.message, variant: "destructive" });
-        }
+        if (!foundUser || !docToDelete.uid) return;
+        setUserDocuments(prev => prev.filter(d => d.uid !== docToDelete.uid));
+        toast({ title: "Document Removed", variant: "destructive" });
     };
 
   return (
@@ -212,7 +187,7 @@ export default function MyDocumentsPage() {
                                                 <FileText className="h-4 w-4 text-muted-foreground"/>
                                                 {doc.name}
                                             </TableCell>
-                                            <TableCell>{doc.createdAt ? format(doc.createdAt.toDate(), "PPP") : "N/A"}</TableCell>
+                                            <TableCell>{doc.date ? format(new Date(doc.date), "PPP") : "N/A"}</TableCell>
                                             <TableCell className="text-right space-x-2">
                                                  <a href={doc.url} download target="_blank" rel="noopener noreferrer">
                                                     <Button variant="outline" size="icon">
@@ -241,4 +216,3 @@ export default function MyDocumentsPage() {
     </div>
   );
 }
-

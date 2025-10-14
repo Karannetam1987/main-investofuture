@@ -16,13 +16,12 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/firebase";
-import { signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
 
 interface LoginPopupProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   loginType: "User" | "Admin";
+  onLoginSuccess: () => void;
 }
 
 const ADMIN_EMAIL = "karannetam4@gmail.com";
@@ -32,10 +31,10 @@ export function LoginPopup({
   open,
   onOpenChange,
   loginType,
+  onLoginSuccess,
 }: LoginPopupProps) {
   const router = useRouter();
   const { toast } = useToast();
-  const auth = useAuth();
 
   const [emailOrId, setEmailOrId] = useState("");
   const [password, setPassword] = useState("");
@@ -54,7 +53,6 @@ export function LoginPopup({
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
       if (loginType === "Admin") {
         if (emailOrId.toLowerCase() === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
            toast({ title: "Admin Login Successful", description: "Redirecting to dashboard..." });
@@ -71,20 +69,11 @@ export function LoginPopup({
         }
       }
       
-      await signInWithEmailAndPassword(auth, emailOrId, password);
-      
+      // Simulate user login
       toast({ title: "Login Successful", description: "Redirecting..." });
-      
+      onLoginSuccess(); // Notify header to update UI
       router.push("/dashboard");
       onOpenChange(false);
-      
-    } catch (error: any) {
-       toast({
-        title: "Login Failed",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
   };
 
   const handleForgotPasswordClick = () => {
@@ -101,20 +90,12 @@ export function LoginPopup({
       });
       return;
     }
-    try {
-        await sendPasswordResetEmail(auth, forgotPasswordEmail);
-        toast({
-            title: "Password Reset Email Sent",
-            description: `If an account exists for ${forgotPasswordEmail}, a password reset link has been sent.`
-        });
-        setShowForgotPassword(false);
-    } catch(error: any) {
-        toast({
-            title: "Error",
-            description: error.message,
-            variant: "destructive",
-        });
-    }
+    // Simulate sending email
+    toast({
+        title: "Password Reset Email Sent",
+        description: `If an account exists for ${forgotPasswordEmail}, a password reset link has been sent.`
+    });
+    setShowForgotPassword(false);
   }
   
   const isPasswordDisabled = false;

@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AppHeader } from "@/components/header";
 import { AppFooter } from "@/components/footer";
 import { Button } from "@/components/ui/button";
@@ -22,86 +22,64 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { format } from "date-fns";
-import { useUser, useFirestore } from "@/firebase";
-import { useCollection } from "@/firebase/firestore/use-collection";
-import { collection, addDoc, deleteDoc, doc, serverTimestamp } from "firebase/firestore";
-import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
+import { format, parseISO } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import initialDocsData from "@/lib/data/user-documents.json";
 
 type Document = {
-  uid?: string; // Firestore document ID
+  uid?: string; // UID for react key
+  id: number;
   name: string;
   url: string;
-  path: string; // Storage path
   userId: string;
-  createdAt: any;
+  date: string;
 };
 
 export default function MyDocumentsPage() {
-  const { user, loading: userLoading } = useUser();
-  const firestore = useFirestore();
   const { toast } = useToast();
   const [fileToUpload, setFileToUpload] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-
-  const documentsCollection = user ? collection(firestore, `users/${user.uid}/documents`) : null;
-  const { data: documents, loading: docsLoading } = useCollection<Document>(documentsCollection);
+  const [documents, setDocuments] = useState<Document[]>([]);
+  const [loading, setLoading] = useState(true);
+  
+  useEffect(() => {
+    // Simulate fetching user's documents
+    setTimeout(() => {
+      // Assuming we're fetching for user "INF001"
+      const userDocs = initialDocsData.filter(doc => doc.userId === "INF001").map(doc => ({...doc, uid: String(doc.id)}));
+      setDocuments(userDocs);
+      setLoading(false);
+    }, 500);
+  }, []);
 
   const handleFileUpload = async () => {
-    if (!fileToUpload || !user || !firestore) return;
+    if (!fileToUpload) return;
 
     setIsUploading(true);
-    const storage = getStorage();
-    const filePath = `user_documents/${user.uid}/${Date.now()}_${fileToUpload.name}`;
-    const storageRef = ref(storage, filePath);
-
-    try {
-      const uploadResult = await uploadBytes(storageRef, fileToUpload);
-      const downloadURL = await getDownloadURL(uploadResult.ref);
-
-      if (documentsCollection) {
-        await addDoc(documentsCollection, {
+    // Simulate upload
+    setTimeout(() => {
+        const newDoc: Document = {
+            id: Date.now(),
+            uid: String(Date.now()),
             name: fileToUpload.name,
-            url: downloadURL,
-            path: filePath,
-            userId: user.uid,
-            createdAt: serverTimestamp(),
-        });
-      }
-
-      toast({ title: "Upload Successful", description: `${fileToUpload.name} has been uploaded.` });
-      setFileToUpload(null);
-    } catch (error: any) {
-      toast({ title: "Upload Failed", description: error.message, variant: "destructive" });
-    } finally {
-      setIsUploading(false);
-    }
+            url: "#",
+            userId: "INF001", // Mock user ID
+            date: new Date().toISOString(),
+        };
+        setDocuments(prev => [...prev, newDoc]);
+        setFileToUpload(null);
+        setIsUploading(false);
+        toast({ title: "Upload Successful", description: `${fileToUpload.name} has been uploaded.` });
+    }, 1000);
   };
 
   const handleRemoveDocument = async (docToDelete: Document) => {
-    if (!user || !firestore || !docToDelete.uid || !docToDelete.path) return;
-
-    const docRef = doc(firestore, `users/${user.uid}/documents`, docToDelete.uid);
-    const storage = getStorage();
-    const storageRef = ref(storage, docToDelete.path);
-
-    try {
-        // Delete the file from storage first
-        await deleteObject(storageRef);
-        // Then delete the document from Firestore
-        await deleteDoc(docRef);
-        toast({ title: "Document Removed", variant: "destructive" });
-    } catch (error: any) {
-        toast({ title: "Deletion Failed", description: error.message, variant: "destructive" });
-        // If storage deletion fails but firestore doesn't, we might have an orphan entry.
-        // For a production app, more robust error handling is needed.
-    }
+    setDocuments(prev => prev.filter(d => d.uid !== docToDelete.uid));
+    toast({ title: "Document Removed", variant: "destructive" });
   };
   
-  const loading = userLoading || docsLoading;
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -171,7 +149,7 @@ export default function MyDocumentsPage() {
                              <FileText className="h-4 w-4 text-muted-foreground"/>
                              {doc.name}
                           </TableCell>
-                          <TableCell>{doc.createdAt ? format(doc.createdAt.toDate(), "PPP") : "N/A"}</TableCell>
+                          <TableCell>{doc.date ? format(parseISO(doc.date), "PPP") : "N/A"}</TableCell>
                           <TableCell className="text-right space-x-2">
                             <a href={doc.url} download target="_blank" rel="noopener noreferrer">
                               <Button variant="outline" size="sm">
@@ -204,5 +182,3 @@ export default function MyDocumentsPage() {
     </div>
   );
 }
-
-    

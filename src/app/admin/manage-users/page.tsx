@@ -17,17 +17,13 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { useCollection } from "@/firebase/firestore/use-collection";
-import { useFirestore } from "@/firebase";
-import { collection, doc, updateDoc, deleteDoc } from "firebase/firestore";
-import type { UserProfile } from "@/firebase/firestore/users";
+import initialUsers from "@/lib/data/users.json";
 
 const USERS_PER_PAGE = 25;
 
 export default function ManageUsersPage() {
-  const firestore = useFirestore();
-  const usersCollection = collection(firestore, "users");
-  const { data: users, loading } = useCollection<UserProfile>(usersCollection);
+  const [users, setUsers] = useState(initialUsers);
+  const [loading, setLoading] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
@@ -35,7 +31,7 @@ export default function ManageUsersPage() {
 
   const filteredUsers = users?.filter(
     (user) =>
-      user.personalInfo.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.id.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -58,65 +54,22 @@ export default function ManageUsersPage() {
   };
 
   const handleStatusChange = async (userId: string, newStatus: boolean) => {
-    if (!firestore) return;
-    const userToUpdate = users?.find(u => u.id === userId);
-    if (!userToUpdate || !userToUpdate.uid) {
-         toast({
-            title: "Update Failed",
-            description: "Could not find the document ID for this user.",
-            variant: "destructive",
-        });
-        return;
-    }
-
-
-    const userDocRef = doc(firestore, "users", userToUpdate.uid);
-    try {
-      await updateDoc(userDocRef, {
-        status: newStatus ? "Active" : "Inactive",
-      });
-      toast({
+    setUsers(prevUsers => prevUsers.map(u => u.id === userId ? {...u, status: newStatus ? "Active" : "Inactive"} : u));
+    toast({
         title: "Status Updated",
         description: `User ${userId} has been set to ${
           newStatus ? "Active" : "Inactive"
         }.`,
       });
-    } catch (error: any) {
-       toast({
-        title: "Update Failed",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
   };
 
   const handleDeleteUser = async (userId: string) => {
-    if (!firestore) return;
-    const userToDelete = users?.find(u => u.id === userId);
-     if (!userToDelete || !userToDelete.uid) {
-         toast({
-            title: "Deletion Failed",
-            description: "Could not find the document ID for this user.",
-            variant: "destructive",
-        });
-        return;
-    }
-
-    const userDocRef = doc(firestore, "users", userToDelete.uid);
-    try {
-        await deleteDoc(userDocRef);
-        toast({
-            title: "User Deleted",
-            description: `User ${userId} has been removed.`,
-            variant: "destructive"
-        });
-    } catch(error: any) {
-        toast({
-            title: "Deletion Failed",
-            description: error.message,
-            variant: "destructive",
-        });
-    }
+    setUsers(prevUsers => prevUsers.filter(u => u.id !== userId));
+    toast({
+        title: "User Deleted",
+        description: `User ${userId} has been removed.`,
+        variant: "destructive"
+    });
   }
   
   if (loading) {
@@ -124,7 +77,7 @@ export default function ManageUsersPage() {
          <div className="flex-1 space-y-8 p-4 md:p-8 flex items-center justify-center">
             <div className="flex items-center gap-2">
                 <LoaderCircle className="h-8 w-8 animate-spin text-primary"/>
-                <p className="text-muted-foreground">Loading users from database...</p>
+                <p className="text-muted-foreground">Loading users...</p>
             </div>
         </div>
     )
@@ -165,9 +118,9 @@ export default function ManageUsersPage() {
             {usersToShow && usersToShow.length > 0 ? usersToShow.map((user) => (
               <TableRow key={user.id}>
                 <TableCell className="font-medium">{user.id}</TableCell>
-                <TableCell>{user.personalInfo.fullName}</TableCell>
+                <TableCell>{user.name}</TableCell>
                 <TableCell>{user.email}</TableCell>
-                <TableCell>{user.personalInfo.mobile}</TableCell>
+                <TableCell>{user.mobile}</TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <Switch
@@ -187,12 +140,12 @@ export default function ManageUsersPage() {
                   </div>
                 </TableCell>
                 <TableCell className="text-right">
-                  <Link href={`/dashboard/profile?userId=${user.uid}`}>
+                  <Link href={`/dashboard/profile?userId=${user.id}`}>
                     <Button variant="ghost" size="icon" title="View User Dashboard">
                       <Eye className="h-4 w-4" />
                     </Button>
                   </Link>
-                  <Link href={`/admin/user-dashboard?userId=${user.uid}`}>
+                  <Link href={`/admin/user-dashboard?userId=${user.id}`}>
                      <Button variant="ghost" size="icon" title="Edit User">
                         <Pencil className="h-4 w-4" />
                      </Button>
@@ -247,5 +200,3 @@ export default function ManageUsersPage() {
     </div>
   );
 }
-
-    

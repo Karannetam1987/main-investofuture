@@ -16,37 +16,22 @@ import { ArrowLeft, ShieldCheck, Calendar, IndianRupee, LoaderCircle } from "luc
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { format, parseISO } from "date-fns";
-import { useUser, useFirestore } from "@/firebase";
-import { useDoc } from "@/firebase/firestore/use-doc";
-import { doc } from "firebase/firestore";
+import initialInsuranceData from "@/lib/data/accidental-insurance.json";
+import { useState, useEffect } from "react";
 
-type Statement = {
-    id: number;
-    name: string;
-    openingDate: string;
-    expiryDate: string;
-    years: number;
-    status: "Active" | "Inactive" | "Expired";
-}
-
-type AccidentalInsurance = {
-    policyNumber: string;
-    openDate: string;
-    expiryDate: string;
-    deathCover: string;
-    handicapCover: string;
-    description: string;
-    statements: Statement[];
-}
+type AccidentalInsurance = typeof initialInsuranceData;
 
 export default function AccidentalInsurancePage() {
-  const { profile, loading: userLoading } = useUser();
-  const firestore = useFirestore();
+  const [insuranceData, setInsuranceData] = useState<AccidentalInsurance | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const insuranceRef = profile ? doc(firestore, `users/${profile.uid}/accidental-insurance/details`) : null;
-  const { data: insuranceData, loading: insuranceLoading } = useDoc<AccidentalInsurance>(insuranceRef);
-
-  const loading = userLoading || insuranceLoading;
+  useEffect(() => {
+    // Simulate fetching data
+    setTimeout(() => {
+      setInsuranceData(initialInsuranceData);
+      setLoading(false);
+    }, 500);
+  }, []);
 
   return (
     <div className="flex min-h-screen flex-col bg-background">

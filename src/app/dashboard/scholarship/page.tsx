@@ -24,45 +24,22 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { format, parseISO } from "date-fns";
-import { useUser, useFirestore } from "@/firebase";
-import { useDoc } from "@/firebase/firestore/use-doc";
-import { doc } from "firebase/firestore";
+import initialScholarshipData from "@/lib/data/scholarship.json";
+import { useState, useEffect } from "react";
 
-
-type PaymentStatement = {
-    id: number;
-    year: string;
-    amount: string;
-    status: "Paid" | "Pending";
-    paymentDate: string | null;
-};
-
-type Child = {
-    id: number;
-    childName: string;
-    fatherName: string;
-    motherName: string;
-    gender: "male" | "female";
-    dob: string;
-    paymentStatements: PaymentStatement[];
-};
-
-type Scholarship = {
-    registerName: string;
-    childrenCount: number;
-    scholarshipAmount: string;
-    years: number;
-    children: Child[];
-};
+type Scholarship = typeof initialScholarshipData;
 
 export default function ScholarshipPage() {
-  const { profile, loading: userLoading } = useUser();
-  const firestore = useFirestore();
+  const [scholarshipData, setScholarshipData] = useState<Scholarship | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const scholarshipRef = profile ? doc(firestore, `users/${profile.uid}/scholarship/details`) : null;
-  const { data: scholarshipData, loading: scholarshipLoading } = useDoc<Scholarship>(scholarshipRef);
-
-  const loading = userLoading || scholarshipLoading;
+  useEffect(() => {
+    // Simulate fetching data
+    setTimeout(() => {
+      setScholarshipData(initialScholarshipData);
+      setLoading(false);
+    }, 500);
+  }, []);
 
   return (
     <div className="flex min-h-screen flex-col bg-background">

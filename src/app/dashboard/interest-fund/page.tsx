@@ -16,36 +16,22 @@ import { ArrowLeft, IndianRupee, Calendar, Percent, Landmark, Wallet, LoaderCirc
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { format, parseISO } from "date-fns";
-import { useUser, useFirestore } from "@/firebase";
-import { useDoc } from "@/firebase/firestore/use-doc";
-import { doc } from "firebase/firestore";
+import initialFundData from "@/lib/data/interest-fund.json";
+import { useState, useEffect } from "react";
 
-type Statement = {
-    id: number;
-    date: string;
-    interest: string;
-    amount: string;
-    status: "Paid" | "Pending";
-};
-
-type InterestFund = {
-    depositAmount: string;
-    depositDate: string;
-    annualInterest: string;
-    interestReturnMode: string;
-    paymentMode: string;
-    description: string;
-    statements: Statement[];
-};
+type InterestFund = typeof initialFundData;
 
 export default function InterestFundPage() {
-  const { profile, loading: userLoading } = useUser();
-  const firestore = useFirestore();
+  const [interestFundData, setInterestFundData] = useState<InterestFund | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const fundRef = profile ? doc(firestore, `users/${profile.uid}/interest-fund/details`) : null;
-  const { data: interestFundData, loading: fundLoading } = useDoc<InterestFund>(fundRef);
-
-  const loading = userLoading || fundLoading;
+  useEffect(() => {
+    // Simulate fetching data
+    setTimeout(() => {
+      setInterestFundData(initialFundData);
+      setLoading(false);
+    }, 500);
+  }, []);
 
   return (
     <div className="flex min-h-screen flex-col bg-background">

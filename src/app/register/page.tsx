@@ -7,7 +7,6 @@ import * as z from "zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { createUserWithEmailAndPassword } from "firebase/auth";
 import { AppHeader } from "@/components/header";
 import { AppFooter } from "@/components/footer";
 import { Button } from "@/components/ui/button";
@@ -34,7 +33,6 @@ import { ArrowLeft, CalendarIcon, LoaderCircle } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { useAuth, useFirestore } from "@/firebase";
 import { useToast } from "@/hooks/use-toast";
 import {
   Form,
@@ -45,8 +43,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { setUserProfile, UserProfile } from "@/firebase/firestore/users";
-import { collection, getDocs } from "firebase/firestore";
+
 
 const addressSchema = z.object({
   permanent: z.string().min(1, "Permanent address is required"),
@@ -105,8 +102,6 @@ const formSchema = z.object({
 });
 
 export default function RegisterPage() {
-  const auth = useAuth();
-  const firestore = useFirestore();
   const router = useRouter();
   const { toast } = useToast();
 
@@ -159,58 +154,21 @@ export default function RegisterPage() {
   useEffect(() => {
     if (sameAsPermanent) {
       form.setValue('address.current', permanentAddress);
-    } else {
-      // Optional: Clear current address if unchecked, or let user edit it
-      // form.setValue('address.current', ''); 
     }
   }, [sameAsPermanent, permanentAddress, form]);
 
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    try {
-      const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
-      const user = userCredential.user;
-
-      const usersCollectionRef = collection(firestore, 'users');
-      const usersSnapshot = await getDocs(usersCollectionRef);
-      const newIdNumber = usersSnapshot.size + 1;
-      const newUserId = `INF${String(newIdNumber).padStart(3, '0')}`;
-      
-      const profileData: UserProfile = {
-          uid: user.uid,
-          id: newUserId,
-          email: values.email,
-          photoURL: '', 
-          status: 'Active',
-          personalInfo: {
-            ...values.personalInfo,
-            dob: values.personalInfo.dob.toISOString(),
-          },
-          address: {
-              permanent: values.address.permanent,
-              current: values.sameAsPermanent ? values.address.permanent : values.address.current,
-          },
-          bankDetails: values.bankDetails,
-          nomineeDetails: {
-            ...values.nomineeDetails,
-            nomineeDob: values.nomineeDetails.nomineeDob.toISOString(),
-          },
-      };
-
-      await setUserProfile(firestore, user.uid, profileData);
-
-      toast({
-        title: "Registration Successful",
-        description: `Your account has been created with ID: ${newUserId}. Redirecting to your dashboard...`,
-      });
-      router.push("/dashboard");
-    } catch (error: any) {
-      toast({
-        title: "Registration Failed",
-        description: error.message || "An unknown error occurred.",
-        variant: "destructive",
-      });
-    }
+    // Firebase logic is removed.
+    console.log(values);
+    toast({
+      title: "Registration Submitted",
+      description: `Your registration data has been logged. In a real app, this would be sent to a server.`,
+    });
+    // Simulate a successful registration and redirect.
+    setTimeout(() => {
+        router.push("/dashboard");
+    }, 2000)
   }
 
   return (

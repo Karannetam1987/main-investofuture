@@ -24,36 +24,45 @@ import Link from "next/link";
 import { ArrowLeft, LoaderCircle, ShieldCheck, User as UserIcon, Upload } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { useUser, useFirestore } from "@/firebase";
-import { setUserProfile, UserProfile } from "@/firebase/firestore/users";
 import { format, parseISO } from "date-fns";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from "firebase/auth";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import initialUserData from "@/lib/data/user-data.json";
+import { useSearchParams } from "next/navigation";
 
-type EditableProfile = Omit<UserProfile, 'id' | 'email' | 'uid' | 'createdAt' | 'updatedAt' | 'status'>;
+
+type UserProfile = typeof initialUserData[0];
+type EditableProfile = Omit<UserProfile, 'id' | 'email' | 'uid' | 'status'>;
 
 function ProfileEditor() {
-  const { user, profile, loading, isAdminView, refreshProfile } = useUser();
-  const firestore = useFirestore();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [editableProfile, setEditableProfile] = useState<EditableProfile | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  const searchParams = useSearchParams();
+  const adminViewingUserId = searchParams.get("userId");
+  const isAdminView = !!adminViewingUserId;
 
   useEffect(() => {
-    if (profile) {
-      setEditableProfile({
-        photoURL: profile.photoURL,
-        personalInfo: { ...profile.personalInfo, dob: profile.personalInfo.dob },
-        address: { ...profile.address },
-        bankDetails: { ...profile.bankDetails },
-        nomineeDetails: { ...profile.nomineeDetails, nomineeDob: profile.nomineeDetails.nomineeDob },
-      });
-    }
-  }, [profile]);
+    // Simulate fetching profile data
+    setTimeout(() => {
+        const userToLoad = initialUserData.find(u => u.id === adminViewingUserId) || initialUserData[0];
+        setProfile(userToLoad);
+        setEditableProfile({
+            photoURL: userToLoad.photoURL,
+            personalInfo: { ...userToLoad.personalInfo },
+            address: { ...userToLoad.address },
+            bankDetails: { ...userToLoad.bankDetails },
+            nomineeDetails: { ...userToLoad.nomineeDetails },
+        });
+        setLoading(false);
+    }, 500);
+
+  }, [adminViewingUserId]);
 
 
   const handleChange = (section: keyof EditableProfile, field: string, value: string) => {
@@ -82,57 +91,38 @@ function ProfileEditor() {
   }
 
   const handleSaveChanges = () => {
-    const userToUpdateUid = profile?.uid;
-
-    if (!firestore || !editableProfile || !userToUpdateUid) {
+    if (!editableProfile) {
         toast({ title: "Error", description: "Data not available to save.", variant: "destructive"});
         return;
     };
-
-    const updatedProfileData: UserProfile = {
-        ...profile,
-        ...editableProfile,
-    };
-    
-    setUserProfile(firestore, userToUpdateUid, updatedProfileData);
     
     toast({
       title: "Success!",
-      description: "Profile has been updated.",
+      description: "Profile has been updated (Simulated).",
     });
+    console.log("Saving data:", editableProfile);
   };
 
   const handlePictureUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    const userToUpdateUid = profile?.uid;
-    if (!file || !userToUpdateUid || !firestore) return;
+    if (!file) return;
 
     setIsUploading(true);
-    const storage = getStorage();
-    const filePath = `profile_pictures/${userToUpdateUid}/${file.name}`;
-    const storageRef = ref(storage, filePath);
-
-    try {
-        const uploadResult = await uploadBytes(storageRef, file);
-        const downloadURL = await getDownloadURL(uploadResult.ref);
-
-        await setUserProfile(firestore, userToUpdateUid, { ...profile, photoURL: downloadURL });
-        
-        refreshProfile();
-
-        toast({
-            title: "Profile Picture Updated",
-            description: "Your new profile picture has been saved."
-        });
-    } catch (error: any) {
-         toast({
-            title: "Upload Failed",
-            description: error.message,
-            variant: "destructive"
-        });
-    } finally {
-        setIsUploading(false);
-    }
+    // Simulate upload
+    setTimeout(() => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const newPhotoURL = e.target?.result as string;
+            setEditableProfile(prev => prev ? {...prev, photoURL: newPhotoURL} : null);
+            setProfile(prev => prev ? {...prev, photoURL: newPhotoURL} : null);
+             toast({
+                title: "Profile Picture Updated",
+                description: "Your new profile picture has been saved."
+            });
+            setIsUploading(false);
+        };
+        reader.readAsDataURL(file);
+    }, 1000);
   }
 
   if (loading || !editableProfile || !profile) {

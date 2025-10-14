@@ -20,9 +20,8 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { ArrowLeft, LoaderCircle, ShieldCheck } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useUser } from "@/firebase";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from "firebase/auth";
+import { useState, useEffect } from "react";
 
 const passwordFormSchema = z.object({
   currentPassword: z.string().min(1, "Current password is required."),
@@ -35,8 +34,8 @@ const passwordFormSchema = z.object({
 
 
 function SettingsEditor() {
-  const { user, loading } = useUser();
   const { toast } = useToast();
+  const [loading, setLoading] = useState(true);
   
   const passwordForm = useForm<z.infer<typeof passwordFormSchema>>({
     resolver: zodResolver(passwordFormSchema),
@@ -47,42 +46,18 @@ function SettingsEditor() {
     },
   });
 
+  useEffect(() => {
+    // Simulate loading
+    setTimeout(() => setLoading(false), 500);
+  }, []);
+
   const handlePasswordChange = async (values: z.infer<typeof passwordFormSchema>) => {
-    if (!user) {
-        toast({ title: "Not Authenticated", description: "You must be logged in to change your password.", variant: "destructive"});
-        return;
-    }
-
-    if (!user.email) {
-        toast({ title: "Error", description: "User email not available.", variant: "destructive"});
-        return;
-    }
-
-    const credential = EmailAuthProvider.credential(user.email, values.currentPassword);
-
-    try {
-        await reauthenticateWithCredential(user, credential);
-        await updatePassword(user, values.newPassword);
-        toast({
-            title: "Password Updated",
-            description: "Your password has been changed successfully."
-        });
-        passwordForm.reset();
-    } catch (error: any) {
-        let errorMessage = "An unknown error occurred.";
-        if (error.code === 'auth/wrong-password') {
-            errorMessage = "The current password you entered is incorrect.";
-        } else if (error.code === 'auth/weak-password') {
-            errorMessage = "The new password is too weak. It must be at least 6 characters long.";
-        } else {
-            errorMessage = error.message;
-        }
-         toast({
-            title: "Error Changing Password",
-            description: errorMessage,
-            variant: "destructive",
-        });
-    }
+    // Simulate password change
+    toast({
+        title: "Password Updated (Simulated)",
+        description: "Your password has been changed successfully."
+    });
+    passwordForm.reset();
   }
 
 

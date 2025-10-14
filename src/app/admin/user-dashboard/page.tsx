@@ -14,22 +14,17 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { useFirestore } from "@/firebase";
-import { collection, query, where, getDocs } from "firebase/firestore";
-import type { UserProfile } from "@/firebase/firestore/users";
+import initialUsers from "@/lib/data/users.json";
 
 export default function UserDashboardPage() {
   const [userIdInput, setUserIdInput] = useState("");
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
-  const firestore = useFirestore();
 
   useEffect(() => {
     const userIdFromQuery = searchParams.get("userId");
     if (userIdFromQuery) {
-        // When coming from manage-users, we have the UID, not the custom ID.
-        // We redirect directly to the profile page which will handle fetching by UID.
         toast({
             title: "Loading User Dashboard...",
             description: `Showing editable dashboard for user.`,
@@ -49,24 +44,20 @@ export default function UserDashboardPage() {
     }
 
     try {
-        const usersRef = collection(firestore, "users");
-        const q = query(usersRef, where("id", "==", userIdInput.trim().toUpperCase()));
-        const querySnapshot = await getDocs(q);
+        const user = initialUsers.find(u => u.id === userIdInput.trim().toUpperCase());
 
-        if (querySnapshot.empty) {
+        if (!user) {
              toast({
                 title: "User Not Found",
                 description: `No user found with ID ${userIdInput}.`,
                 variant: "destructive",
             });
         } else {
-            const userDoc = querySnapshot.docs[0];
             toast({
                 title: "Redirecting...",
                 description: `Showing dashboard for user ${userIdInput}.`,
             });
-            // Redirect using the document ID (which is the UID)
-            router.push(`/dashboard/profile?userId=${userDoc.id}`);
+            router.push(`/dashboard/profile?userId=${user.id}`);
         }
     } catch (error: any) {
          toast({
@@ -109,5 +100,3 @@ export default function UserDashboardPage() {
     </div>
   );
 }
-
-    

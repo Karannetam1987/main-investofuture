@@ -4,7 +4,7 @@
 import Link from "next/link";
 import { Menu, User, LogOut } from "lucide-react";
 import * as React from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 import { Button } from "@/components/ui/button";
 import {
@@ -14,7 +14,6 @@ import {
 } from "@/components/ui/sheet";
 import { Logo } from "./logo";
 import { LoginPopup } from "./login-popup";
-import { useUser, useAuth } from "@/firebase";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -24,7 +23,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { signOut } from "firebase/auth";
 import { useToast } from "@/hooks/use-toast";
 
 
@@ -37,10 +35,11 @@ export function AppHeader() {
   const [open, setOpen] = React.useState(false);
   const [loginPopupOpen, setLoginPopupOpen] = React.useState(false);
   const [loginType, setLoginType] = React.useState<"User" | "Admin">("User");
-  const { user, profile, loading } = useUser();
-  const auth = useAuth();
   const { toast } = useToast();
   const router = useRouter();
+
+  // This state will be used to simulate a logged-in user
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
   
   const handleLoginClick = (type: "User" | "Admin") => {
     setLoginType(type);
@@ -49,12 +48,17 @@ export function AppHeader() {
   };
 
   const handleLogout = async () => {
-    await signOut(auth);
+    setIsLoggedIn(false);
     toast({
       title: "Logged Out",
       description: "You have been successfully logged out."
     });
     router.push('/');
+  }
+
+  // A function to simulate a successful login, to be called from the login popup
+  const onLoginSuccess = () => {
+    setIsLoggedIn(true);
   }
 
   return (
@@ -77,12 +81,11 @@ export function AppHeader() {
             ))}
             </nav>
 
-            {!loading && user && profile ? (
+            {isLoggedIn ? (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                              <Avatar>
-                                <AvatarImage src={profile.photoURL} alt={profile.personalInfo.fullName} />
                                 <AvatarFallback>
                                     <User className="h-5 w-5"/>
                                 </AvatarFallback>
@@ -92,9 +95,9 @@ export function AppHeader() {
                     <DropdownMenuContent className="w-56" align="end" forceMount>
                         <DropdownMenuLabel className="font-normal">
                         <div className="flex flex-col space-y-1">
-                            <p className="text-sm font-medium leading-none">{profile.personalInfo.fullName}</p>
+                            <p className="text-sm font-medium leading-none">Guest User</p>
                             <p className="text-xs leading-none text-muted-foreground">
-                            {profile.email}
+                            guest@example.com
                             </p>
                         </div>
                         </DropdownMenuLabel>
@@ -165,6 +168,7 @@ export function AppHeader() {
         open={loginPopupOpen}
         onOpenChange={setLoginPopupOpen}
         loginType={loginType}
+        onLoginSuccess={onLoginSuccess}
       />
     </header>
   );

@@ -18,44 +18,40 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { ArrowLeft, LoaderCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useUser, useFirestore } from "@/firebase";
-import { setUserProfile, UserProfile } from "@/firebase/firestore/users";
 import { format, parseISO } from 'date-fns';
+import initialUserData from "@/lib/data/user-data.json";
 
-
+type UserProfile = typeof initialUserData[0];
 type NomineeDetails = UserProfile['nomineeDetails'];
 
 function NomineeDetailsEditor() {
-    const { profile, loading, isAdminView } = useUser();
-    const firestore = useFirestore();
     const { toast } = useToast();
     
+    const [profile, setProfile] = useState<UserProfile | null>(null);
     const [nomineeDetails, setNomineeDetails] = useState<NomineeDetails | null>(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (profile) {
-            setNomineeDetails(profile.nomineeDetails);
-        }
-    }, [profile]);
+        // Simulate fetching user data
+        setTimeout(() => {
+            const user = initialUserData[0]; // Use first user as mock
+            setProfile(user);
+            setNomineeDetails(user.nomineeDetails);
+            setLoading(false);
+        }, 500);
+    }, []);
 
     const handleSaveChanges = () => {
-        const userToUpdateUid = profile?.uid;
-        if (!firestore || !profile || !nomineeDetails || !userToUpdateUid) {
-            toast({ title: "Error", description: "User not logged in or data not available.", variant: "destructive"});
+        if (!profile || !nomineeDetails) {
+            toast({ title: "Error", description: "Data not available.", variant: "destructive"});
             return;
         };
 
-        const updatedProfileData: UserProfile = {
-            ...profile,
-            nomineeDetails: nomineeDetails,
-        };
-        
-        setUserProfile(firestore, userToUpdateUid, updatedProfileData);
-        
         toast({
             title: "Success!",
-            description: "Nominee details have been updated.",
+            description: "Nominee details have been updated (Simulated).",
         });
+        console.log("Saving nominee details:", nomineeDetails);
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -65,7 +61,16 @@ function NomineeDetailsEditor() {
     
     const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const { id, value } = e.target;
-       setNomineeDetails(prev => prev ? {...prev, [id]: new Date(value).toISOString()} : null);
+       setNomineeDetails(prev => {
+          if (!prev) return null;
+          try {
+            const date = new Date(value);
+            if (!isNaN(date.getTime())) {
+                return {...prev, [id]: date.toISOString()};
+            }
+          } catch(e) { /* ignore invalid date */ }
+          return {...prev, [id]: value}; // keep raw value if invalid
+       });
     }
 
   if (loading || !nomineeDetails || !profile) {
@@ -79,20 +84,22 @@ function NomineeDetailsEditor() {
     );
   }
 
+  const formattedNomineeDob = nomineeDetails.nomineeDob ? format(new Date(nomineeDetails.nomineeDob), 'yyyy-MM-dd') : '';
+
   return (
       <main className="flex-1 py-12 md:py-16">
         <div className="container">
           <div className="mb-6">
-            <Link href={isAdminView ? `/admin/user-dashboard?userId=${profile.uid}` : "/dashboard"}>
+            <Link href={"/dashboard"}>
               <Button variant="outline">
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to {isAdminView ? "User" : "Dashboard"}
+                Back to Dashboard
               </Button>
             </Link>
           </div>
           <Card>
             <CardHeader>
-              <CardTitle>{isAdminView ? `Edit Nominee Details for ${profile.personalInfo.fullName}` : "Nominee Details"}</CardTitle>
+              <CardTitle>Nominee Details</CardTitle>
               <CardDescription>
                 Manage your nominee information.
               </CardDescription>
@@ -120,7 +127,7 @@ function NomineeDetailsEditor() {
                   <Input 
                     id="nomineeDob" 
                     type="date" 
-                    value={nomineeDetails.nomineeDob ? format(parseISO(nomineeDetails.nomineeDob), 'yyyy-MM-dd') : ''} 
+                    value={formattedNomineeDob}
                     onChange={handleDateChange} 
                   />
                 </div>
@@ -153,5 +160,3 @@ export default function NomineeDetailsPage() {
         </div>
     )
 }
-
-    

@@ -16,32 +16,22 @@ import { ArrowLeft, CheckCircle, Clock, LoaderCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { format, parseISO } from "date-fns";
-import { useUser, useFirestore } from "@/firebase";
-import { useDoc } from "@/firebase/firestore/use-doc";
-import { doc } from "firebase/firestore";
+import { useState, useEffect } from "react";
+import initialGiftData from "@/lib/data/joining-gift.json";
 
-type GiftItem = {
-    id: number;
-    name: string;
-    status: "Received" | "Pending";
-    dateReceived: string | null;
-}
-
-type JoiningGift = {
-    joiningDate: string;
-    overallStatus: "Received" | "Pending" | "Partial";
-    description: string;
-    items: GiftItem[];
-}
+type JoiningGift = typeof initialGiftData;
 
 export default function JoiningGiftPage() {
-  const { profile, loading: userLoading } = useUser();
-  const firestore = useFirestore();
+  const [giftData, setGiftData] = useState<JoiningGift | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const giftRef = profile ? doc(firestore, `users/${profile.uid}/joining-gift/details`) : null;
-  const { data: giftData, loading: giftLoading } = useDoc<JoiningGift>(giftRef);
-
-  const loading = userLoading || giftLoading;
+  useEffect(() => {
+    // Simulate fetching data
+    setTimeout(() => {
+      setGiftData(initialGiftData);
+      setLoading(false);
+    }, 500);
+  }, []);
 
   return (
     <div className="flex min-h-screen flex-col bg-background">

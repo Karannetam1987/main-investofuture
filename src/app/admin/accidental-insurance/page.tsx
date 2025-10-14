@@ -30,12 +30,13 @@ import { cn } from "@/lib/utils";
 import { format, parseISO } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "@/components/ui/textarea";
-import { useUser, useFirestore } from "@/firebase";
-import { useDoc } from "@/firebase/firestore/use-doc";
-import { doc, setDoc, getDocFromServer, collection, query, where, getDocs } from "firebase/firestore";
-import type { UserProfile } from "@/firebase/firestore/users";
 import Link from "next/link";
 import { useRouter, useSearchParams } from 'next/navigation'
+import initialUserData from '@/lib/data/user-data.json';
+import initialInsuranceData from '@/lib/data/accidental-insurance.json';
+
+// Mock UserProfile type
+type UserProfile = typeof initialUserData[0];
 
 type Statement = {
     id: number;
@@ -46,15 +47,7 @@ type Statement = {
     status: "Active" | "Inactive" | "Expired";
 }
 
-type AccidentalInsurance = {
-    policyNumber: string;
-    openDate: string;
-    expiryDate: string;
-    deathCover: string;
-    handicapCover: string;
-    description: string;
-    statements: Statement[];
-}
+type AccidentalInsurance = typeof initialInsuranceData;
 
 const defaultInsuranceData: AccidentalInsurance = {
   policyNumber: "",
@@ -74,7 +67,6 @@ function InsuranceEditor() {
     const [insuranceData, setInsuranceData] = useState<AccidentalInsurance>(defaultInsuranceData);
     const [loadingData, setLoadingData] = useState(false);
     const { toast } = useToast();
-    const firestore = useFirestore();
     const router = useRouter()
     const searchParams = useSearchParams()
  
@@ -83,13 +75,11 @@ function InsuranceEditor() {
         if (userId) {
           const fetchUser = async () => {
             setIsSearching(true);
-            const userDocRef = doc(firestore, "users", userId);
-            const userDoc = await getDocFromServer(userDocRef);
-            if (userDoc.exists()) {
-                const userData = { uid: userDoc.id, ...userDoc.data() } as UserProfile;
-                setFoundUser(userData);
-                setSearchTerm(userData.id);
-                loadInsuranceData(userData.uid);
+            const user = initialUserData.find(u => u.id === userId);
+            if (user) {
+                setFoundUser(user);
+                setSearchTerm(user.id);
+                loadInsuranceData(user.id);
             } else {
                 toast({ title: "User not found", variant: "destructive" });
             }
@@ -97,19 +87,16 @@ function InsuranceEditor() {
           }
           fetchUser();
         }
-      }, [searchParams, firestore, toast])
+      }, [searchParams, toast])
 
 
     const loadInsuranceData = async (userId: string) => {
         setLoadingData(true);
-        const insuranceRef = doc(firestore, `users/${userId}/accidental-insurance`, "details");
-        const docSnap = await getDocFromServer(insuranceRef);
-        if (docSnap.exists()) {
-            setInsuranceData(docSnap.data() as AccidentalInsurance);
-        } else {
-            setInsuranceData(defaultInsuranceData);
-        }
-        setLoadingData(false);
+        // Simulate fetching data
+        setTimeout(() => {
+            setInsuranceData(initialInsuranceData);
+            setLoadingData(false);
+        }, 500);
     }
 
     const handleSearchUser = async () => {
@@ -165,20 +152,11 @@ function InsuranceEditor() {
             toast({ title: "No user selected", variant: "destructive"});
             return;
         }
-        try {
-            const insuranceRef = doc(firestore, `users/${foundUser.uid}/accidental-insurance`, "details");
-            await setDoc(insuranceRef, insuranceData);
-            toast({
-                title: "Changes Saved",
-                description: `Accidental Insurance details for ${foundUser.personalInfo.fullName} have been updated.`
-            });
-        } catch (error: any) {
-             toast({
-                title: "Error Saving",
-                description: error.message,
-                variant: "destructive",
-            });
-        }
+        toast({
+            title: "Changes Saved (Simulated)",
+            description: `Accidental Insurance details for ${foundUser.personalInfo.fullName} have been updated.`
+        });
+        console.log("Saving data:", insuranceData);
     }
 
     return (

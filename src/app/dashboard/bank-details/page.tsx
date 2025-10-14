@@ -19,44 +19,40 @@ import { Textarea } from "@/components/ui/textarea";
 import Link from "next/link";
 import { ArrowLeft, LoaderCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useUser, useFirestore } from "@/firebase";
-import { setUserProfile, UserProfile } from "@/firebase/firestore/users";
+import initialUserData from "@/lib/data/user-data.json";
 
+type UserProfile = typeof initialUserData[0];
 type BankDetails = UserProfile['bankDetails'];
 
-
 function BankDetailsEditor() {
-  const { profile, loading, isAdminView } = useUser();
-  const firestore = useFirestore();
   const { toast } = useToast();
   
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [bankDetails, setBankDetails] = useState<BankDetails | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (profile) {
-      setBankDetails(profile.bankDetails);
-    }
-  }, [profile]);
+    // Simulate fetching user data
+    setTimeout(() => {
+        const user = initialUserData[0]; // Get the first user as a mock
+        setProfile(user);
+        setBankDetails(user.bankDetails);
+        setLoading(false);
+    }, 500);
+  }, []);
 
 
   const handleSaveChanges = () => {
-    const userToUpdateUid = profile?.uid;
-    if (!firestore || !profile || !bankDetails || !userToUpdateUid) {
-        toast({ title: "Error", description: "User not logged in or data not available.", variant: "destructive"});
+    if (!profile || !bankDetails) {
+        toast({ title: "Error", description: "Data not available.", variant: "destructive"});
         return;
     };
-
-    const updatedProfileData: UserProfile = {
-        ...profile,
-        bankDetails: bankDetails,
-    };
-    
-    setUserProfile(firestore, userToUpdateUid, updatedProfileData);
     
     toast({
       title: "Success!",
-      description: "Bank details have been updated.",
+      description: "Bank details have been updated (Simulated).",
     });
+    console.log("Saving bank details:", bankDetails);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -75,21 +71,20 @@ function BankDetailsEditor() {
     );
   }
 
-
   return (
       <main className="flex-1 py-12 md:py-16">
         <div className="container">
           <div className="mb-6">
-             <Link href={isAdminView ? `/admin/user-dashboard?userId=${profile.uid}` : "/dashboard"}>
+             <Link href={"/dashboard"}>
               <Button variant="outline">
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to {isAdminView ? "User" : "Dashboard"}
+                Back to Dashboard
               </Button>
             </Link>
           </div>
           <Card>
             <CardHeader>
-              <CardTitle>{isAdminView ? `Edit Bank Details for ${profile.personalInfo.fullName}` : "Bank Details"}</CardTitle>
+              <CardTitle>Bank Details</CardTitle>
               <CardDescription>
                 Manage your bank account information.
               </CardDescription>
@@ -145,5 +140,3 @@ export default function BankDetailsPage() {
         </div>
     )
 }
-
-    
