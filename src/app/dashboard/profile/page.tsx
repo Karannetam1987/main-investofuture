@@ -32,7 +32,7 @@ import { useSearchParams } from "next/navigation";
 
 
 type UserProfile = typeof initialUserData[0];
-type EditableProfile = Omit<UserProfile, 'id' | 'email' | 'uid' | 'status'>;
+type EditableProfile = Omit<UserProfile, 'id' | 'email' | 'status' | 'name' | 'mobile'>;
 
 function ProfileEditor() {
   const { toast } = useToast();
@@ -208,7 +208,7 @@ function ProfileEditor() {
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="mobile">Mobile Number</Label>
-                        <Input id="mobile" value={editableProfile.personalInfo.mobile} onChange={(e) => handleChange('personalInfo', 'mobile', e.target.value)} />
+                        <Input id="mobile" value={profile.mobile} readOnly />
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="email">Email</Label>
@@ -216,7 +216,7 @@ function ProfileEditor() {
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="dob">Date of Birth</Label>
-                        <Input id="dob" value={format(parseISO(editableProfile.personalInfo.dob), "yyyy-MM-dd")} onChange={(e) => handleDateChange('personalInfo', 'dob', e.target.value)} type="date" />
+                        <Input id="dob" value={editableProfile.personalInfo.dob ? format(parseISO(editableProfile.personalInfo.dob), "yyyy-MM-dd") : ''} onChange={(e) => handleDateChange('personalInfo', 'dob', e.target.value)} type="date" />
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="gender">Gender</Label>

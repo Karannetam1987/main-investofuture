@@ -1,3 +1,4 @@
+
 [
   {
     "id": "INF001",
@@ -5,11 +6,12 @@
     "email": "karan.sidar@example.com",
     "mobile": "+91-9876543210",
     "status": "Active",
+    "photoURL": "https://picsum.photos/seed/user1/200/200",
     "personalInfo": {
       "fullName": "Karan Singh Sidar",
       "fatherName": "Father's Name",
       "motherName": "Mother's Name",
-      "dob": "01/01/1990",
+      "dob": "1990-01-01T00:00:00.000Z",
       "gender": "Male",
       "maritalStatus": "Single",
       "religion": "Hindu",
@@ -36,7 +38,7 @@
       "nomineeFatherName": "Nominee Father's Name",
       "relationship": "Spouse",
       "nomineeMobile": "+91-9876543211",
-      "nomineeDob": "01/01/1992"
+      "nomineeDob": "1992-01-01T00:00:00.000Z"
     }
   }
 ]
