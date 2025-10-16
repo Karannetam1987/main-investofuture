@@ -29,6 +29,7 @@ import initialHeroSlides from "@/lib/data/hero-slides.json";
 import initialAdsData from "@/lib/data/ads.json";
 import initialSiteConfig from "@/lib/data/site-config.json";
 import initialSmtpConfig from "@/lib/data/smtp-config.json";
+import initialStatsData from "@/lib/data/stats.json";
 
 type SlideButton = {
   text: string;
@@ -89,12 +90,19 @@ type SmtpConfig = {
     sender: string;
 }
 
+type StatsData = {
+    totalInvestment: string;
+    activeUsers: string;
+    guaranteedReturns: string;
+}
+
 
 export default function SettingsPage() {
   const [heroSlides, setHeroSlides] = useState<Slide[]>(initialHeroSlides);
   const [adsConfig, setAdsConfig] = useState<AdsConfig>(initialAdsData);
   const [siteConfig, setSiteConfig] = useState<SiteConfig>(initialSiteConfig);
   const [smtpConfig, setSmtpConfig] = useState<SmtpConfig>(initialSmtpConfig);
+  const [statsData, setStatsData] = useState<StatsData>(initialStatsData);
   const { toast } = useToast();
 
   const handleSlideChange = (id: number, field: string, value: any) => {
@@ -187,6 +195,10 @@ export default function SettingsPage() {
     setSmtpConfig(prev => ({ ...prev, [field]: value }));
   }
 
+  const handleStatsChange = (field: keyof StatsData, value: string) => {
+    setStatsData(prev => ({ ...prev, [field]: value }));
+  }
+
   const handleSaveChanges = () => {
     toast({
       title: "Settings Saved",
@@ -196,6 +208,7 @@ export default function SettingsPage() {
     console.log("Saving Ads Config:", adsConfig);
     console.log("Saving Site Config:", siteConfig);
     console.log("Saving SMTP Config:", smtpConfig);
+    console.log("Saving Stats Data:", statsData);
   };
 
   return (
@@ -280,6 +293,25 @@ export default function SettingsPage() {
                         <Label htmlFor="contactPhone">Contact Phone</Label>
                         <Input id="contactPhone" value={siteConfig.contact.phone} onChange={(e) => handleSiteConfigChange('contact', 'phone', e.target.value)} />
                     </div>
+
+                    <div className="space-y-4 p-4 border rounded-md">
+                        <h4 className="font-medium text-sm">Website Statistics</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                           <div className="space-y-2">
+                                <Label htmlFor="totalInvestment">Total Investment</Label>
+                                <Input id="totalInvestment" value={statsData.totalInvestment} onChange={(e) => handleStatsChange('totalInvestment', e.target.value)} />
+                            </div>
+                             <div className="space-y-2">
+                                <Label htmlFor="activeUsers">Active Users</Label>
+                                <Input id="activeUsers" value={statsData.activeUsers} onChange={(e) => handleStatsChange('activeUsers', e.target.value)} />
+                            </div>
+                             <div className="space-y-2">
+                                <Label htmlFor="guaranteedReturns">Guaranteed Returns</Label>
+                                <Input id="guaranteedReturns" value={statsData.guaranteedReturns} onChange={(e) => handleStatsChange('guaranteedReturns', e.target.value)} />
+                            </div>
+                        </div>
+                    </div>
+
                      <div className="space-y-4 p-4 border rounded-md">
                         <h4 className="font-medium text-sm">Social Media Links</h4>
                         <div className="space-y-4">

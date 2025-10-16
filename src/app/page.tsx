@@ -41,6 +41,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { AdPlaceholder } from "@/components/ad-placeholder";
 import adsData from "@/lib/data/ads.json";
 import siteConfig from "@/lib/data/site-config.json";
+import statsData from "@/lib/data/stats.json";
 import { sendEmail } from "@/ai/flows/send-email-flow";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 
@@ -210,17 +211,17 @@ export default function Home() {
                 <div className="mt-12 grid grid-cols-1 gap-8 text-center md:grid-cols-3">
                     <div className="flex flex-col items-center">
                         <Banknote className="h-16 w-16 text-primary"/>
-                        <p className="mt-4 text-5xl font-bold">₹5.2Cr+</p>
+                        <p className="mt-4 text-5xl font-bold">{statsData.totalInvestment}</p>
                         <p className="mt-2 text-lg text-secondary-foreground/80">Total Investment</p>
                     </div>
                     <div className="flex flex-col items-center">
                         <Users className="h-16 w-16 text-primary"/>
-                        <p className="mt-4 text-5xl font-bold">1,200+</p>
+                        <p className="mt-4 text-5xl font-bold">{statsData.activeUsers}</p>
                         <p className="mt-2 text-lg text-secondary-foreground/80">Active Users</p>
                     </div>
                      <div className="flex flex-col items-center">
                         <Percent className="h-16 w-16 text-primary"/>
-                        <p className="mt-4 text-5xl font-bold">12%</p>
+                        <p className="mt-4 text-5xl font-bold">{statsData.guaranteedReturns}</p>
                         <p className="mt-2 text-lg text-secondary-foreground/80">Guaranteed Returns</p>
                     </div>
                 </div>
