@@ -11,7 +11,10 @@ import {
   UserCheck,
   AlertTriangle,
   Send,
-  LoaderCircle
+  LoaderCircle,
+  Users,
+  Banknote,
+  Percent
 } from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
@@ -192,6 +195,36 @@ export default function Home() {
               ))}
             </div>
           </div>
+        </section>
+
+        <section id="stats" className="py-16 md:py-24 bg-secondary text-secondary-foreground">
+            <div className="container">
+                 <div className="mx-auto max-w-3xl text-center">
+                    <h2 className="font-headline text-4xl font-bold md:text-5xl">
+                        Our Success in Numbers
+                    </h2>
+                    <p className="mt-4 text-xl text-secondary-foreground/80">
+                        We are proud of our achievements and the trust our clients place in us.
+                    </p>
+                </div>
+                <div className="mt-12 grid grid-cols-1 gap-8 text-center md:grid-cols-3">
+                    <div className="flex flex-col items-center">
+                        <Banknote className="h-16 w-16 text-primary"/>
+                        <p className="mt-4 text-5xl font-bold">₹5.2Cr+</p>
+                        <p className="mt-2 text-lg text-secondary-foreground/80">Total Investment</p>
+                    </div>
+                    <div className="flex flex-col items-center">
+                        <Users className="h-16 w-16 text-primary"/>
+                        <p className="mt-4 text-5xl font-bold">1,200+</p>
+                        <p className="mt-2 text-lg text-secondary-foreground/80">Active Users</p>
+                    </div>
+                     <div className="flex flex-col items-center">
+                        <Percent className="h-16 w-16 text-primary"/>
+                        <p className="mt-4 text-5xl font-bold">12%</p>
+                        <p className="mt-2 text-lg text-secondary-foreground/80">Guaranteed Returns</p>
+                    </div>
+                </div>
+            </div>
         </section>
 
         <section id="about" className="py-16 md:py-24">
