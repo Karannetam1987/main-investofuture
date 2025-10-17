@@ -36,59 +36,25 @@ import {
   CardDescription
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { AdPlaceholder } from "@/components/ad-placeholder";
 import adsData from "@/lib/data/ads.json";
 import siteConfig from "@/lib/data/site-config.json";
 import statsData from "@/lib/data/stats.json";
+import siteFeatures from "@/lib/data/site-features.json";
 import { sendEmail } from "@/ai/flows/send-email-flow";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 
 
-const features = [
-  {
-    icon: <BrainCircuit size={48} className="text-secondary" />,
-    title: "Smart Investing",
-    description: "Utilize our AI-powered tools for intelligent investment decisions and portfolio management.",
-  },
-  {
-    icon: <ShieldCheck size={48} className="text-secondary" />,
-    title: "Secure Platform",
-    description: "Your data and investments are protected with top-tier, multi-layered security protocols.",
-  },
-  {
-    icon: <UserCheck size={48} className="text-secondary" />,
-    title: "Personalized Advice",
-    description: "Receive financial advice and strategies tailored specifically to your goals and risk tolerance.",
-  },
-  {
-    icon: <TrendingUp size={48} className="text-secondary" />,
-    title: "Guaranteed Returns",
-    description: "Explore investment options with assured returns, providing stability and peace of mind.",
-  },
-];
-
-const aboutLinks = [
-  {
-    id: "privacy",
-    icon: <FileLock size={40} className="text-secondary" />,
-    title: "Privacy Policy",
-    description: "Understand how we collect, use, and protect your personal and financial information.",
-  },
-  {
-    id: "terms",
-    icon: <FileText size={40} className="text-secondary" />,
-    title: "Terms of Service",
-    description: "Read the terms and conditions that govern your use of the InvestoFuture platform.",
-  },
-  {
-    id: "disclaimer",
-    icon: <AlertTriangle size={40} className="text-secondary" />,
-    title: "Disclaimers",
-    description: "Important information about the risks involved in investing and our limitations of liability.",
-  },
-];
+const iconMap = {
+  BrainCircuit: <BrainCircuit size={48} className="text-secondary" />,
+  ShieldCheck: <ShieldCheck size={48} className="text-secondary" />,
+  UserCheck: <UserCheck size={48} className="text-secondary" />,
+  TrendingUp: <TrendingUp size={48} className="text-secondary" />,
+  FileLock: <FileLock size={40} className="text-secondary" />,
+  FileText: <FileText size={40} className="text-secondary" />,
+  AlertTriangle: <AlertTriangle size={40} className="text-secondary" />,
+};
 
 const contactFormSchema = z.object({
     name: z.string().min(1, "Name is required."),
@@ -183,10 +149,10 @@ export default function Home() {
               </p>
             </div>
             <div className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-              {features.map((feature) => (
+              {siteFeatures.features.map((feature) => (
                 <Card key={feature.title} className="transform-gpu transition-all duration-300 hover:-translate-y-2 hover:shadow-xl">
                   <CardHeader className="items-center text-center">
-                    {feature.icon}
+                    {iconMap[feature.icon as keyof typeof iconMap]}
                     <CardTitle className="mt-4">{feature.title}</CardTitle>
                   </CardHeader>
                   <CardContent className="text-center">
@@ -239,10 +205,10 @@ export default function Home() {
               </p>
             </div>
             <div className="mt-12 grid gap-8 md:grid-cols-3">
-              {aboutLinks.map((link) => (
+              {siteFeatures.aboutLinks.map((link) => (
                 <Card id={link.id} key={link.title} className="transform-gpu transition-all duration-300 hover:-translate-y-2 hover:shadow-xl">
                   <CardHeader className="items-center text-center">
-                    {link.icon}
+                    {iconMap[link.icon as keyof typeof iconMap]}
                     <CardTitle className="mt-4">{link.title}</CardTitle>
                   </CardHeader>
                   <CardContent className="text-center">

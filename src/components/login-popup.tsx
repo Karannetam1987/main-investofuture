@@ -24,7 +24,7 @@ interface LoginPopupProps {
   onLoginSuccess: () => void;
 }
 
-const ADMIN_EMAIL = "admin@example.com";
+const ADMIN_EMAIL = "karannetam4@gmail.com";
 const ADMIN_PASSWORD = "admin";
 
 export function LoginPopup({

@@ -2,12 +2,16 @@
 "use client";
 
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,7 +26,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AlertTriangle, Trash2 } from "lucide-react";
+import { AlertTriangle, LoaderCircle, ShieldCheck, Trash2 } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import initialHeroSlides from "@/lib/data/hero-slides.json";
@@ -30,6 +34,9 @@ import initialAdsData from "@/lib/data/ads.json";
 import initialSiteConfig from "@/lib/data/site-config.json";
 import initialSmtpConfig from "@/lib/data/smtp-config.json";
 import initialStatsData from "@/lib/data/stats.json";
+import initialSiteFeatures from "@/lib/data/site-features.json";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+
 
 type SlideButton = {
   text: string;
@@ -96,6 +103,33 @@ type StatsData = {
     guaranteedReturns: string;
 }
 
+type Feature = {
+    icon: string;
+    title: string;
+    description: string;
+}
+
+type AboutLink = {
+    id: string;
+    icon: string;
+    title: string;
+    description: string;
+}
+
+type SiteFeatures = {
+    features: Feature[];
+    aboutLinks: AboutLink[];
+}
+
+const passwordFormSchema = z.object({
+  currentPassword: z.string().min(1, "Current password is required."),
+  newPassword: z.string().min(6, "New password must be at least 6 characters."),
+  confirmPassword: z.string(),
+}).refine(data => data.newPassword === data.confirmPassword, {
+  message: "New passwords do not match.",
+  path: ["confirmPassword"],
+});
+
 
 export default function SettingsPage() {
   const [heroSlides, setHeroSlides] = useState<Slide[]>(initialHeroSlides);
@@ -103,7 +137,17 @@ export default function SettingsPage() {
   const [siteConfig, setSiteConfig] = useState<SiteConfig>(initialSiteConfig);
   const [smtpConfig, setSmtpConfig] = useState<SmtpConfig>(initialSmtpConfig);
   const [statsData, setStatsData] = useState<StatsData>(initialStatsData);
+  const [siteFeatures, setSiteFeatures] = useState<SiteFeatures>(initialSiteFeatures);
   const { toast } = useToast();
+
+  const passwordForm = useForm<z.infer<typeof passwordFormSchema>>({
+    resolver: zodResolver(passwordFormSchema),
+    defaultValues: {
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    },
+  });
 
   const handleSlideChange = (id: number, field: string, value: any) => {
     setHeroSlides((prevSlides) =>
@@ -199,6 +243,32 @@ export default function SettingsPage() {
     setStatsData(prev => ({ ...prev, [field]: value }));
   }
 
+  const handleFeatureChange = (index: number, field: keyof Feature, value: string) => {
+      setSiteFeatures(prev => {
+          const newFeatures = [...prev.features];
+          newFeatures[index] = { ...newFeatures[index], [field]: value };
+          return { ...prev, features: newFeatures };
+      });
+  };
+
+  const handleAboutLinkChange = (index: number, field: keyof AboutLink, value: string) => {
+      setSiteFeatures(prev => {
+          const newAboutLinks = [...prev.aboutLinks];
+          newAboutLinks[index] = { ...newAboutLinks[index], [field]: value };
+          return { ...prev, aboutLinks: newAboutLinks };
+      });
+  };
+
+  const handlePasswordChange = async (values: z.infer<typeof passwordFormSchema>) => {
+    // Simulate password change
+    console.log(values);
+    toast({
+        title: "Password Updated (Simulated)",
+        description: "Your admin password has been changed successfully."
+    });
+    passwordForm.reset();
+  }
+
   const handleSaveChanges = () => {
     toast({
       title: "Settings Saved",
@@ -209,6 +279,7 @@ export default function SettingsPage() {
     console.log("Saving Site Config:", siteConfig);
     console.log("Saving SMTP Config:", smtpConfig);
     console.log("Saving Stats Data:", statsData);
+    console.log("Saving Site Features:", siteFeatures);
   };
 
   return (
@@ -219,11 +290,13 @@ export default function SettingsPage() {
       </div>
 
       <Tabs defaultValue="general">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="general">General</TabsTrigger>
+          <TabsTrigger value="homepage">Homepage</TabsTrigger>
           <TabsTrigger value="hero">Hero Section</TabsTrigger>
           <TabsTrigger value="ads">Advertisements</TabsTrigger>
           <TabsTrigger value="smtp">Email (SMTP)</TabsTrigger>
+          <TabsTrigger value="security">Security</TabsTrigger>
         </TabsList>
         
         <TabsContent value="general">
@@ -294,24 +367,6 @@ export default function SettingsPage() {
                         <Input id="contactPhone" value={siteConfig.contact.phone} onChange={(e) => handleSiteConfigChange('contact', 'phone', e.target.value)} />
                     </div>
 
-                    <div className="space-y-4 p-4 border rounded-md">
-                        <h4 className="font-medium text-sm">Website Statistics</h4>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                           <div className="space-y-2">
-                                <Label htmlFor="totalInvestment">Total Investment</Label>
-                                <Input id="totalInvestment" value={statsData.totalInvestment} onChange={(e) => handleStatsChange('totalInvestment', e.target.value)} />
-                            </div>
-                             <div className="space-y-2">
-                                <Label htmlFor="activeUsers">Active Users</Label>
-                                <Input id="activeUsers" value={statsData.activeUsers} onChange={(e) => handleStatsChange('activeUsers', e.target.value)} />
-                            </div>
-                             <div className="space-y-2">
-                                <Label htmlFor="guaranteedReturns">Guaranteed Returns</Label>
-                                <Input id="guaranteedReturns" value={statsData.guaranteedReturns} onChange={(e) => handleStatsChange('guaranteedReturns', e.target.value)} />
-                            </div>
-                        </div>
-                    </div>
-
                      <div className="space-y-4 p-4 border rounded-md">
                         <h4 className="font-medium text-sm">Social Media Links</h4>
                         <div className="space-y-4">
@@ -328,6 +383,79 @@ export default function SettingsPage() {
                             ))}
                         </div>
                     </div>
+                </CardContent>
+            </Card>
+        </TabsContent>
+
+        <TabsContent value="homepage">
+            <Card>
+                <CardHeader>
+                    <CardTitle>Homepage Sections</CardTitle>
+                    <CardDescription>Customize the content of various sections on your homepage.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-8">
+                     <div className="space-y-4 p-4 border rounded-md">
+                        <h3 className="font-semibold text-lg">"Success in Numbers" Section</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                           <div className="space-y-2">
+                                <Label htmlFor="totalInvestment">Total Investment Text</Label>
+                                <Input id="totalInvestment" value={statsData.totalInvestment} onChange={(e) => handleStatsChange('totalInvestment', e.target.value)} />
+                            </div>
+                             <div className="space-y-2">
+                                <Label htmlFor="activeUsers">Active Users Text</Label>
+                                <Input id="activeUsers" value={statsData.activeUsers} onChange={(e) => handleStatsChange('activeUsers', e.target.value)} />
+                            </div>
+                             <div className="space-y-2">
+                                <Label htmlFor="guaranteedReturns">Guaranteed Returns Text</Label>
+                                <Input id="guaranteedReturns" value={statsData.guaranteedReturns} onChange={(e) => handleStatsChange('guaranteedReturns', e.target.value)} />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="space-y-4 p-4 border rounded-md">
+                        <h3 className="font-semibold text-lg">"Features" Section</h3>
+                        <div className="space-y-6">
+                            {siteFeatures.features.map((feature, index) => (
+                                <div key={index} className="p-4 border rounded-lg space-y-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor={`feature-title-${index}`}>Feature Title</Label>
+                                        <Input id={`feature-title-${index}`} value={feature.title} onChange={(e) => handleFeatureChange(index, 'title', e.target.value)} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor={`feature-desc-${index}`}>Feature Description</Label>
+                                        <Textarea id={`feature-desc-${index}`} value={feature.description} onChange={(e) => handleFeatureChange(index, 'description', e.target.value)} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor={`feature-icon-${index}`}>Icon Name (from Lucide-React)</Label>
+                                        <Input id={`feature-icon-${index}`} value={feature.icon} onChange={(e) => handleFeatureChange(index, 'icon', e.target.value)} />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    
+                    <div className="space-y-4 p-4 border rounded-md">
+                        <h3 className="font-semibold text-lg">"About" Section Links</h3>
+                        <div className="space-y-6">
+                            {siteFeatures.aboutLinks.map((link, index) => (
+                                <div key={index} className="p-4 border rounded-lg space-y-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor={`about-title-${index}`}>Link Title</Label>
+                                        <Input id={`about-title-${index}`} value={link.title} onChange={(e) => handleAboutLinkChange(index, 'title', e.target.value)} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor={`about-desc-${index}`}>Link Description</Label>
+                                        <Textarea id={`about-desc-${index}`} value={link.description} onChange={(e) => handleAboutLinkChange(index, 'description', e.target.value)} />
+                                    </div>
+                                     <div className="space-y-2">
+                                        <Label htmlFor={`about-icon-${index}`}>Icon Name (from Lucide-React)</Label>
+                                        <Input id={`about-icon-${index}`} value={link.icon} onChange={(e) => handleAboutLinkChange(index, 'icon', e.target.value)} />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
                 </CardContent>
             </Card>
         </TabsContent>
@@ -553,6 +681,72 @@ export default function SettingsPage() {
                 </CardContent>
             </Card>
         </TabsContent>
+        
+        <TabsContent value="security">
+            <Card>
+                <CardHeader>
+                    <CardTitle>Security</CardTitle>
+                    <CardDescription>Change your administrator password.</CardDescription>
+                </CardHeader>
+                <Form {...passwordForm}>
+                    <form onSubmit={passwordForm.handleSubmit(handlePasswordChange)}>
+                        <CardContent className="space-y-4">
+                            <FormField
+                                control={passwordForm.control}
+                                name="currentPassword"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Current Password</FormLabel>
+                                        <FormControl>
+                                            <Input type="password" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <FormField
+                                    control={passwordForm.control}
+                                    name="newPassword"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>New Password</FormLabel>
+                                            <FormControl>
+                                                <Input type="password" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={passwordForm.control}
+                                    name="confirmPassword"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Confirm New Password</FormLabel>
+                                            <FormControl>
+                                                <Input type="password" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+                        </CardContent>
+                        <CardFooter>
+                            <Button type="submit" disabled={passwordForm.formState.isSubmitting}>
+                                {passwordForm.formState.isSubmitting ? (
+                                    <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>
+                                ) : (
+                                    <ShieldCheck className="mr-2 h-4 w-4"/>
+                                )}
+                                {passwordForm.formState.isSubmitting ? "Updating..." : "Update Password"}
+                            </Button>
+                        </CardFooter>
+                    </form>
+                </Form>
+            </Card>
+        </TabsContent>
 
       </Tabs>
     </div>
@@ -560,5 +754,3 @@ export default function SettingsPage() {
 
     
 }
-
-    
