@@ -270,16 +270,20 @@ export default function SettingsPage() {
   }
 
   const handleSaveChanges = () => {
+    // In a real application, this would be an API call to save the data.
+    // For this simulation, we'll just show a success toast.
+    console.log("Simulating saving data...");
+    console.log("Site Config:", siteConfig);
+    console.log("Homepage Stats:", statsData);
+    console.log("Homepage Features:", siteFeatures);
+    console.log("Hero Slides:", heroSlides);
+    console.log("Ads Config:", adsConfig);
+    console.log("SMTP Config:", smtpConfig);
+    
     toast({
-      title: "Settings Saved",
-      description: "Your website settings have been updated.",
+      title: "Settings Saved!",
+      description: "Your changes have been saved successfully (simulated).",
     });
-    console.log("Saving Hero Slides:", heroSlides);
-    console.log("Saving Ads Config:", adsConfig);
-    console.log("Saving Site Config:", siteConfig);
-    console.log("Saving SMTP Config:", smtpConfig);
-    console.log("Saving Stats Data:", statsData);
-    console.log("Saving Site Features:", siteFeatures);
   };
 
   return (
@@ -289,8 +293,8 @@ export default function SettingsPage() {
          <Button onClick={handleSaveChanges} size="lg">Save All Settings</Button>
       </div>
 
-      <Tabs defaultValue="general">
-        <TabsList className="grid w-full grid-cols-5">
+      <Tabs defaultValue="general" className="w-full">
+        <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
           <TabsTrigger value="general">General</TabsTrigger>
           <TabsTrigger value="homepage">Homepage</TabsTrigger>
           <TabsTrigger value="hero">Hero Section</TabsTrigger>
@@ -751,6 +755,6 @@ export default function SettingsPage() {
       </Tabs>
     </div>
   );
+}
 
     
-}
