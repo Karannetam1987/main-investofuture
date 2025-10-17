@@ -98,7 +98,7 @@ export function LoginPopup({
     setShowForgotPassword(false);
   }
   
-  const isPasswordDisabled = false;
+  const isPasswordDisabled = loginType === 'Admin' && emailOrId.toLowerCase() !== ADMIN_EMAIL;
   const isForgotPassDisabled = loginType === 'Admin' && forgotPasswordEmail.toLowerCase() !== ADMIN_EMAIL && forgotPasswordEmail !== "";
 
   return (
