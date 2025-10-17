@@ -42,7 +42,6 @@ import adsData from "@/lib/data/ads.json";
 import siteConfig from "@/lib/data/site-config.json";
 import statsData from "@/lib/data/stats.json";
 import siteFeatures from "@/lib/data/site-features.json";
-import { sendEmail } from "@/ai/flows/send-email-flow";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 
 
@@ -80,16 +79,26 @@ export default function Home() {
 
   const handleContactSubmit = async (values: z.infer<typeof contactFormSchema>) => {
       try {
-        const result = await sendEmail(values);
-        if (result.success) {
-            toast({
-                title: "Message Sent!",
-                description: "Thank you for contacting us. We will get back to you shortly.",
-            });
-            form.reset();
-        } else {
-            throw new Error(result.message);
+        const response = await fetch('/api/contact', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(values),
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.message || "Something went wrong");
         }
+
+        toast({
+            title: "Message Sent!",
+            description: "Thank you for contacting us. We will get back to you shortly.",
+        });
+        form.reset();
+
       } catch (error: any) {
         toast({
             title: "Error Sending Message",
