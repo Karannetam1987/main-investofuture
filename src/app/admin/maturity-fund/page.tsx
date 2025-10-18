@@ -30,11 +30,14 @@ import { cn } from "@/lib/utils";
 import { format, parseISO } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "@/components/ui/textarea";
-import { useFirestore } from "@/firebase";
-import { doc, setDoc, getDocFromServer, collection, query, where, getDocs } from "firebase/firestore";
-import type { UserProfile } from "@/firebase/firestore/users";
 import Link from "next/link";
 import { useRouter, useSearchParams } from 'next/navigation';
+import initialUserData from '@/lib/data/user-data.json';
+import initialMaturityFundData from '@/lib/data/maturity-fund.json';
+
+// Mock UserProfile type
+type UserProfile = typeof initialUserData[0];
+
 
 type Statement = {
     id: number;
@@ -53,14 +56,13 @@ const defaultFundData: MaturityFund = {
   statements: [],
 };
 
-function FundEditor() {
+function FundEditorInternal() {
     const [searchTerm, setSearchTerm] = useState("");
     const [foundUser, setFoundUser] = useState<UserProfile | null>(null);
     const [isSearching, setIsSearching] = useState(false);
     const [fundData, setFundData] = useState<MaturityFund>(defaultFundData);
     const [loadingData, setLoadingData] = useState(false);
     const { toast } = useToast();
-    const firestore = useFirestore();
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -69,13 +71,11 @@ function FundEditor() {
         if (userId) {
             const fetchUserAndData = async () => {
                 setIsSearching(true);
-                const userDocRef = doc(firestore, "users", userId);
-                const userDoc = await getDocFromServer(userDocRef);
-                if (userDoc.exists()) {
-                    const userData = { uid: userDoc.id, ...userDoc.data() } as UserProfile;
-                    setFoundUser(userData);
-                    setSearchTerm(userData.id);
-                    await loadFundData(userData.uid);
+                const user = initialUserData.find(u => u.id === userId);
+                if (user) {
+                    setFoundUser(user);
+                    setSearchTerm(user.id);
+                    await loadFundData(user.id);
                 } else {
                     toast({ title: "User not found with provided ID.", variant: "destructive" });
                 }
@@ -83,18 +83,15 @@ function FundEditor() {
             };
             fetchUserAndData();
         }
-    }, [searchParams, firestore, toast]);
+    }, [searchParams, toast]);
 
     const loadFundData = async (userId: string) => {
         setLoadingData(true);
-        const fundRef = doc(firestore, `users/${userId}/maturity-fund`, "details");
-        const docSnap = await getDocFromServer(fundRef);
-        if (docSnap.exists()) {
-            setFundData(docSnap.data() as MaturityFund);
-        } else {
-            setFundData(defaultFundData);
-        }
-        setLoadingData(false);
+        // Simulate loading data
+        setTimeout(() => {
+            setFundData(initialMaturityFundData);
+            setLoadingData(false);
+        }, 500);
     };
 
     const handleSearchUser = async () => {
@@ -102,16 +99,13 @@ function FundEditor() {
             toast({ title: "Search term required", variant: "destructive" });
             return;
         }
-        const usersRef = collection(firestore, "users");
-        const q = query(usersRef, where("id", "==", searchTerm.trim().toUpperCase()));
-        const querySnapshot = await getDocs(q);
+        const user = initialUserData.find(u => u.id === searchTerm.trim().toUpperCase());
 
-        if (querySnapshot.empty) {
+        if (!user) {
             toast({ title: "User Not Found", variant: "destructive" });
             setFoundUser(null);
         } else {
-            const userDoc = querySnapshot.docs[0];
-            router.push(`/admin/maturity-fund?userId=${userDoc.id}`);
+            router.push(`/admin/maturity-fund?userId=${user.id}`);
         }
     };
 
@@ -156,20 +150,11 @@ function FundEditor() {
             toast({ title: "No user selected", variant: "destructive"});
             return;
         }
-        try {
-            const fundRef = doc(firestore, `users/${foundUser.uid}/maturity-fund`, "details");
-            await setDoc(fundRef, fundData);
-            toast({
-                title: "Changes Saved",
-                description: `Maturity Fund details for ${foundUser.personalInfo.fullName} have been updated.`
-            });
-        } catch (error: any) {
-             toast({
-                title: "Error Saving",
-                description: error.message,
-                variant: "destructive",
-            });
-        }
+        toast({
+            title: "Changes Saved (Simulated)",
+            description: `Maturity Fund details for ${foundUser.personalInfo.fullName} have been updated.`
+        });
+        console.log("Saving data:", fundData);
     };
 
     return (
@@ -272,6 +257,14 @@ function FundEditor() {
     );
 }
 
+function FundEditor() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <FundEditorInternal />
+        </Suspense>
+    )
+}
+
 
 export default function MaturityFundPage() {
   return (
@@ -285,9 +278,7 @@ export default function MaturityFundPage() {
             </Button>
         </Link>
       </div>
-      <Suspense fallback={<div>Loading...</div>}>
-        <FundEditor />
-      </Suspense>
+      <FundEditor />
     </div>
   );
 }

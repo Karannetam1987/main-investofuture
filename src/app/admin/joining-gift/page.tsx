@@ -29,11 +29,14 @@ import { CalendarIcon, Trash2, LoaderCircle, Search, Users } from "lucide-react"
 import { cn } from "@/lib/utils";
 import { format, parseISO } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
-import { useFirestore } from "@/firebase";
-import { doc, setDoc, getDocFromServer, collection, query, where, getDocs } from "firebase/firestore";
-import type { UserProfile } from "@/firebase/firestore/users";
 import Link from "next/link";
 import { useRouter, useSearchParams } from 'next/navigation';
+import initialUserData from '@/lib/data/user-data.json';
+import initialGiftData from '@/lib/data/joining-gift.json';
+
+
+// Mock UserProfile type
+type UserProfile = typeof initialUserData[0];
 
 type GiftItem = {
     id: number;
@@ -57,14 +60,13 @@ const defaultGiftData: JoiningGift = {
 };
 
 
-function GiftEditor() {
+function GiftEditorInternal() {
     const [searchTerm, setSearchTerm] = useState("");
     const [foundUser, setFoundUser] = useState<UserProfile | null>(null);
     const [isSearching, setIsSearching] = useState(false);
     const [giftData, setGiftData] = useState<JoiningGift>(defaultGiftData);
     const [loadingData, setLoadingData] = useState(false);
     const { toast } = useToast();
-    const firestore = useFirestore();
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -73,13 +75,11 @@ function GiftEditor() {
         if (userId) {
             const fetchUserAndData = async () => {
                 setIsSearching(true);
-                const userDocRef = doc(firestore, "users", userId);
-                const userDoc = await getDocFromServer(userDocRef);
-                if (userDoc.exists()) {
-                    const userData = { uid: userDoc.id, ...userDoc.data() } as UserProfile;
-                    setFoundUser(userData);
-                    setSearchTerm(userData.id);
-                    await loadGiftData(userData.uid);
+                const user = initialUserData.find(u => u.id === userId);
+                if (user) {
+                    setFoundUser(user);
+                    setSearchTerm(user.id);
+                    await loadGiftData(user.id);
                 } else {
                     toast({ title: "User not found with provided ID.", variant: "destructive" });
                 }
@@ -87,18 +87,15 @@ function GiftEditor() {
             };
             fetchUserAndData();
         }
-    }, [searchParams, firestore, toast]);
+    }, [searchParams, toast]);
 
     const loadGiftData = async (userId: string) => {
         setLoadingData(true);
-        const giftRef = doc(firestore, `users/${userId}/joining-gift`, "details");
-        const docSnap = await getDocFromServer(giftRef);
-        if (docSnap.exists()) {
-            setGiftData(docSnap.data() as JoiningGift);
-        } else {
-            setGiftData(defaultGiftData);
-        }
-        setLoadingData(false);
+        // Simulate loading data
+        setTimeout(() => {
+            setGiftData(initialGiftData);
+            setLoadingData(false);
+        }, 500);
     };
 
     const handleSearchUser = async () => {
@@ -106,16 +103,13 @@ function GiftEditor() {
             toast({ title: "Search term required", variant: "destructive" });
             return;
         }
-        const usersRef = collection(firestore, "users");
-        const q = query(usersRef, where("id", "==", searchTerm.trim().toUpperCase()));
-        const querySnapshot = await getDocs(q);
+        const user = initialUserData.find(u => u.id === searchTerm.trim().toUpperCase());
 
-        if (querySnapshot.empty) {
+        if (!user) {
             toast({ title: "User Not Found", variant: "destructive" });
             setFoundUser(null);
         } else {
-            const userDoc = querySnapshot.docs[0];
-            router.push(`/admin/joining-gift?userId=${userDoc.id}`);
+            router.push(`/admin/joining-gift?userId=${user.id}`);
         }
     };
     
@@ -160,20 +154,12 @@ function GiftEditor() {
             toast({ title: "No user selected", variant: "destructive"});
             return;
         }
-        try {
-            const giftRef = doc(firestore, `users/${foundUser.uid}/joining-gift`, "details");
-            await setDoc(giftRef, giftData);
-            toast({
-                title: "Changes Saved",
-                description: `Joining gift details for ${foundUser.personalInfo.fullName} have been updated.`
-            });
-        } catch (error: any) {
-             toast({
-                title: "Error Saving",
-                description: error.message,
-                variant: "destructive",
-            });
-        }
+        
+        toast({
+            title: "Changes Saved (Simulated)",
+            description: `Joining gift details for ${foundUser.personalInfo.fullName} have been updated.`
+        });
+        console.log("Saving data:", giftData);
     }
 
     return (
@@ -337,6 +323,14 @@ function GiftEditor() {
     );
 }
 
+function GiftEditor() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <GiftEditorInternal />
+        </Suspense>
+    )
+}
+
 export default function JoiningGiftPage() {
   return (
     <div className="flex-1 space-y-8 p-4 md:p-8">
@@ -349,9 +343,7 @@ export default function JoiningGiftPage() {
             </Button>
         </Link>
       </div>
-      <Suspense fallback={<div>Loading...</div>}>
-        <GiftEditor />
-      </Suspense>
+      <GiftEditor />
     </div>
   );
 }
