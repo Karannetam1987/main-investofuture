@@ -1,6 +1,6 @@
 # Firebase Studio Next.js Starter
 
-This is a Next.js starter project built in Firebase Studio. It's a fully functional web application with user and admin authentication, connected to a Firebase backend.
+This is a Next.js starter project built in Firebase Studio. It's a fully functional web application with user and admin authentication.
 
 ## Getting Started
 
@@ -16,26 +16,7 @@ Open [http://localhost:9002](http://localhost:9002) with your browser to see the
 
 This application is ready to be deployed on any Node.js hosting platform like Hostinger, Vercel, or others.
 
-### Environment Variables
-
-For local development and deployment, you need to set up environment variables to securely connect to your Firebase project.
-
-1.  **Open the `.env` file** in the root of your project.
-2.  **Replace the placeholder values** (`...`) with your actual Firebase project configuration. You can find these values in your Firebase project settings under **Project settings > General > Your apps > SDK setup and configuration**.
-
-When you deploy to your hosting provider (like Hostinger), you will need to set these same key-value pairs in the environment variables section of your hosting platform's dashboard.
-
-**Example `.env` file:**
-
-```
-NEXT_PUBLIC_FIREBASE_API_KEY="AIzaSy..."
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="your-project-id.firebaseapp.com"
-NEXT_PUBLIC_FIREBASE_PROJECT_ID="your-project-id"
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET="your-project-id.appspot.com"
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID="123456789012"
-NEXT_PUBLIC_FIREBASE_APP_ID="1:123456789012:web:abcdef1234567890"
-NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID="G-ABCDEFGHIJ"
-```
+You can configure any necessary environment variables in a `.env` file for local development, and then add them to your hosting provider's dashboard when you deploy.
 
 ### Build and Run Commands
 
