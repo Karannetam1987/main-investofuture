@@ -105,6 +105,10 @@ export default function MyDocumentsPage() {
     // Here we just save the metadata to the JSON file.
     await saveDocuments(updatedDocs);
     
+    const fileInput = document.getElementById('doc-upload') as HTMLInputElement;
+    if (fileInput) {
+        fileInput.value = "";
+    }
     setFileToUpload(null);
     setIsUploading(false);
   };

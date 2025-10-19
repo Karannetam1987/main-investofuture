@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,7 +16,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import initialUsers from "@/lib/data/users.json";
 
-export default function UserDashboardPage() {
+function UserDashboardInternal() {
   const [userIdInput, setUserIdInput] = useState("");
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -99,4 +99,12 @@ export default function UserDashboardPage() {
         </Card>
     </div>
   );
+}
+
+export default function UserDashboardPage() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <UserDashboardInternal />
+        </Suspense>
+    )
 }

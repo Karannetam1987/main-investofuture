@@ -1,196 +1,262 @@
-_id: "INF003",
-    "name": "User Name 3",
-    "email": "user3@example.com",
-    "mobile": "+91-9876543212",
-    "status": "Active"
-  },
-  {
-    "id": "INF004",
-    "name": "User Name 4",
-    "email": "user4@example.com",
-    "mobile": "+91-9876543213",
-    "status": "Active"
-  },
-  {
-    "id": "INF005",
-    "name": "User Name 5",
-    "email": "user5@example.com",
-    "mobile": "+91-9876543214",
-    "status": "Inactive"
-  },
-  {
-    "id": "INF006",
-    "name": "User Name 6",
-    "email": "user6@example.com",
-    "mobile": "+91-9876543215",
-    "status": "Active"
-  },
-  {
-    "id": "INF007",
-    "name": "User Name 7",
-    "email": "user7@example.com",
-    "mobile": "+91-9876543216",
-    "status": "Active"
-  },
-  {
-    "id": "INF008",
-    "name": "User Name 8",
-    "email": "user8@example.com",
-    "mobile": "+91-9876543217",
-    "status": "Active"
-  },
-  {
-    "id": "INF009",
-    "name": "User Name 9",
-    "email": "user9@example.com",
-    "mobile": "+91-9876543218",
-    "status": "Inactive"
-  },
-  {
-    "id": "INF010",
-    "name": "User Name 10",
-    "email": "user10@example.com",
-    "mobile": "+91-9876543219",
-    "status": "Active"
-  },
-  {
-    "id": "INF011",
-    "name": "User Name 11",
-    "email": "user11@example.com",
-    "mobile": "+91-9876543220",
-    "status": "Active"
-  },
-  {
-    "id": "INF012",
-    "name": "User Name 12",
-    "email": "user12@example.com",
-    "mobile": "+91-9876543221",
-    "status": "Active"
-  },
-  {
-    "id": "INF013",
-    "name": "User Name 13",
-    "email": "user13@example.com",
-    "mobile": "+91-9876543222",
-    "status": "Inactive"
-  },
-  {
-    "id": "INF014",
-    "name": "User Name 14",
-    "email": "user14@example.com",
-    "mobile": "+91-9876543223",
-    "status": "Active"
-  },
-  {
-    "id": "INF015",
-    "name": "User Name 15",
-    "email": "user15@example.com",
-    "mobile": "+91-9876543224",
-    "status": "Active"
-  },
-  {
-    "id": "INF016",
-    "name": "User Name 16",
-    "email": "user16@example.com",
-    "mobile": "+91-9876543225",
-    "status": "Active"
-  },
-  {
-    "id": "INF017",
-    "name": "User Name 17",
-    "email": "user17@example.com",
-    "mobile": "+91-9876543226",
-    "status": "Inactive"
-  },
-  {
-    "id": "INF018",
-    "name": "User Name 18",
-    "email": "user18@example.com",
-    "mobile": "+91-9876543227",
-    "status": "Active"
-  },
-  {
-    "id": "INF019",
-    "name": "User Name 19",
-    "email": "user19@example.com",
-    "mobile": "+91-9876543228",
-    "status": "Active"
-  },
-  {
-    "id": "INF020",
-    "name": "User Name 20",
-    "email": "user20@example.com",
-    "mobile": "+91-9876543229",
-    "status": "Active"
-  },
-  {
-    "id": "INF021",
-    "name": "User Name 21",
-    "email": "user21@example.com",
-    "mobile": "+91-9876543230",
-    "status": "Inactive"
-  },
-  {
-    "id": "INF022",
-    "name": "User Name 22",
-    "email": "user22@example.com",
-    "mobile": "+91-9876543231",
-    "status": "Active"
-  },
-  {
-    "id": "INF023",
-    "name": "User Name 23",
-    "email": "user23@example.com",
-    "mobile": "+91-9876543232",
-    "status": "Active"
-  },
-  {
-    "id": "INF024",
-    "name": "User Name 24",
-    "email": "user24@example.com",
-    "mobile": "+91-9876543233",
-    "status": "Active"
-  },
-  {
-    "id": "INF025",
-    "name": "User Name 25",
-    "email": "user25@example.com",
-    "mobile": "+91-9876543234",
-    "status": "Inactive"
-  },
-  {
-    "id": "INF026",
-    "name": "User Name 26",
-    "email": "user26@example.com",
-    "mobile": "+91-9876543235",
-    "status": "Active"
-  },
-  {
-    "id": "INF027",
-    "name": "User Name 27",
-    "email": "user27@example.com",
-    "mobile": "+91-9876543236",
-    "status": "Active"
-  },
-  {
-    "id": "INF028",
-    "name": "User Name 28",
-    "email": "user28@example.com",
-    "mobile": "+91-9876543237",
-    "status": "Active"
-  },
-  {
-    "id": "INF029",
-    "name": "User Name 29",
-    "email": "user29@example.com",
-    "mobile": "+91-9876543238",
-    "status": "Inactive"
-  },
-  {
-    "id": "INF030",
-    "name": "User Name 30",
-    "email": "user30@example.com",
-    "mobile": "+91-9876543239",
-    "status": "Active"
-  }
-]
+
+"use client";
+
+import { useState, useMemo } from "react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import Link from "next/link";
+import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+
+import initialUsersData from '@/lib/data/users.json';
+
+
+type User = {
+  id: string;
+  name: string;
+  email: string;
+  mobile: string;
+  status: "Active" | "Inactive";
+};
+
+
+export default function ManageUsersPage() {
+  const [users, setUsers] = useState<User[]>(initialUsersData);
+  const [searchTerm, setSearchTerm] = useState("");
+  const { toast } = useToast();
+  
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const [deleteAlertOpen, setDeleteAlertOpen] = useState(false);
+
+
+  const filteredUsers = useMemo(() => {
+    return users.filter(user =>
+      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.id.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [users, searchTerm]);
+
+  const handleStatusChange = async (userId: string, newStatus: "Active" | "Inactive") => {
+    const updatedUsers = users.map(user =>
+      user.id === userId ? { ...user, status: newStatus } : user
+    );
+    
+    try {
+        const response = await fetch('/api/update-json', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ file: 'users.json', data: updatedUsers }),
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to update user status.');
+        }
+
+        setUsers(updatedUsers);
+        toast({
+            title: "Status Updated",
+            description: `User ${userId}'s status has been changed to ${newStatus}.`,
+        });
+
+    } catch (error) {
+        toast({
+            title: "Error",
+            description: "Could not update user status.",
+            variant: "destructive",
+        });
+    }
+  };
+  
+  const confirmDeleteUser = (user: User) => {
+    setUserToDelete(user);
+    setDeleteAlertOpen(true);
+  };
+  
+  const handleDeleteUser = async () => {
+    if (!userToDelete) return;
+    
+    const updatedUsers = users.filter(user => user.id !== userToDelete.id);
+
+     try {
+        const response = await fetch('/api/update-json', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ file: 'users.json', data: updatedUsers }),
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to delete user.');
+        }
+
+        setUsers(updatedUsers);
+        toast({
+            title: "User Deleted",
+            description: `User ${userToDelete.name} (${userToDelete.id}) has been deleted.`,
+            variant: "destructive"
+        });
+
+    } catch (error) {
+        toast({
+            title: "Error",
+            description: "Could not delete user.",
+            variant: "destructive",
+        });
+    } finally {
+        setDeleteAlertOpen(false);
+        setUserToDelete(null);
+    }
+  };
+
+
+  return (
+    <div className="flex-1 space-y-8 p-4 md:p-8">
+      <div className="flex items-center justify-between space-y-2">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Manage Users</h2>
+          <p className="text-muted-foreground">
+            View, edit, and manage all registered users.
+          </p>
+        </div>
+      </div>
+       <Card>
+        <CardHeader>
+          <CardTitle>All Users</CardTitle>
+           <CardDescription>
+            <div className="flex justify-between items-center">
+              <span>A list of all users in the system.</span>
+              <Input
+                placeholder="Filter by name, email, or ID..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="max-w-sm"
+              />
+            </div>
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Registration ID</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Mobile</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>
+                  <span className="sr-only">Actions</span>
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredUsers.length > 0 ? (
+                filteredUsers.map(user => (
+                  <TableRow key={user.id}>
+                    <TableCell className="font-medium">{user.id}</TableCell>
+                    <TableCell>{user.name}</TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>{user.mobile}</TableCell>
+                    <TableCell>
+                      <Badge variant={user.status === "Active" ? "default" : "destructive"}>
+                        {user.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button aria-haspopup="true" size="icon" variant="ghost">
+                            <MoreHorizontal className="h-4 w-4" />
+                            <span className="sr-only">Toggle menu</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuItem asChild>
+                            <Link href={`/dashboard/profile?userId=${user.id}`}>
+                                <Pencil className="mr-2 h-4 w-4"/> Edit Profile
+                            </Link>
+                          </DropdownMenuItem>
+                           <DropdownMenuSeparator />
+                           {user.status === 'Active' ? (
+                            <DropdownMenuItem onClick={() => handleStatusChange(user.id, "Inactive")}>
+                                Mark as Inactive
+                            </DropdownMenuItem>
+                           ) : (
+                             <DropdownMenuItem onClick={() => handleStatusChange(user.id, "Active")}>
+                                Mark as Active
+                            </DropdownMenuItem>
+                           )}
+                           <DropdownMenuSeparator />
+                          <DropdownMenuItem className="text-red-600" onClick={() => confirmDeleteUser(user)}>
+                             <Trash2 className="mr-2 h-4 w-4"/> Delete User
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={6} className="h-24 text-center">
+                    No users found.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+      
+       <AlertDialog open={deleteAlertOpen} onOpenChange={setDeleteAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the user account
+              for <span className="font-bold">{userToDelete?.name}</span> and remove their data from our servers.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteUser}>Continue</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+    </div>
+  );
+}
