@@ -138,6 +138,7 @@ export default function SettingsPage() {
   const [statsData, setStatsData] = useState<StatsData>(initialStatsData);
   const [siteFeatures, setSiteFeatures] = useState<SiteFeatures>(initialSiteFeatures);
   const { toast } = useToast();
+  const [isSaving, setIsSaving] = useState(false);
 
   const passwordForm = useForm<z.infer<typeof passwordFormSchema>>({
     resolver: zodResolver(passwordFormSchema),
@@ -267,27 +268,54 @@ export default function SettingsPage() {
     passwordForm.reset();
   }
 
-  const handleSaveChanges = () => {
-    console.log("Simulating save. In a real static export, data must be changed in the source JSON files.");
-    console.log("Site Config:", siteConfig);
-    console.log("Homepage Stats:", statsData);
-    console.log("Homepage Features:", siteFeatures);
-    console.log("Hero Slides:", heroSlides);
-    console.log("Ads Config:", adsConfig);
-    console.log("SMTP Config:", smtpConfig);
-    
-    toast({
-      title: "Changes Applied in UI",
-      description: "To make these changes permanent, you must edit the corresponding .json files in the src/lib/data/ directory and redeploy the site.",
-      duration: 10000,
-    });
+  const handleSaveChanges = async () => {
+    setIsSaving(true);
+    try {
+        const settingsToSave = [
+            { file: 'site-config.json', data: siteConfig },
+            { file: 'stats.json', data: statsData },
+            { file: 'site-features.json', data: siteFeatures },
+            { file: 'hero-slides.json', data: heroSlides },
+            { file: 'ads.json', data: adsConfig },
+            { file: 'smtp-config.json', data: smtpConfig }
+        ];
+
+        for (const setting of settingsToSave) {
+            const response = await fetch('/api/update-json', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(setting),
+            });
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(`Failed to save ${setting.file}: ${errorData.message}`);
+            }
+        }
+        
+        toast({
+            title: "Settings Saved Successfully",
+            description: "All your changes have been saved permanently.",
+        });
+
+    } catch (error: any) {
+        toast({
+            title: "Error Saving Settings",
+            description: error.message || "An unknown error occurred.",
+            variant: "destructive",
+        });
+    } finally {
+        setIsSaving(false);
+    }
   };
 
   return (
     <div className="flex-1 space-y-8 p-4 md:p-8">
       <div className="flex items-center justify-between space-y-2">
         <h2 className="text-3xl font-bold tracking-tight">Website Settings</h2>
-         <Button onClick={handleSaveChanges} size="lg">Save All Settings</Button>
+         <Button onClick={handleSaveChanges} size="lg" disabled={isSaving}>
+            {isSaving && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+            {isSaving ? "Saving..." : "Save All Settings"}
+         </Button>
       </div>
 
       <Tabs defaultValue="general" className="w-full">
@@ -647,7 +675,7 @@ export default function SettingsPage() {
             <Card>
                 <CardHeader>
                     <CardTitle>Email (SMTP) Settings</CardTitle>
-                    <CardDescription>Configure your SMTP server to send emails from your website. Your changes here must be manually copied to the `src/lib/data/smtp-config.json` file to take effect.</CardDescription>
+                    <CardDescription>Configure your SMTP server to send emails from your website.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -746,5 +774,3 @@ export default function SettingsPage() {
     </div>
   );
 }
-
-    
