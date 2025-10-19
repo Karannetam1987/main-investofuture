@@ -80,8 +80,8 @@ export default function ScholarshipPage() {
       childrenCount: prevData.children.length - 1,
     }));
      toast({
-      title: "Child Removed",
-      description: "The child's details have been removed.",
+      title: "Child Removed (Display Only)",
+      description: "The child's details have been removed from the UI.",
       variant: "destructive",
     });
   };
@@ -139,18 +139,19 @@ export default function ScholarshipPage() {
         })
     }));
     toast({
-        title: "Statement Removed",
-        description: "The payment statement has been removed.",
+        title: "Statement Removed (Display Only)",
+        description: "The payment statement has been removed from the UI.",
         variant: "destructive",
     });
   };
   
   const handleSaveChanges = () => {
+    console.log("Saving data (simulated for static export):", scholarshipData);
     toast({
-        title: "Changes Saved",
-        description: "Scholarship details have been successfully updated."
+        title: "Changes Applied in UI",
+        description: "To make these changes permanent, you must edit 'scholarship.json' and redeploy the site.",
+        duration: 8000,
     })
-    console.log("Saving data:", scholarshipData);
   }
 
 
@@ -163,7 +164,7 @@ export default function ScholarshipPage() {
         <CardHeader>
           <CardTitle>Manage Scholarship</CardTitle>
           <CardDescription>
-            View, add, or edit scholarship details for users.
+            View, add, or edit scholarship details. Changes are for display only and are not saved permanently.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -312,3 +313,5 @@ export default function ScholarshipPage() {
     </div>
   );
 }
+
+    

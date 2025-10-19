@@ -63,29 +63,23 @@ export default function ManageUsersPage() {
 
   const handlePreviousPage = () => {
     if (currentPage > 1) {
-      setCurrentPage(currentPage + 1);
+      setCurrentPage(currentPage - 1);
     }
   };
 
-  const handleStatusChange = async (userId: string, newStatus: boolean) => {
-    // In a real app, this would be an API call.
-    // For now, we update the local state.
+  const handleStatusChange = (userId: string, newStatus: boolean) => {
     setUsers(prevUsers => prevUsers.map(u => u.id === userId ? {...u, status: newStatus ? "Active" : "Inactive"} : u));
     toast({
-        title: "Status Updated",
-        description: `User ${userId} has been set to ${
-          newStatus ? "Active" : "Inactive"
-        }. Note: This is not persisted.`,
+        title: "Status Updated (Display Only)",
+        description: `User ${userId} status changed in UI. To make it permanent, edit users.json and redeploy.`,
       });
   };
 
-  const handleDeleteUser = async (userId: string) => {
-    // In a real app, this would be an API call.
-    // For now, we update the local state.
+  const handleDeleteUser = (userId: string) => {
     setUsers(prevUsers => prevUsers.filter(u => u.id !== userId));
     toast({
-        title: "User Deleted",
-        description: `User ${userId} has been removed. Note: This is not persisted.`,
+        title: "User Deleted (Display Only)",
+        description: `User ${userId} removed from UI. To make it permanent, edit users.json and redeploy.`,
         variant: "destructive"
     });
   }
@@ -218,3 +212,5 @@ export default function ManageUsersPage() {
     </div>
   );
 }
+
+    

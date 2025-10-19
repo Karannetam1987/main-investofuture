@@ -194,7 +194,7 @@ export default function SettingsPage() {
     setHeroSlides((prev) => prev.filter((slide) => slide.id !== id));
     toast({
       title: "Slide Removed",
-      description: "The slide has been successfully removed.",
+      description: "The slide has been successfully removed from the UI. Save to make changes permanent.",
       variant: "destructive",
     });
   };
@@ -259,19 +259,16 @@ export default function SettingsPage() {
   };
 
   const handlePasswordChange = async (values: z.infer<typeof passwordFormSchema>) => {
-    // This is still simulated as there is no backend authentication service.
-    console.log(values);
+    console.log("Password change form submitted (simulated):", values);
     toast({
-        title: "Password Updated (Simulated)",
-        description: "Your admin password has been changed successfully. This is not persisted on static export."
+        title: "Password Change Simulated",
+        description: "In a real app, this would change the password. This is not persisted on static export."
     });
     passwordForm.reset();
   }
 
   const handleSaveChanges = () => {
-    // This is a placeholder for a real save function.
-    // In a real application, this would send data to a backend API.
-    console.log("Saving data to state...");
+    console.log("Simulating save. In a real static export, data must be changed in the source JSON files.");
     console.log("Site Config:", siteConfig);
     console.log("Homepage Stats:", statsData);
     console.log("Homepage Features:", siteFeatures);
@@ -280,8 +277,9 @@ export default function SettingsPage() {
     console.log("SMTP Config:", smtpConfig);
     
     toast({
-      title: "Settings Updated (Simulated)",
-      description: "Your settings have been updated in the UI. This is not persisted on static export.",
+      title: "Changes Applied in UI",
+      description: "To make these changes permanent, you must edit the corresponding .json files in the src/lib/data/ directory and redeploy the site.",
+      duration: 10000,
     });
   };
 
@@ -649,7 +647,7 @@ export default function SettingsPage() {
             <Card>
                 <CardHeader>
                     <CardTitle>Email (SMTP) Settings</CardTitle>
-                    <CardDescription>Configure your SMTP server to send emails from your website. This information will be used by the contact form.</CardDescription>
+                    <CardDescription>Configure your SMTP server to send emails from your website. Your changes here must be manually copied to the `src/lib/data/smtp-config.json` file to take effect.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -670,7 +668,7 @@ export default function SettingsPage() {
                             <Input id="smtpPass" type="password" value={smtpConfig.pass} onChange={(e) => handleSmtpChange('pass', e.target.value)} placeholder="••••••••" />
                         </div>
                          <div className="space-y-2 md:col-span-2">
-                            <Label htmlFor="smtpSender">Sender Email</Label>
+                            <Label htmlFor="smtpSender">Sender Email (Optional)</Label>
                             <Input id="smtpSender" value={smtpConfig.sender} onChange={(e) => handleSmtpChange('sender', e.target.value)} placeholder="noreply@yourdomain.com (optional)" />
                         </div>
                     </div>
@@ -682,7 +680,7 @@ export default function SettingsPage() {
             <Card>
                 <CardHeader>
                     <CardTitle>Security</CardTitle>
-                    <CardDescription>Change your administrator password.</CardDescription>
+                    <CardDescription>Change your administrator password. This is for demonstration purposes only in a static export.</CardDescription>
                 </CardHeader>
                 <Form {...passwordForm}>
                     <form onSubmit={passwordForm.handleSubmit(handlePasswordChange)}>
@@ -748,3 +746,5 @@ export default function SettingsPage() {
     </div>
   );
 }
+
+    

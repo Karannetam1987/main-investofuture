@@ -92,14 +92,14 @@ export default function MyDocumentsPage() {
             setUserDocuments(prev => [...prev, newDoc]);
             setIsUploading(false);
             setFileToUpload(null);
-            toast({ title: "Upload Successful", description: `${fileToUpload.name} has been uploaded for ${foundUser.personalInfo.fullName}. This is not persisted.` });
+            toast({ title: "Upload Successful (Display Only)", description: `${fileToUpload.name} has been added to the UI. This is not saved permanently.` });
         }, 1000);
     };
 
     const handleRemoveDocument = async (docToDelete: Document) => {
         if (!foundUser || !docToDelete.uid) return;
         setUserDocuments(prev => prev.filter(d => d.uid !== docToDelete.uid));
-        toast({ title: "Document Removed", variant: "destructive" });
+        toast({ title: "Document Removed (Display Only)", variant: "destructive" });
     };
 
   return (
@@ -117,7 +117,7 @@ export default function MyDocumentsPage() {
         <CardHeader>
           <CardTitle>Manage User Documents</CardTitle>
           <CardDescription>
-            Search for a user by Registration ID to upload and manage their documents.
+            Search for a user by Registration ID to upload and manage their documents. Changes are not saved permanently.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -216,3 +216,5 @@ export default function MyDocumentsPage() {
     </div>
   );
 }
+
+    

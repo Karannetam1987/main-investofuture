@@ -99,7 +99,7 @@ function FundEditorInternal() {
 
     const loadFundData = async (userId: string) => {
         setLoadingData(true);
-        // Simulate loading data
+        // Simulate loading data. For static export, we use the same data for all users.
         setTimeout(() => {
             setFundData(initialInterestFundData);
             setLoadingData(false);
@@ -152,8 +152,8 @@ function FundEditorInternal() {
         statements: prevData.statements.filter((stmt) => stmt.id !== id),
         }));
         toast({
-        title: "Statement Removed",
-        description: "The interest statement has been removed.",
+        title: "Statement Removed (Display Only)",
+        description: "The interest statement has been removed from the UI.",
         variant: "destructive",
         });
     };
@@ -163,11 +163,12 @@ function FundEditorInternal() {
             toast({ title: "No user selected", variant: "destructive"});
             return;
         }
+        console.log("Saving data (simulated for static export):", fundData);
         toast({
-            title: "Changes Saved (Simulated)",
-            description: `Interest Fund details for ${foundUser.personalInfo.fullName} have been updated. This is not persisted on static export.`
+            title: "Changes Applied in UI",
+            description: `To make changes permanent, edit 'interest-fund.json' and redeploy.`,
+            duration: 8000
         });
-        console.log("Saving data:", fundData);
     }
 
     return (
@@ -175,7 +176,7 @@ function FundEditorInternal() {
             <CardHeader>
             <CardTitle>Manage Interest Fund</CardTitle>
             <CardDescription>
-                Search for a user by Registration ID to manage their interest fund.
+                Search for a user to manage their interest fund. Changes are not saved permanently.
             </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -323,3 +324,5 @@ export default function InterestFundPage() {
     </div>
   );
 }
+
+    

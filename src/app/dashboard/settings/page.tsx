@@ -52,10 +52,11 @@ function SettingsEditor() {
   }, []);
 
   const handlePasswordChange = async (values: z.infer<typeof passwordFormSchema>) => {
-    // Simulate password change
+    // This is for display only in a static app.
+    console.log("Password change submitted (display only):", values);
     toast({
-        title: "Password Updated (Simulated)",
-        description: "Your password has been changed successfully. This is not persisted on static export."
+        title: "Password Change Simulated",
+        description: "In a real app, this action would change your password."
     });
     passwordForm.reset();
   }
@@ -96,7 +97,7 @@ function SettingsEditor() {
                 <CardHeader>
                     <CardTitle>Change Password</CardTitle>
                     <CardDescription>
-                        For security, you will be required to enter your current password.
+                        For security, you will be required to enter your current password. This is for display only.
                     </CardDescription>
                 </CardHeader>
                 <Form {...passwordForm}>
@@ -182,3 +183,5 @@ export default function SettingsPage() {
         </div>
     );
 }
+
+    

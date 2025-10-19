@@ -92,7 +92,8 @@ function InsuranceEditor() {
 
     const loadInsuranceData = async (userId: string) => {
         setLoadingData(true);
-        // Simulate fetching data
+        // Simulate fetching data for a specific user. In a real app, this would be an API call.
+        // For static export, we'll just use the single initial data file.
         setTimeout(() => {
             setInsuranceData(initialInsuranceData);
             setLoadingData(false);
@@ -142,7 +143,7 @@ function InsuranceEditor() {
         }));
         toast({
         title: "Statement Removed",
-        description: "The policy statement has been removed.",
+        description: "The policy statement has been removed from the UI. Save changes to make it permanent.",
         variant: "destructive",
         });
     };
@@ -152,11 +153,12 @@ function InsuranceEditor() {
             toast({ title: "No user selected", variant: "destructive"});
             return;
         }
+        console.log("Saving data (simulated for static export):", insuranceData);
         toast({
-            title: "Changes Saved (Simulated)",
-            description: `Accidental Insurance details for ${foundUser.personalInfo.fullName} have been updated. This is not persisted on static export.`
+            title: "Changes Applied in UI",
+            description: `To make changes permanent, edit 'accidental-insurance.json' and redeploy.`,
+            duration: 8000
         });
-        console.log("Saving data:", insuranceData);
     }
 
     return (
@@ -164,7 +166,7 @@ function InsuranceEditor() {
             <CardHeader>
             <CardTitle>Manage Accidental Insurance</CardTitle>
             <CardDescription>
-                Search for a user by Registration ID to manage their accidental insurance policies.
+                Search for a user by Registration ID to manage their accidental insurance policies. Changes are not saved permanently.
             </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -332,3 +334,5 @@ export default function AccidentalInsurancePage() {
     </div>
   );
 }
+
+    

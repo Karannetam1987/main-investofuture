@@ -2,9 +2,6 @@
 "use client";
 
 import { useState, useEffect, Suspense, useRef } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import Image from "next/image";
 import { AppHeader } from "@/components/header";
 import { AppFooter } from "@/components/footer";
@@ -21,11 +18,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import Link from "next/link";
-import { ArrowLeft, LoaderCircle, ShieldCheck, User as UserIcon, Upload } from "lucide-react";
+import { ArrowLeft, LoaderCircle, Upload, User as UserIcon } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { format, parseISO } from "date-fns";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import initialUserData from "@/lib/data/user-data.json";
 import { useSearchParams } from "next/navigation";
@@ -96,11 +92,12 @@ function ProfileEditor() {
         return;
     };
     
+    console.log("Saving data (simulated for static export):", editableProfile);
     toast({
-      title: "Success! (Simulated)",
-      description: "Profile has been updated. This is not persisted on static export.",
+      title: "Changes Applied in UI",
+      description: "To make changes permanent, you must edit the user's data in the source .json files and redeploy the site.",
+      duration: 8000
     });
-    console.log("Saving data:", editableProfile);
   };
 
   const handlePictureUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -116,8 +113,8 @@ function ProfileEditor() {
             setEditableProfile(prev => prev ? {...prev, photoURL: newPhotoURL} : null);
             setProfile(prev => prev ? {...prev, photoURL: newPhotoURL} : null);
              toast({
-                title: "Profile Picture Updated (Simulated)",
-                description: "Your new profile picture has been saved. This is not persisted."
+                title: "Profile Picture Updated (Display Only)",
+                description: "Your new profile picture is shown in the UI but is not saved permanently."
             });
             setIsUploading(false);
         };
@@ -180,6 +177,7 @@ function ProfileEditor() {
                         <CardTitle className="text-3xl">{isAdminView ? "Edit User Profile" : "Profile Details"}</CardTitle>
                         <CardDescription className="mt-1">
                             {isAdminView ? `You are editing the profile for ${profile.personalInfo.fullName}.` : "Manage your personal details."}
+                            {" "}Changes are for display only and are not saved permanently.
                         </CardDescription>
                     </div>
                 </div>
@@ -303,3 +301,5 @@ export default function ProfilePage() {
         </div>
     );
 }
+
+    

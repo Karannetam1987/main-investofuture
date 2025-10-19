@@ -71,13 +71,13 @@ export default function MyDocumentsPage() {
         setDocuments(prev => [...prev, newDoc]);
         setFileToUpload(null);
         setIsUploading(false);
-        toast({ title: "Upload Successful (Simulated)", description: `${fileToUpload.name} has been uploaded. This is not persisted on static export.` });
+        toast({ title: "Upload Successful (Display Only)", description: `${fileToUpload.name} added to UI. This is not saved permanently.` });
     }, 1000);
   };
 
   const handleRemoveDocument = async (docToDelete: Document) => {
     setDocuments(prev => prev.filter(d => d.uid !== docToDelete.uid));
-    toast({ title: "Document Removed", description: "This is not persisted on static export.", variant: "destructive" });
+    toast({ title: "Document Removed (Display Only)", description: "Change is not saved permanently.", variant: "destructive" });
   };
   
 
@@ -98,7 +98,7 @@ export default function MyDocumentsPage() {
             <CardHeader>
               <CardTitle>My Documents</CardTitle>
               <CardDescription>
-                View and manage documents related to your account.
+                View and manage documents related to your account. Changes are for display only and are not saved permanently.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -182,3 +182,5 @@ export default function MyDocumentsPage() {
     </div>
   );
 }
+
+    

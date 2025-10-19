@@ -87,7 +87,7 @@ function FundEditorInternal() {
 
     const loadFundData = async (userId: string) => {
         setLoadingData(true);
-        // Simulate loading data
+        // Simulate loading data. For static export, we use the same data for all users.
         setTimeout(() => {
             setFundData(initialMaturityFundData);
             setLoadingData(false);
@@ -139,8 +139,8 @@ function FundEditorInternal() {
         statements: prevData.statements.filter((stmt) => stmt.id !== id),
         }));
         toast({
-        title: "Statement Removed",
-        description: "The maturity fund statement has been removed.",
+        title: "Statement Removed (Display Only)",
+        description: "The maturity fund statement has been removed from the UI.",
         variant: "destructive",
         });
     };
@@ -150,11 +150,12 @@ function FundEditorInternal() {
             toast({ title: "No user selected", variant: "destructive"});
             return;
         }
+        console.log("Saving data (simulated for static export):", fundData);
         toast({
-            title: "Changes Saved (Simulated)",
-            description: `Maturity Fund details for ${foundUser.personalInfo.fullName} have been updated. This is not persisted on static export.`
+            title: "Changes Applied in UI",
+            description: `To make changes permanent, edit 'maturity-fund.json' and redeploy.`,
+            duration: 8000
         });
-        console.log("Saving data:", fundData);
     };
 
     return (
@@ -162,7 +163,7 @@ function FundEditorInternal() {
             <CardHeader>
             <CardTitle>Manage Maturity Fund</CardTitle>
             <CardDescription>
-                Search for a user to view, add, or edit their maturity fund details.
+                Search for a user to view, add, or edit their maturity fund details. Changes are not saved permanently.
             </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -282,3 +283,5 @@ export default function MaturityFundPage() {
     </div>
   );
 }
+
+    

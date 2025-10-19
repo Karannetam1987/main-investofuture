@@ -48,11 +48,12 @@ function BankDetailsEditor() {
         return;
     };
     
+    console.log("Saving bank details (simulated for static export):", bankDetails);
     toast({
-      title: "Success! (Simulated)",
-      description: "Bank details have been updated. This is not persisted on static export.",
+      title: "Changes Applied in UI",
+      description: "To make changes permanent, you must edit 'user-data.json' and redeploy the site.",
+      duration: 8000
     });
-    console.log("Saving bank details:", bankDetails);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -86,7 +87,7 @@ function BankDetailsEditor() {
             <CardHeader>
               <CardTitle>Bank Details</CardTitle>
               <CardDescription>
-                Manage your bank account information.
+                Manage your bank account information. Changes are for display only and are not saved permanently.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-8">
@@ -140,3 +141,5 @@ export default function BankDetailsPage() {
         </div>
     )
 }
+
+    

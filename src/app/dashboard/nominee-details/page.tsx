@@ -18,7 +18,7 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { ArrowLeft, LoaderCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { format, parseISO } from 'date-fns';
+import { format } from 'date-fns';
 import initialUserData from "@/lib/data/user-data.json";
 
 type UserProfile = typeof initialUserData[0];
@@ -47,11 +47,12 @@ function NomineeDetailsEditor() {
             return;
         };
 
+        console.log("Saving nominee details (simulated for static export):", nomineeDetails);
         toast({
-            title: "Success! (Simulated)",
-            description: "Nominee details have been updated. This is not persisted on static export.",
+            title: "Changes Applied in UI",
+            description: "To make changes permanent, you must edit 'user-data.json' and redeploy the site.",
+            duration: 8000,
         });
-        console.log("Saving nominee details:", nomineeDetails);
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -101,7 +102,7 @@ function NomineeDetailsEditor() {
             <CardHeader>
               <CardTitle>Nominee Details</CardTitle>
               <CardDescription>
-                Manage your nominee information.
+                Manage your nominee information. Changes are for display only and are not saved permanently.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-8">
@@ -160,3 +161,5 @@ export default function NomineeDetailsPage() {
         </div>
     )
 }
+
+    

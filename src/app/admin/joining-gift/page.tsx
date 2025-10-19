@@ -91,7 +91,7 @@ function GiftEditorInternal() {
 
     const loadGiftData = async (userId: string) => {
         setLoadingData(true);
-        // Simulate loading data
+        // Simulate loading data. For static export, we use the same data for all users.
         setTimeout(() => {
             setGiftData(initialGiftData);
             setLoadingData(false);
@@ -143,8 +143,8 @@ function GiftEditorInternal() {
         items: prevData.items.filter((item) => item.id !== id),
         }));
         toast({
-        title: "Item Removed",
-        description: "The gift item has been removed from the list.",
+        title: "Item Removed (Display Only)",
+        description: "The gift item has been removed from the UI.",
         variant: "destructive",
         });
     };
@@ -155,11 +155,12 @@ function GiftEditorInternal() {
             return;
         }
         
+        console.log("Saving data (simulated for static export):", giftData);
         toast({
-            title: "Changes Saved (Simulated)",
-            description: `Joining gift details for ${foundUser.personalInfo.fullName} have been updated. This is not persisted on static export.`
+            title: "Changes Applied in UI",
+            description: `To make changes permanent, edit 'joining-gift.json' and redeploy.`,
+            duration: 8000
         });
-        console.log("Saving data:", giftData);
     }
 
     return (
@@ -167,7 +168,7 @@ function GiftEditorInternal() {
             <CardHeader>
             <CardTitle>Joining Gift Details</CardTitle>
             <CardDescription>
-                Search for a user to manage their joining gift information.
+                Search for a user to manage their joining gift information. Changes are not saved permanently.
             </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -347,3 +348,5 @@ export default function JoiningGiftPage() {
     </div>
   );
 }
+
+    
