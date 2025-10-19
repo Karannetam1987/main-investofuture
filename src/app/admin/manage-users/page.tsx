@@ -1,245 +1,196 @@
-
-"use client";
-
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Eye, Pencil, Trash2, LoaderCircle } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
-import { useToast } from "@/hooks/use-toast";
-import initialUsers from "@/lib/data/users.json";
-
-const USERS_PER_PAGE = 25;
-
-type User = {
-    id: string;
-    name: string;
-    email: string;
-    mobile: string;
-    status: string;
-};
-
-export default function ManageUsersPage() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
-
-  const [currentPage, setCurrentPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState("");
-  const { toast } = useToast();
-
-  useEffect(() => {
-    // Simulate fetching data
-    setUsers(initialUsers);
-    setLoading(false);
-  }, []);
-
-  const filteredUsers = users?.filter(
-    (user) =>
-      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.id.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const totalPages = Math.ceil((filteredUsers?.length || 0) / USERS_PER_PAGE);
-  const startIndex = (currentPage - 1) * USERS_PER_PAGE;
-  const endIndex = startIndex + USERS_PER_PAGE;
-  const usersToShow = filteredUsers?.slice(startIndex, endIndex);
-
-  const handleNextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-    }
-  };
-
-  const handlePreviousPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
-  };
-  
-  const saveUsers = async (updatedUsers: User[]) => {
-      setIsSaving(true);
-      try {
-          const response = await fetch('/api/update-json', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ file: 'users.json', data: updatedUsers }),
-          });
-
-          if (!response.ok) {
-              const errorData = await response.json();
-              throw new Error(errorData.message || 'Failed to save changes.');
-          }
-
-          setUsers(updatedUsers); // Update state after successful save
-          toast({
-              title: "Changes Saved",
-              description: `User data has been updated successfully.`,
-          });
-      } catch (error: any) {
-          toast({
-              title: "Error Saving Changes",
-              description: error.message,
-              variant: "destructive",
-          });
-          // Revert optimistic UI update on failure by reloading original data
-          setUsers(users); 
-      } finally {
-          setIsSaving(false);
-      }
-  };
-
-
-  const handleStatusChange = (userId: string, newStatus: boolean) => {
-    const updatedUsers = users.map(u => u.id === userId ? {...u, status: newStatus ? "Active" : "Inactive"} : u);
-    saveUsers(updatedUsers);
-  };
-
-  const handleDeleteUser = (userId: string) => {
-    const updatedUsers = users.filter(u => u.id !== userId);
-    saveUsers(updatedUsers);
+_id: "INF003",
+    "name": "User Name 3",
+    "email": "user3@example.com",
+    "mobile": "+91-9876543212",
+    "status": "Active"
+  },
+  {
+    "id": "INF004",
+    "name": "User Name 4",
+    "email": "user4@example.com",
+    "mobile": "+91-9876543213",
+    "status": "Active"
+  },
+  {
+    "id": "INF005",
+    "name": "User Name 5",
+    "email": "user5@example.com",
+    "mobile": "+91-9876543214",
+    "status": "Inactive"
+  },
+  {
+    "id": "INF006",
+    "name": "User Name 6",
+    "email": "user6@example.com",
+    "mobile": "+91-9876543215",
+    "status": "Active"
+  },
+  {
+    "id": "INF007",
+    "name": "User Name 7",
+    "email": "user7@example.com",
+    "mobile": "+91-9876543216",
+    "status": "Active"
+  },
+  {
+    "id": "INF008",
+    "name": "User Name 8",
+    "email": "user8@example.com",
+    "mobile": "+91-9876543217",
+    "status": "Active"
+  },
+  {
+    "id": "INF009",
+    "name": "User Name 9",
+    "email": "user9@example.com",
+    "mobile": "+91-9876543218",
+    "status": "Inactive"
+  },
+  {
+    "id": "INF010",
+    "name": "User Name 10",
+    "email": "user10@example.com",
+    "mobile": "+91-9876543219",
+    "status": "Active"
+  },
+  {
+    "id": "INF011",
+    "name": "User Name 11",
+    "email": "user11@example.com",
+    "mobile": "+91-9876543220",
+    "status": "Active"
+  },
+  {
+    "id": "INF012",
+    "name": "User Name 12",
+    "email": "user12@example.com",
+    "mobile": "+91-9876543221",
+    "status": "Active"
+  },
+  {
+    "id": "INF013",
+    "name": "User Name 13",
+    "email": "user13@example.com",
+    "mobile": "+91-9876543222",
+    "status": "Inactive"
+  },
+  {
+    "id": "INF014",
+    "name": "User Name 14",
+    "email": "user14@example.com",
+    "mobile": "+91-9876543223",
+    "status": "Active"
+  },
+  {
+    "id": "INF015",
+    "name": "User Name 15",
+    "email": "user15@example.com",
+    "mobile": "+91-9876543224",
+    "status": "Active"
+  },
+  {
+    "id": "INF016",
+    "name": "User Name 16",
+    "email": "user16@example.com",
+    "mobile": "+91-9876543225",
+    "status": "Active"
+  },
+  {
+    "id": "INF017",
+    "name": "User Name 17",
+    "email": "user17@example.com",
+    "mobile": "+91-9876543226",
+    "status": "Inactive"
+  },
+  {
+    "id": "INF018",
+    "name": "User Name 18",
+    "email": "user18@example.com",
+    "mobile": "+91-9876543227",
+    "status": "Active"
+  },
+  {
+    "id": "INF019",
+    "name": "User Name 19",
+    "email": "user19@example.com",
+    "mobile": "+91-9876543228",
+    "status": "Active"
+  },
+  {
+    "id": "INF020",
+    "name": "User Name 20",
+    "email": "user20@example.com",
+    "mobile": "+91-9876543229",
+    "status": "Active"
+  },
+  {
+    "id": "INF021",
+    "name": "User Name 21",
+    "email": "user21@example.com",
+    "mobile": "+91-9876543230",
+    "status": "Inactive"
+  },
+  {
+    "id": "INF022",
+    "name": "User Name 22",
+    "email": "user22@example.com",
+    "mobile": "+91-9876543231",
+    "status": "Active"
+  },
+  {
+    "id": "INF023",
+    "name": "User Name 23",
+    "email": "user23@example.com",
+    "mobile": "+91-9876543232",
+    "status": "Active"
+  },
+  {
+    "id": "INF024",
+    "name": "User Name 24",
+    "email": "user24@example.com",
+    "mobile": "+91-9876543233",
+    "status": "Active"
+  },
+  {
+    "id": "INF025",
+    "name": "User Name 25",
+    "email": "user25@example.com",
+    "mobile": "+91-9876543234",
+    "status": "Inactive"
+  },
+  {
+    "id": "INF026",
+    "name": "User Name 26",
+    "email": "user26@example.com",
+    "mobile": "+91-9876543235",
+    "status": "Active"
+  },
+  {
+    "id": "INF027",
+    "name": "User Name 27",
+    "email": "user27@example.com",
+    "mobile": "+91-9876543236",
+    "status": "Active"
+  },
+  {
+    "id": "INF028",
+    "name": "User Name 28",
+    "email": "user28@example.com",
+    "mobile": "+91-9876543237",
+    "status": "Active"
+  },
+  {
+    "id": "INF029",
+    "name": "User Name 29",
+    "email": "user29@example.com",
+    "mobile": "+91-9876543238",
+    "status": "Inactive"
+  },
+  {
+    "id": "INF030",
+    "name": "User Name 30",
+    "email": "user30@example.com",
+    "mobile": "+91-9876543239",
+    "status": "Active"
   }
-  
-  if (loading) {
-    return (
-         <div className="flex-1 space-y-8 p-4 md:p-8 flex items-center justify-center">
-            <div className="flex items-center gap-2">
-                <LoaderCircle className="h-8 w-8 animate-spin text-primary"/>
-                <p className="text-muted-foreground">Loading users...</p>
-            </div>
-        </div>
-    )
-  }
-
-  return (
-    <div className="flex-1 space-y-8 p-4 md:p-8">
-      <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight">Manage Users</h2>
-      </div>
-
-      <div className="flex items-center justify-between">
-        <div className="w-full max-w-sm">
-          <Input
-            placeholder="Search by ID, name, or email..."
-            value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setCurrentPage(1); // Reset to first page on search
-            }}
-          />
-        </div>
-      </div>
-
-      <div className="border rounded-lg overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Reg. ID</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Mobile</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {usersToShow && usersToShow.length > 0 ? usersToShow.map((user) => (
-              <TableRow key={user.id}>
-                <TableCell className="font-medium">{user.id}</TableCell>
-                <TableCell>{user.name}</TableCell>
-                <TableCell>{user.email}</TableCell>
-                <TableCell>{user.mobile}</TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <Switch
-                      id={`status-${user.id}`}
-                      checked={user.status === "Active"}
-                      onCheckedChange={(checked) =>
-                        handleStatusChange(user.id, checked)
-                      }
-                      disabled={isSaving}
-                    />
-                    <Badge
-                      variant={
-                        user.status === "Active" ? "default" : "destructive"
-                      }
-                    >
-                      {user.status || "Inactive"}
-                    </Badge>
-                  </div>
-                </TableCell>
-                <TableCell className="text-right">
-                  <Link href={`/dashboard/profile?userId=${user.id}`}>
-                    <Button variant="ghost" size="icon" title="View User Dashboard">
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                  </Link>
-                  <Link href={`/admin/user-dashboard?userId=${user.id}`}>
-                     <Button variant="ghost" size="icon" title="Edit User">
-                        <Pencil className="h-4 w-4" />
-                     </Button>
-                  </Link>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-destructive"
-                    onClick={() => handleDeleteUser(user.id)}
-                    title="Delete User"
-                    disabled={isSaving}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            )) : (
-                 <TableRow>
-                    <TableCell colSpan={6} className="h-24 text-center">
-                        No users found.
-                    </TableCell>
-                </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
-      
-      {totalPages > 1 && (
-        <div className="flex items-center justify-end space-x-4">
-          <span className="text-sm text-muted-foreground">
-            Page {currentPage} of {totalPages}
-          </span>
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handlePreviousPage}
-              disabled={currentPage === 1}
-            >
-              Previous
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleNextPage}
-              disabled={currentPage === totalPages}
-            >
-              Next
-            </Button>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-    
+]
