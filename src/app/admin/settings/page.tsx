@@ -270,9 +270,10 @@ export default function SettingsPage() {
   }
 
   const handleSaveChanges = () => {
-    // In a real application, this would be an API call to save the data.
-    // For this simulation, we'll just show a success toast.
-    console.log("Simulating saving data...");
+    // NOTE: This function does not save changes to the JSON files.
+    // The user needs to manually update the corresponding files in `src/lib/data/`.
+    // This is a limitation of the static export setup.
+    console.log("Saving data to state...");
     console.log("Site Config:", siteConfig);
     console.log("Homepage Stats:", statsData);
     console.log("Homepage Features:", siteFeatures);
@@ -281,8 +282,8 @@ export default function SettingsPage() {
     console.log("SMTP Config:", smtpConfig);
     
     toast({
-      title: "Settings Saved!",
-      description: "Your changes have been saved successfully (simulated).",
+      title: "Settings Updated in UI",
+      description: "To make these changes permanent, you must manually update the JSON files in src/lib/data/.",
     });
   };
 
@@ -650,14 +651,14 @@ export default function SettingsPage() {
             <Card>
                 <CardHeader>
                     <CardTitle>Email (SMTP) Settings</CardTitle>
-                    <CardDescription>Configure your SMTP server to send emails from your website.</CardDescription>
+                    <CardDescription>Configure your SMTP server to send emails from your website. This information will be used by the contact form.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                    <Alert variant="destructive">
-                        <AlertTriangle className="h-4 w-4" />
-                        <AlertTitle>Security Warning</AlertTitle>
-                        <AlertDescription>
-                            Storing SMTP passwords directly in the website's configuration is highly insecure. This feature is for UI demonstration only. For a production environment, use a secure backend service (like a Genkit Flow or Firebase Functions) to handle email sending. Do not enter real passwords here.
+                    <Alert variant="default" className="bg-blue-50 border-blue-200 dark:bg-blue-950 dark:border-blue-800">
+                        <AlertTriangle className="h-4 w-4 text-blue-500" />
+                        <AlertTitle className="text-blue-700 dark:text-blue-300">How to Save</AlertTitle>
+                        <AlertDescription className="text-blue-600 dark:text-blue-400">
+                            After entering your details here and clicking "Save All Settings", you must also manually copy these values into the <strong>`src/lib/data/smtp-config.json`</strong> file for them to take effect.
                         </AlertDescription>
                     </Alert>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -679,7 +680,7 @@ export default function SettingsPage() {
                         </div>
                          <div className="space-y-2 md:col-span-2">
                             <Label htmlFor="smtpSender">Sender Email</Label>
-                            <Input id="smtpSender" value={smtpConfig.sender} onChange={(e) => handleSmtpChange('sender', e.target.value)} placeholder="noreply@yourdomain.com" />
+                            <Input id="smtpSender" value={smtpConfig.sender} onChange={(e) => handleSmtpChange('sender', e.target.value)} placeholder="noreply@yourdomain.com (optional)" />
                         </div>
                     </div>
                 </CardContent>
@@ -756,5 +757,3 @@ export default function SettingsPage() {
     </div>
   );
 }
-
-    
