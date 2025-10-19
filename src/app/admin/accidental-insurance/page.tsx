@@ -148,31 +148,13 @@ function InsuranceEditor() {
             return;
         }
         setIsSaving(true);
-        try {
-            const response = await fetch('/api/update-json', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ file: 'accidental-insurance.json', data: insuranceData }),
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to save changes.');
-            }
-
-            toast({
-                title: "Changes Saved",
-                description: `Accidental insurance data has been updated successfully.`,
-            });
-        } catch (error: any) {
-            toast({
-                title: "Error Saving Changes",
-                description: error.message,
-                variant: "destructive",
-            });
-        } finally {
-            setIsSaving(false);
-        }
+        // Simulate saving
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        setIsSaving(false);
+        toast({
+            title: "Changes Saved (Simulated)",
+            description: `Accidental insurance data for ${foundUser.personalInfo.fullName} has been updated in the browser.`,
+        });
     }
 
     return (
@@ -351,3 +333,5 @@ export default function AccidentalInsurancePage() {
     </div>
   );
 }
+
+    

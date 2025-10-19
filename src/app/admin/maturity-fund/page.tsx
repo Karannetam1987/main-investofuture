@@ -146,31 +146,13 @@ function FundEditorInternal() {
             return;
         }
         setIsSaving(true);
-        try {
-            const response = await fetch('/api/update-json', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ file: 'maturity-fund.json', data: fundData }),
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to save changes.');
-            }
-
-            toast({
-                title: "Changes Saved",
-                description: `Maturity fund data has been updated successfully.`,
-            });
-        } catch (error: any) {
-            toast({
-                title: "Error Saving Changes",
-                description: error.message,
-                variant: "destructive",
-            });
-        } finally {
-            setIsSaving(false);
-        }
+        // Simulate saving
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        setIsSaving(false);
+        toast({
+            title: "Changes Saved (Simulated)",
+            description: `Maturity fund data has been updated in the browser.`,
+        });
     };
 
     return (
@@ -301,3 +283,5 @@ export default function MaturityFundPage() {
     </div>
   );
 }
+
+    

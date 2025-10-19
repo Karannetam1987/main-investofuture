@@ -71,35 +71,15 @@ export default function ManageUsersPage() {
     );
   }, [users, searchTerm]);
 
-  const handleStatusChange = async (userId: string, newStatus: "Active" | "Inactive") => {
+  const handleStatusChange = (userId: string, newStatus: "Active" | "Inactive") => {
     const updatedUsers = users.map(user =>
       user.id === userId ? { ...user, status: newStatus } : user
     );
-    
-    try {
-        const response = await fetch('/api/update-json', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ file: 'users.json', data: updatedUsers }),
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to update user status.');
-        }
-
-        setUsers(updatedUsers);
-        toast({
-            title: "Status Updated",
-            description: `User ${userId}'s status has been changed to ${newStatus}.`,
-        });
-
-    } catch (error) {
-        toast({
-            title: "Error",
-            description: "Could not update user status.",
-            variant: "destructive",
-        });
-    }
+    setUsers(updatedUsers);
+    toast({
+        title: "Status Updated (Simulated)",
+        description: `User ${userId}'s status has been changed to ${newStatus} in the browser.`,
+    });
   };
   
   const confirmDeleteUser = (user: User) => {
@@ -107,39 +87,19 @@ export default function ManageUsersPage() {
     setDeleteAlertOpen(true);
   };
   
-  const handleDeleteUser = async () => {
+  const handleDeleteUser = () => {
     if (!userToDelete) return;
     
     const updatedUsers = users.filter(user => user.id !== userToDelete.id);
+    setUsers(updatedUsers);
+    toast({
+        title: "User Deleted (Simulated)",
+        description: `User ${userToDelete.name} (${userToDelete.id}) has been removed from the browser.`,
+        variant: "destructive"
+    });
 
-     try {
-        const response = await fetch('/api/update-json', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ file: 'users.json', data: updatedUsers }),
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to delete user.');
-        }
-
-        setUsers(updatedUsers);
-        toast({
-            title: "User Deleted",
-            description: `User ${userToDelete.name} (${userToDelete.id}) has been deleted.`,
-            variant: "destructive"
-        });
-
-    } catch (error) {
-        toast({
-            title: "Error",
-            description: "Could not delete user.",
-            variant: "destructive",
-        });
-    } finally {
-        setDeleteAlertOpen(false);
-        setUserToDelete(null);
-    }
+    setDeleteAlertOpen(false);
+    setUserToDelete(null);
   };
 
 
@@ -260,3 +220,5 @@ export default function ManageUsersPage() {
     </div>
   );
 }
+
+    

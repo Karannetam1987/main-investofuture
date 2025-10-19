@@ -79,32 +79,8 @@ export default function MyDocumentsPage() {
     const saveDocuments = async (updatedDocs: Document[]) => {
         if (!foundUser) return;
         
-        // This is tricky for a shared file. We'll replace docs for the current user.
-        const otherUsersDocs = initialDocs.filter(d => d.userId !== foundUser.id);
-        const newFullDocList = [...otherUsersDocs, ...updatedDocs.map(({uid, ...d}) => d)];
-
-        try {
-            const response = await fetch('/api/update-json', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ file: 'user-documents.json', data: newFullDocList }),
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to save documents.');
-            }
-            
-            setUserDocuments(updatedDocs);
-            toast({ title: "Documents Updated Successfully" });
-
-        } catch (error: any) {
-            toast({
-                title: "Error Saving Documents",
-                description: error.message,
-                variant: "destructive",
-            });
-        }
+        setUserDocuments(updatedDocs);
+        toast({ title: "Documents Updated (Simulated)", description: "Changes are saved in the browser." });
     };
 
 
@@ -123,8 +99,6 @@ export default function MyDocumentsPage() {
         };
 
         const updatedDocs = [...userDocuments, newDoc];
-        // In a real app, you'd upload the file to storage first, get the URL, then save.
-        // Here we just save the metadata to the JSON file.
         await saveDocuments(updatedDocs);
         
         setIsUploading(false);
@@ -251,3 +225,5 @@ export default function MyDocumentsPage() {
     </div>
   );
 }
+
+    

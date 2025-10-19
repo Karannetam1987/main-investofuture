@@ -49,39 +49,14 @@ function NomineeDetailsEditor() {
         };
 
         setIsSaving(true);
-        const updatedProfile = { ...profile, nomineeDetails: nomineeDetails };
-
-        try {
-            const response = await fetch('/api/update-json', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                 // Note: This saves the entire user-data file again.
-                // In a real database, you'd only update the specific user.
-                // For this JSON-based approach, we find the user and replace them.
-                body: JSON.stringify({ 
-                    file: 'user-data.json', 
-                    data: initialUserData.map(u => u.id === profile.id ? updatedProfile : u)
-                }),
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to save changes.');
-            }
-
-            toast({
-                title: "Changes Saved",
-                description: "Your nominee details have been updated successfully.",
-            });
-        } catch (error: any) {
-            toast({
-                title: "Error Saving Changes",
-                description: error.message,
-                variant: "destructive",
-            });
-        } finally {
-            setIsSaving(false);
-        }
+        // Simulate saving
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        setProfile(prev => prev ? {...prev, nomineeDetails} : null);
+        setIsSaving(false);
+        toast({
+            title: "Changes Saved (Simulated)",
+            description: "Your nominee details have been updated in the browser.",
+        });
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -193,3 +168,5 @@ export default function NomineeDetailsPage() {
         </div>
     )
 }
+
+    

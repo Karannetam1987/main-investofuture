@@ -267,48 +267,13 @@ export default function SettingsPage() {
 
   const handleSaveChanges = async () => {
     setIsSaving(true);
-    try {
-        const settingsToSave = [
-            { file: 'site-config.json', data: siteConfig },
-            { file: 'stats.json', data: statsData },
-            { file: 'site-features.json', data: siteFeatures },
-            { file: 'hero-slides.json', data: heroSlides },
-            { file: 'ads.json', data: adsConfig },
-            { file: 'smtp-config.json', data: smtpConfig }
-        ];
-
-        // Use Promise.all to send all requests in parallel
-        const responses = await Promise.all(
-            settingsToSave.map(setting => 
-                fetch('/api/update-json', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(setting),
-                })
-            )
-        );
-
-        // Check if any request failed
-        const failedResponse = responses.find(res => !res.ok);
-        if (failedResponse) {
-            const errorData = await failedResponse.json();
-            throw new Error(errorData.message || `Failed to save one or more settings.`);
-        }
-        
-        toast({
-            title: "Settings Saved Successfully",
-            description: "All your changes have been saved permanently.",
-        });
-
-    } catch (error: any) {
-        toast({
-            title: "Error Saving Settings",
-            description: error.message || "An unknown error occurred.",
-            variant: "destructive",
-        });
-    } finally {
-        setIsSaving(false);
-    }
+    // Simulate saving all settings
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    setIsSaving(false);
+    toast({
+        title: "Settings Saved (Simulated)",
+        description: "All your changes have been saved in the browser.",
+    });
   };
 
   return (
@@ -777,3 +742,5 @@ export default function SettingsPage() {
     </div>
   );
 }
+
+    

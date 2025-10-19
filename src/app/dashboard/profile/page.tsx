@@ -88,34 +88,14 @@ function ProfileEditor() {
     };
     
     setIsSaving(true);
-    const updatedUsers = allUsers.map(u => u.id === profile.id ? profile : u);
-
-    try {
-        const response = await fetch('/api/update-json', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ file: 'user-data.json', data: updatedUsers }),
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Failed to save changes.');
-        }
-        
-        setAllUsers(updatedUsers); // Update the state for the whole page
-        toast({
-            title: "Changes Saved",
-            description: "Your profile has been updated successfully.",
-        });
-    } catch (error: any) {
-        toast({
-            title: "Error Saving Changes",
-            description: error.message,
-            variant: "destructive",
-        });
-    } finally {
-        setIsSaving(false);
-    }
+    // Simulate saving
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setAllUsers(allUsers.map(u => u.id === profile.id ? profile : u)); // Update the state for the whole page
+    setIsSaving(false);
+    toast({
+        title: "Changes Saved (Simulated)",
+        description: "Your profile has been updated in the browser.",
+    });
   };
 
   const handlePictureUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -319,3 +299,5 @@ export default function ProfilePage() {
         </div>
     );
 }
+
+    
