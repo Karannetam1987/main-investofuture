@@ -32,6 +32,7 @@ type User = {
 export default function ManageUsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
@@ -66,22 +67,48 @@ export default function ManageUsersPage() {
       setCurrentPage(currentPage - 1);
     }
   };
+  
+  const saveUsers = async (updatedUsers: User[]) => {
+      setIsSaving(true);
+      try {
+          const response = await fetch('/api/update-json', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ file: 'users.json', data: updatedUsers }),
+          });
+
+          if (!response.ok) {
+              const errorData = await response.json();
+              throw new Error(errorData.message || 'Failed to save changes.');
+          }
+
+          setUsers(updatedUsers); // Update state after successful save
+          toast({
+              title: "Changes Saved",
+              description: `User data has been updated successfully.`,
+          });
+      } catch (error: any) {
+          toast({
+              title: "Error Saving Changes",
+              description: error.message,
+              variant: "destructive",
+          });
+          // Revert optimistic UI update on failure by reloading original data
+          setUsers(users); 
+      } finally {
+          setIsSaving(false);
+      }
+  };
+
 
   const handleStatusChange = (userId: string, newStatus: boolean) => {
-    setUsers(prevUsers => prevUsers.map(u => u.id === userId ? {...u, status: newStatus ? "Active" : "Inactive"} : u));
-    toast({
-        title: "Status Updated (Display Only)",
-        description: `User ${userId} status changed in UI. To make it permanent, edit users.json and redeploy.`,
-      });
+    const updatedUsers = users.map(u => u.id === userId ? {...u, status: newStatus ? "Active" : "Inactive"} : u);
+    saveUsers(updatedUsers);
   };
 
   const handleDeleteUser = (userId: string) => {
-    setUsers(prevUsers => prevUsers.filter(u => u.id !== userId));
-    toast({
-        title: "User Deleted (Display Only)",
-        description: `User ${userId} removed from UI. To make it permanent, edit users.json and redeploy.`,
-        variant: "destructive"
-    });
+    const updatedUsers = users.filter(u => u.id !== userId);
+    saveUsers(updatedUsers);
   }
   
   if (loading) {
@@ -141,6 +168,7 @@ export default function ManageUsersPage() {
                       onCheckedChange={(checked) =>
                         handleStatusChange(user.id, checked)
                       }
+                      disabled={isSaving}
                     />
                     <Badge
                       variant={
@@ -168,6 +196,7 @@ export default function ManageUsersPage() {
                     className="text-destructive"
                     onClick={() => handleDeleteUser(user.id)}
                     title="Delete User"
+                    disabled={isSaving}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>

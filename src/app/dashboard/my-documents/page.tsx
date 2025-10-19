@@ -44,40 +44,74 @@ export default function MyDocumentsPage() {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
   
+  // MOCK: Assuming a single logged-in user for this page.
+  const currentUserId = "INF001";
+
   useEffect(() => {
     // Simulate fetching user's documents
     setTimeout(() => {
-      // Assuming we're fetching for user "INF001"
-      const userDocs = initialDocsData.filter(doc => doc.userId === "INF001").map(doc => ({...doc, uid: String(doc.id)}));
+      const userDocs = initialDocsData.filter(doc => doc.userId === currentUserId).map(doc => ({...doc, uid: String(doc.id)}));
       setDocuments(userDocs);
       setLoading(false);
     }, 500);
   }, []);
 
+  const saveDocuments = async (updatedDocs: Document[]) => {
+      // This is tricky for a shared file. We'll replace docs for the current user.
+      const otherUsersDocs = initialDocsData.filter(d => d.userId !== currentUserId);
+      const newFullDocList = [...otherUsersDocs, ...updatedDocs.map(({uid, ...d}) => d)];
+
+      try {
+          const response = await fetch('/api/update-json', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ file: 'user-documents.json', data: newFullDocList }),
+          });
+
+          if (!response.ok) {
+              const errorData = await response.json();
+              throw new Error(errorData.message || 'Failed to save documents.');
+          }
+          
+          setDocuments(updatedDocs);
+          toast({ title: "Documents Updated Successfully" });
+
+      } catch (error: any) {
+          toast({
+              title: "Error Saving Documents",
+              description: error.message,
+              variant: "destructive",
+          });
+      }
+  };
+
+
   const handleFileUpload = async () => {
     if (!fileToUpload) return;
 
     setIsUploading(true);
-    // Simulate upload
-    setTimeout(() => {
-        const newDoc: Document = {
-            id: Date.now(),
-            uid: String(Date.now()),
-            name: fileToUpload.name,
-            url: "#",
-            userId: "INF001", // Mock user ID
-            date: new Date().toISOString(),
-        };
-        setDocuments(prev => [...prev, newDoc]);
-        setFileToUpload(null);
-        setIsUploading(false);
-        toast({ title: "Upload Successful (Display Only)", description: `${fileToUpload.name} added to UI. This is not saved permanently.` });
-    }, 1000);
+    // Simulate upload and create a placeholder document
+    const newDoc: Document = {
+        id: Date.now(),
+        uid: String(Date.now()),
+        name: fileToUpload.name,
+        url: "#", // In a real app, this would be the URL from blob storage
+        userId: currentUserId,
+        date: new Date().toISOString(),
+    };
+
+    const updatedDocs = [...documents, newDoc];
+    // In a real app, you'd upload the file to storage first, get the URL, then save.
+    // Here we just save the metadata to the JSON file.
+    await saveDocuments(updatedDocs);
+    
+    setFileToUpload(null);
+    setIsUploading(false);
   };
 
   const handleRemoveDocument = async (docToDelete: Document) => {
-    setDocuments(prev => prev.filter(d => d.uid !== docToDelete.uid));
-    toast({ title: "Document Removed (Display Only)", description: "Change is not saved permanently.", variant: "destructive" });
+      const updatedDocs = documents.filter(d => d.uid !== docToDelete.uid);
+      await saveDocuments(updatedDocs);
   };
   
 
@@ -98,7 +132,7 @@ export default function MyDocumentsPage() {
             <CardHeader>
               <CardTitle>My Documents</CardTitle>
               <CardDescription>
-                View and manage documents related to your account. Changes are for display only and are not saved permanently.
+                View and manage documents related to your account.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">

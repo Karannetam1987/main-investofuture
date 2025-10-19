@@ -66,6 +66,7 @@ function GiftEditorInternal() {
     const [isSearching, setIsSearching] = useState(false);
     const [giftData, setGiftData] = useState<JoiningGift>(defaultGiftData);
     const [loadingData, setLoadingData] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
     const { toast } = useToast();
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -91,11 +92,10 @@ function GiftEditorInternal() {
 
     const loadGiftData = async (userId: string) => {
         setLoadingData(true);
-        // Simulate loading data. For static export, we use the same data for all users.
-        setTimeout(() => {
-            setGiftData(initialGiftData);
-            setLoadingData(false);
-        }, 500);
+        // NOTE: In a real multi-user app, you would fetch this data from a user-specific source.
+        // For this app, we load the same shared data file for any found user.
+        setGiftData(initialGiftData);
+        setLoadingData(false);
     };
 
     const handleSearchUser = async () => {
@@ -142,11 +142,6 @@ function GiftEditorInternal() {
         ...prevData,
         items: prevData.items.filter((item) => item.id !== id),
         }));
-        toast({
-        title: "Item Removed (Display Only)",
-        description: "The gift item has been removed from the UI.",
-        variant: "destructive",
-        });
     };
 
     const handleSaveChanges = async () => {
@@ -155,12 +150,32 @@ function GiftEditorInternal() {
             return;
         }
         
-        console.log("Saving data (simulated for static export):", giftData);
-        toast({
-            title: "Changes Applied in UI",
-            description: `To make changes permanent, edit 'joining-gift.json' and redeploy.`,
-            duration: 8000
-        });
+        setIsSaving(true);
+        try {
+            const response = await fetch('/api/update-json', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ file: 'joining-gift.json', data: giftData }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to save changes.');
+            }
+
+            toast({
+                title: "Changes Saved",
+                description: `Joining gift data has been updated successfully.`,
+            });
+        } catch (error: any) {
+            toast({
+                title: "Error Saving Changes",
+                description: error.message,
+                variant: "destructive",
+            });
+        } finally {
+            setIsSaving(false);
+        }
     }
 
     return (
@@ -168,7 +183,7 @@ function GiftEditorInternal() {
             <CardHeader>
             <CardTitle>Joining Gift Details</CardTitle>
             <CardDescription>
-                Search for a user to manage their joining gift information. Changes are not saved permanently.
+                Search for a user to manage their joining gift information.
             </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -218,7 +233,7 @@ function GiftEditorInternal() {
                                     <Calendar
                                     mode="single"
                                     selected={parseISO(giftData.joiningDate)}
-                                    onSelect={(date) => setGiftData(prev => ({...prev, joiningDate: date!.toISOString()}))}
+                                    onSelect={(date) => date && setGiftData(prev => ({...prev, joiningDate: date.toISOString()}))}
                                     initialFocus
                                     />
                                 </PopoverContent>
@@ -316,7 +331,10 @@ function GiftEditorInternal() {
                             </Button>
                         </div>
                     </div>
-                    <Button onClick={handleSaveChanges}>Save Changes</Button>
+                    <Button onClick={handleSaveChanges} disabled={isSaving}>
+                        {isSaving && <LoaderCircle className="mr-2 h-4 animate-spin" />}
+                        {isSaving ? "Saving..." : "Save Changes"}
+                    </Button>
                 </div>
             )}
             </CardContent>

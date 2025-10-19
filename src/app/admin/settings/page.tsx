@@ -193,11 +193,6 @@ export default function SettingsPage() {
 
   const handleRemoveSlide = (id: number) => {
     setHeroSlides((prev) => prev.filter((slide) => slide.id !== id));
-    toast({
-      title: "Slide Removed",
-      description: "The slide has been successfully removed from the UI. Save to make changes permanent.",
-      variant: "destructive",
-    });
   };
 
   const handleAdChange = (slot: keyof AdsConfig, field: keyof AdSlot, value: string) => {
@@ -260,10 +255,12 @@ export default function SettingsPage() {
   };
 
   const handlePasswordChange = async (values: z.infer<typeof passwordFormSchema>) => {
-    console.log("Password change form submitted (simulated):", values);
+    // NOTE: This functionality is simulated. In a real-world application,
+    // you would have a secure API endpoint to handle password changes.
+    // For this project, we'll just show a success message.
     toast({
         title: "Password Change Simulated",
-        description: "In a real app, this would change the password. This is not persisted on static export."
+        description: "In a real app, this would securely change the admin password."
     });
     passwordForm.reset();
   }
@@ -280,16 +277,22 @@ export default function SettingsPage() {
             { file: 'smtp-config.json', data: smtpConfig }
         ];
 
-        for (const setting of settingsToSave) {
-            const response = await fetch('/api/update-json', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(setting),
-            });
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(`Failed to save ${setting.file}: ${errorData.message}`);
-            }
+        // Use Promise.all to send all requests in parallel
+        const responses = await Promise.all(
+            settingsToSave.map(setting => 
+                fetch('/api/update-json', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(setting),
+                })
+            )
+        );
+
+        // Check if any request failed
+        const failedResponse = responses.find(res => !res.ok);
+        if (failedResponse) {
+            const errorData = await failedResponse.json();
+            throw new Error(errorData.message || `Failed to save one or more settings.`);
         }
         
         toast({
@@ -339,7 +342,7 @@ export default function SettingsPage() {
                         <Label>Logo Type</Label>
                         <RadioGroup 
                             value={siteConfig.logoType} 
-                            onValueChange={(value) => handleSiteConfigChange('logoType', 'logoType', value)}
+                            onValueChange={(value) => handleSiteConfigChange('siteName', 'logoType', value)}
                             className="flex gap-4"
                         >
                             <div className="flex items-center space-x-2">
@@ -708,7 +711,7 @@ export default function SettingsPage() {
             <Card>
                 <CardHeader>
                     <CardTitle>Security</CardTitle>
-                    <CardDescription>Change your administrator password. This is for demonstration purposes only in a static export.</CardDescription>
+                    <CardDescription>Change your administrator password. This is for demonstration purposes only.</CardDescription>
                 </CardHeader>
                 <Form {...passwordForm}>
                     <form onSubmit={passwordForm.handleSubmit(handlePasswordChange)}>
@@ -774,3 +777,5 @@ export default function SettingsPage() {
     </div>
   );
 }
+
+    

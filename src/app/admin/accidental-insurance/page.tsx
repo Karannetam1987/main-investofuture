@@ -66,6 +66,7 @@ function InsuranceEditor() {
     const [isSearching, setIsSearching] = useState(false);
     const [insuranceData, setInsuranceData] = useState<AccidentalInsurance>(defaultInsuranceData);
     const [loadingData, setLoadingData] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
     const { toast } = useToast();
     const router = useRouter()
     const searchParams = useSearchParams()
@@ -92,12 +93,10 @@ function InsuranceEditor() {
 
     const loadInsuranceData = async (userId: string) => {
         setLoadingData(true);
-        // Simulate fetching data for a specific user. In a real app, this would be an API call.
-        // For static export, we'll just use the single initial data file.
-        setTimeout(() => {
-            setInsuranceData(initialInsuranceData);
-            setLoadingData(false);
-        }, 500);
+        // NOTE: In a real multi-user app, you would fetch this data from a user-specific source.
+        // For this app, we load the same shared data file for any found user.
+        setInsuranceData(initialInsuranceData);
+        setLoadingData(false);
     }
 
     const handleSearchUser = async () => {
@@ -141,11 +140,6 @@ function InsuranceEditor() {
         ...prevData,
         statements: prevData.statements.filter((stmt) => stmt.id !== id),
         }));
-        toast({
-        title: "Statement Removed",
-        description: "The policy statement has been removed from the UI. Save changes to make it permanent.",
-        variant: "destructive",
-        });
     };
     
     const handleSaveChanges = async () => {
@@ -153,12 +147,32 @@ function InsuranceEditor() {
             toast({ title: "No user selected", variant: "destructive"});
             return;
         }
-        console.log("Saving data (simulated for static export):", insuranceData);
-        toast({
-            title: "Changes Applied in UI",
-            description: `To make changes permanent, edit 'accidental-insurance.json' and redeploy.`,
-            duration: 8000
-        });
+        setIsSaving(true);
+        try {
+            const response = await fetch('/api/update-json', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ file: 'accidental-insurance.json', data: insuranceData }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to save changes.');
+            }
+
+            toast({
+                title: "Changes Saved",
+                description: `Accidental insurance data has been updated successfully.`,
+            });
+        } catch (error: any) {
+            toast({
+                title: "Error Saving Changes",
+                description: error.message,
+                variant: "destructive",
+            });
+        } finally {
+            setIsSaving(false);
+        }
     }
 
     return (
@@ -166,7 +180,7 @@ function InsuranceEditor() {
             <CardHeader>
             <CardTitle>Manage Accidental Insurance</CardTitle>
             <CardDescription>
-                Search for a user by Registration ID to manage their accidental insurance policies. Changes are not saved permanently.
+                Search for a user by Registration ID to manage their accidental insurance policies.
             </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -211,7 +225,7 @@ function InsuranceEditor() {
                                     </Button>
                                 </PopoverTrigger>
                                 <PopoverContent className="w-auto p-0">
-                                    <Calendar mode="single" selected={parseISO(insuranceData.openDate)} onSelect={(date) => setInsuranceData(prev => ({...prev, openDate: date!.toISOString()}))} initialFocus />
+                                    <Calendar mode="single" selected={parseISO(insuranceData.openDate)} onSelect={(date) => date && setInsuranceData(prev => ({...prev, openDate: date.toISOString()}))} initialFocus />
                                 </PopoverContent>
                             </Popover>
                         </div>
@@ -225,7 +239,7 @@ function InsuranceEditor() {
                                     </Button>
                                 </PopoverTrigger>
                                 <PopoverContent className="w-auto p-0">
-                                    <Calendar mode="single" selected={parseISO(insuranceData.expiryDate)} onSelect={(date) => setInsuranceData(prev => ({...prev, expiryDate: date!.toISOString()}))} initialFocus />
+                                    <Calendar mode="single" selected={parseISO(insuranceData.expiryDate)} onSelect={(date) => date && setInsuranceData(prev => ({...prev, expiryDate: date.toISOString()}))} initialFocus />
                                 </PopoverContent>
                             </Popover>
                         </div>
@@ -262,7 +276,7 @@ function InsuranceEditor() {
                                             </Button>
                                         </PopoverTrigger>
                                         <PopoverContent className="w-auto p-0">
-                                            <Calendar mode="single" selected={parseISO(stmt.openingDate)} onSelect={(date) => handleStatementChange(stmt.id, "openingDate", date!.toISOString())} initialFocus />
+                                            <Calendar mode="single" selected={parseISO(stmt.openingDate)} onSelect={(date) => date && handleStatementChange(stmt.id, "openingDate", date.toISOString())} initialFocus />
                                         </PopoverContent>
                                     </Popover>
                                 </div>
@@ -276,7 +290,7 @@ function InsuranceEditor() {
                                             </Button>
                                         </PopoverTrigger>
                                         <PopoverContent className="w-auto p-0">
-                                            <Calendar mode="single" selected={parseISO(stmt.expiryDate)} onSelect={(date) => handleStatementChange(stmt.id, "expiryDate", date!.toISOString())} initialFocus />
+                                            <Calendar mode="single" selected={parseISO(stmt.expiryDate)} onSelect={(date) => date && handleStatementChange(stmt.id, "expiryDate", date.toISOString())} initialFocus />
                                         </PopoverContent>
                                     </Popover>
                                 </div>
@@ -307,7 +321,10 @@ function InsuranceEditor() {
                             </Button>
                         </div>
                     </div>
-                    <Button onClick={handleSaveChanges}>Save Changes</Button>
+                    <Button onClick={handleSaveChanges} disabled={isSaving}>
+                        {isSaving && <LoaderCircle className="mr-2 h-4 animate-spin" />}
+                        {isSaving ? "Saving..." : "Save Changes"}
+                    </Button>
                 </div>
             )}
         </CardContent>

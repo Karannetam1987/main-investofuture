@@ -18,9 +18,9 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { CalendarIcon, Trash2 } from "lucide-react";
+import { CalendarIcon, Trash2, LoaderCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
@@ -43,6 +43,7 @@ import initialScholarshipData from "@/lib/data/scholarship.json";
 
 export default function ScholarshipPage() {
   const [scholarshipData, setScholarshipData] = useState(initialScholarshipData);
+  const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
 
   const handleChildChange = (id: number, field: string, value: any) => {
@@ -79,11 +80,6 @@ export default function ScholarshipPage() {
       children: prevData.children.filter((child) => child.id !== id),
       childrenCount: prevData.children.length - 1,
     }));
-     toast({
-      title: "Child Removed (Display Only)",
-      description: "The child's details have been removed from the UI.",
-      variant: "destructive",
-    });
   };
 
   const handleStatementChange = (childId: number, stmtId: number, field: string, value: any) => {
@@ -138,20 +134,35 @@ export default function ScholarshipPage() {
             return child;
         })
     }));
-    toast({
-        title: "Statement Removed (Display Only)",
-        description: "The payment statement has been removed from the UI.",
-        variant: "destructive",
-    });
   };
   
-  const handleSaveChanges = () => {
-    console.log("Saving data (simulated for static export):", scholarshipData);
-    toast({
-        title: "Changes Applied in UI",
-        description: "To make these changes permanent, you must edit 'scholarship.json' and redeploy the site.",
-        duration: 8000,
-    })
+  const handleSaveChanges = async () => {
+    setIsSaving(true);
+    try {
+        const response = await fetch('/api/update-json', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ file: 'scholarship.json', data: scholarshipData }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to save changes.');
+        }
+
+        toast({
+            title: "Changes Saved",
+            description: "Scholarship data has been updated successfully.",
+        });
+    } catch (error: any) {
+        toast({
+            title: "Error Saving Changes",
+            description: error.message,
+            variant: "destructive",
+        });
+    } finally {
+        setIsSaving(false);
+    }
   }
 
 
@@ -164,7 +175,7 @@ export default function ScholarshipPage() {
         <CardHeader>
           <CardTitle>Manage Scholarship</CardTitle>
           <CardDescription>
-            View, add, or edit scholarship details. Changes are for display only and are not saved permanently.
+            View, add, or edit scholarship details.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -229,7 +240,7 @@ export default function ScholarshipPage() {
                                         </Button>
                                     </PopoverTrigger>
                                     <PopoverContent className="w-auto p-0">
-                                        <Calendar mode="single" selected={new Date(child.dob)} onSelect={(date) => handleChildChange(child.id, "dob", date!.toISOString())} initialFocus />
+                                        <Calendar mode="single" selected={new Date(child.dob)} onSelect={(date) => date && handleChildChange(child.id, "dob", date.toISOString())} initialFocus />
                                     </PopoverContent>
                                 </Popover>
                             </div>
@@ -269,11 +280,11 @@ export default function ScholarshipPage() {
                                                     <PopoverTrigger asChild>
                                                         <Button variant={"outline"} size="sm" className={cn("w-[150px] justify-start text-left font-normal h-8", !stmt.paymentDate && "text-muted-foreground")}>
                                                         <CalendarIcon className="mr-2 h-4 w-4" />
-                                                        {stmt.paymentDate ? format(new Date(stmt.paymentDate), "PPP") : <span>Pick a date</span>}
+                                                        {stmt.paymentDate ? format(parseISO(stmt.paymentDate), "PPP") : <span>Pick a date</span>}
                                                         </Button>
                                                     </PopoverTrigger>
                                                     <PopoverContent className="w-auto p-0">
-                                                        <Calendar mode="single" selected={new Date(stmt.paymentDate)} onSelect={(date) => handleStatementChange(child.id, stmt.id, "paymentDate", date!.toISOString())} initialFocus />
+                                                        <Calendar mode="single" selected={stmt.paymentDate ? new Date(stmt.paymentDate): null} onSelect={(date) => date && handleStatementChange(child.id, stmt.id, "paymentDate", date.toISOString())} initialFocus />
                                                     </PopoverContent>
                                                 </Popover>
                                             </TableCell>
@@ -307,7 +318,10 @@ export default function ScholarshipPage() {
                     </Button>
                 </div>
             </div>
-             <Button onClick={handleSaveChanges}>Save Changes</Button>
+             <Button onClick={handleSaveChanges} disabled={isSaving}>
+                {isSaving && <LoaderCircle className="mr-2 h-4 animate-spin" />}
+                {isSaving ? "Saving..." : "Save Changes"}
+             </Button>
         </CardContent>
       </Card>
     </div>

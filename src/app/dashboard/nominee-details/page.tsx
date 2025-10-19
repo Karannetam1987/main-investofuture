@@ -30,6 +30,7 @@ function NomineeDetailsEditor() {
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [nomineeDetails, setNomineeDetails] = useState<NomineeDetails | null>(null);
     const [loading, setLoading] = useState(true);
+    const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
         // Simulate fetching user data
@@ -41,18 +42,46 @@ function NomineeDetailsEditor() {
         }, 500);
     }, []);
 
-    const handleSaveChanges = () => {
+    const handleSaveChanges = async () => {
         if (!profile || !nomineeDetails) {
             toast({ title: "Error", description: "Data not available.", variant: "destructive"});
             return;
         };
 
-        console.log("Saving nominee details (simulated for static export):", nomineeDetails);
-        toast({
-            title: "Changes Applied in UI",
-            description: "To make changes permanent, you must edit 'user-data.json' and redeploy the site.",
-            duration: 8000,
-        });
+        setIsSaving(true);
+        const updatedProfile = { ...profile, nomineeDetails: nomineeDetails };
+
+        try {
+            const response = await fetch('/api/update-json', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                 // Note: This saves the entire user-data file again.
+                // In a real database, you'd only update the specific user.
+                // For this JSON-based approach, we find the user and replace them.
+                body: JSON.stringify({ 
+                    file: 'user-data.json', 
+                    data: initialUserData.map(u => u.id === profile.id ? updatedProfile : u)
+                }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to save changes.');
+            }
+
+            toast({
+                title: "Changes Saved",
+                description: "Your nominee details have been updated successfully.",
+            });
+        } catch (error: any) {
+            toast({
+                title: "Error Saving Changes",
+                description: error.message,
+                variant: "destructive",
+            });
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -102,7 +131,7 @@ function NomineeDetailsEditor() {
             <CardHeader>
               <CardTitle>Nominee Details</CardTitle>
               <CardDescription>
-                Manage your nominee information. Changes are for display only and are not saved permanently.
+                Manage your nominee information.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-8">
@@ -135,7 +164,10 @@ function NomineeDetailsEditor() {
               </div>
             </CardContent>
              <CardFooter>
-              <Button onClick={handleSaveChanges}>Save Changes</Button>
+              <Button onClick={handleSaveChanges} disabled={isSaving}>
+                {isSaving && <LoaderCircle className="mr-2 h-4 animate-spin" />}
+                {isSaving ? "Saving..." : "Save Changes"}
+              </Button>
             </CardFooter>
           </Card>
         </div>

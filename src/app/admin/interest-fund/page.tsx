@@ -72,6 +72,7 @@ function FundEditorInternal() {
     const [isSearching, setIsSearching] = useState(false);
     const [fundData, setFundData] = useState<InterestFund>(defaultFundData);
     const [loadingData, setLoadingData] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
     const { toast } = useToast();
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -99,11 +100,10 @@ function FundEditorInternal() {
 
     const loadFundData = async (userId: string) => {
         setLoadingData(true);
-        // Simulate loading data. For static export, we use the same data for all users.
-        setTimeout(() => {
-            setFundData(initialInterestFundData);
-            setLoadingData(false);
-        }, 500);
+        // NOTE: In a real multi-user app, you would fetch this data from a user-specific source.
+        // For this app, we load the same shared data file for any found user.
+        setFundData(initialInterestFundData);
+        setLoadingData(false);
     }
 
     const handleSearchUser = async () => {
@@ -151,11 +151,6 @@ function FundEditorInternal() {
         ...prevData,
         statements: prevData.statements.filter((stmt) => stmt.id !== id),
         }));
-        toast({
-        title: "Statement Removed (Display Only)",
-        description: "The interest statement has been removed from the UI.",
-        variant: "destructive",
-        });
     };
     
     const handleSaveChanges = async () => {
@@ -163,12 +158,32 @@ function FundEditorInternal() {
             toast({ title: "No user selected", variant: "destructive"});
             return;
         }
-        console.log("Saving data (simulated for static export):", fundData);
-        toast({
-            title: "Changes Applied in UI",
-            description: `To make changes permanent, edit 'interest-fund.json' and redeploy.`,
-            duration: 8000
-        });
+        setIsSaving(true);
+        try {
+            const response = await fetch('/api/update-json', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ file: 'interest-fund.json', data: fundData }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to save changes.');
+            }
+
+            toast({
+                title: "Changes Saved",
+                description: `Interest fund data has been updated successfully.`,
+            });
+        } catch (error: any) {
+            toast({
+                title: "Error Saving Changes",
+                description: error.message,
+                variant: "destructive",
+            });
+        } finally {
+            setIsSaving(false);
+        }
     }
 
     return (
@@ -176,7 +191,7 @@ function FundEditorInternal() {
             <CardHeader>
             <CardTitle>Manage Interest Fund</CardTitle>
             <CardDescription>
-                Search for a user to manage their interest fund. Changes are not saved permanently.
+                Search for a user to manage their interest fund.
             </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -221,7 +236,7 @@ function FundEditorInternal() {
                                     </Button>
                                 </PopoverTrigger>
                                 <PopoverContent className="w-auto p-0">
-                                    <Calendar mode="single" selected={parseISO(fundData.depositDate)} onSelect={(date) => setFundData(prev => ({...prev, depositDate: date!.toISOString()}))} initialFocus />
+                                    <Calendar mode="single" selected={parseISO(fundData.depositDate)} onSelect={(date) => date && setFundData(prev => ({...prev, depositDate: date.toISOString()}))} initialFocus />
                                 </PopoverContent>
                             </Popover>
                         </div>
@@ -258,7 +273,7 @@ function FundEditorInternal() {
                                             </Button>
                                         </PopoverTrigger>
                                         <PopoverContent className="w-auto p-0">
-                                            <Calendar mode="single" selected={parseISO(stmt.date)} onSelect={(date) => handleStatementChange(stmt.id, "date", date!.toISOString())} initialFocus />
+                                            <Calendar mode="single" selected={parseISO(stmt.date)} onSelect={(date) => date && handleStatementChange(stmt.id, "date", date.toISOString())} initialFocus />
                                         </PopoverContent>
                                     </Popover>
                                 </div>
@@ -292,7 +307,10 @@ function FundEditorInternal() {
                             </Button>
                         </div>
                     </div>
-                    <Button onClick={handleSaveChanges}>Save Changes</Button>
+                    <Button onClick={handleSaveChanges} disabled={isSaving}>
+                        {isSaving && <LoaderCircle className="mr-2 h-4 animate-spin" />}
+                        {isSaving ? "Saving..." : "Save Changes"}
+                    </Button>
                 </div>
             )}
         </CardContent>

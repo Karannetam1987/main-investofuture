@@ -52,11 +52,11 @@ function SettingsEditor() {
   }, []);
 
   const handlePasswordChange = async (values: z.infer<typeof passwordFormSchema>) => {
-    // This is for display only in a static app.
-    console.log("Password change submitted (display only):", values);
+    // This is for display only. In a real app, you would have a secure API
+    // endpoint to handle password changes.
     toast({
         title: "Password Change Simulated",
-        description: "In a real app, this action would change your password."
+        description: "In a real app, this action would securely change your password."
     });
     passwordForm.reset();
   }
@@ -97,7 +97,7 @@ function SettingsEditor() {
                 <CardHeader>
                     <CardTitle>Change Password</CardTitle>
                     <CardDescription>
-                        For security, you will be required to enter your current password. This is for display only.
+                        For security, you will be required to enter your current password.
                     </CardDescription>
                 </CardHeader>
                 <Form {...passwordForm}>

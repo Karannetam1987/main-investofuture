@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -61,7 +61,8 @@ export default function MyDocumentsPage() {
                 setFoundUser(user);
                 toast({ title: "User Found", description: `Managing documents for ${user.personalInfo.fullName}.` });
                 setDocsLoading(true);
-                // Simulate fetching docs
+                // NOTE: In a real app, you would fetch docs for the specific user.
+                // Here we filter the shared doc file.
                 setTimeout(() => {
                     const docsForUser = initialDocs.filter(d => d.userId === user.id);
                     setUserDocuments(docsForUser.map(d => ({...d, uid: String(d.id)})));
@@ -74,32 +75,66 @@ export default function MyDocumentsPage() {
             setIsSearching(false);
         }
     };
+    
+    const saveDocuments = async (updatedDocs: Document[]) => {
+        if (!foundUser) return;
+        
+        // This is tricky for a shared file. We'll replace docs for the current user.
+        const otherUsersDocs = initialDocs.filter(d => d.userId !== foundUser.id);
+        const newFullDocList = [...otherUsersDocs, ...updatedDocs.map(({uid, ...d}) => d)];
+
+        try {
+            const response = await fetch('/api/update-json', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ file: 'user-documents.json', data: newFullDocList }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to save documents.');
+            }
+            
+            setUserDocuments(updatedDocs);
+            toast({ title: "Documents Updated Successfully" });
+
+        } catch (error: any) {
+            toast({
+                title: "Error Saving Documents",
+                description: error.message,
+                variant: "destructive",
+            });
+        }
+    };
+
 
     const handleFileUpload = async () => {
         if (!fileToUpload || !foundUser) return;
         
         setIsUploading(true);
-        // Simulate upload
-        setTimeout(() => {
-            const newDoc = {
-                id: Date.now(),
-                uid: String(Date.now()),
-                name: fileToUpload.name,
-                url: "#",
-                userId: foundUser.id,
-                date: new Date().toISOString(),
-            };
-            setUserDocuments(prev => [...prev, newDoc]);
-            setIsUploading(false);
-            setFileToUpload(null);
-            toast({ title: "Upload Successful (Display Only)", description: `${fileToUpload.name} has been added to the UI. This is not saved permanently.` });
-        }, 1000);
+        // Simulate upload and create a placeholder document
+        const newDoc: Document = {
+            id: Date.now(),
+            uid: String(Date.now()),
+            name: fileToUpload.name,
+            url: "#", // In a real app, this would be the URL from blob storage
+            userId: foundUser.id,
+            date: new Date().toISOString(),
+        };
+
+        const updatedDocs = [...userDocuments, newDoc];
+        // In a real app, you'd upload the file to storage first, get the URL, then save.
+        // Here we just save the metadata to the JSON file.
+        await saveDocuments(updatedDocs);
+        
+        setIsUploading(false);
+        setFileToUpload(null);
     };
 
     const handleRemoveDocument = async (docToDelete: Document) => {
         if (!foundUser || !docToDelete.uid) return;
-        setUserDocuments(prev => prev.filter(d => d.uid !== docToDelete.uid));
-        toast({ title: "Document Removed (Display Only)", variant: "destructive" });
+        const updatedDocs = userDocuments.filter(d => d.uid !== docToDelete.uid);
+        await saveDocuments(updatedDocs);
     };
 
   return (
@@ -117,7 +152,7 @@ export default function MyDocumentsPage() {
         <CardHeader>
           <CardTitle>Manage User Documents</CardTitle>
           <CardDescription>
-            Search for a user by Registration ID to upload and manage their documents. Changes are not saved permanently.
+            Search for a user by Registration ID to upload and manage their documents.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
