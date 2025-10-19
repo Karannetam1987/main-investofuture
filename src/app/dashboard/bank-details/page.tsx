@@ -49,8 +49,8 @@ function BankDetailsEditor() {
     };
     
     toast({
-      title: "Success!",
-      description: "Bank details have been updated (Simulated).",
+      title: "Success! (Simulated)",
+      description: "Bank details have been updated. This is not persisted on static export.",
     });
     console.log("Saving bank details:", bankDetails);
   };

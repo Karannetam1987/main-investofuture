@@ -63,7 +63,7 @@ export default function ManageUsersPage() {
 
   const handlePreviousPage = () => {
     if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
+      setCurrentPage(currentPage + 1);
     }
   };
 
@@ -218,4 +218,3 @@ export default function ManageUsersPage() {
     </div>
   );
 }
-

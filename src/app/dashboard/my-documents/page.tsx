@@ -71,13 +71,13 @@ export default function MyDocumentsPage() {
         setDocuments(prev => [...prev, newDoc]);
         setFileToUpload(null);
         setIsUploading(false);
-        toast({ title: "Upload Successful", description: `${fileToUpload.name} has been uploaded.` });
+        toast({ title: "Upload Successful (Simulated)", description: `${fileToUpload.name} has been uploaded. This is not persisted on static export.` });
     }, 1000);
   };
 
   const handleRemoveDocument = async (docToDelete: Document) => {
     setDocuments(prev => prev.filter(d => d.uid !== docToDelete.uid));
-    toast({ title: "Document Removed", variant: "destructive" });
+    toast({ title: "Document Removed", description: "This is not persisted on static export.", variant: "destructive" });
   };
   
 

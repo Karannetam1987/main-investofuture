@@ -26,9 +26,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AlertTriangle, LoaderCircle, ShieldCheck, Trash2 } from "lucide-react";
+import { LoaderCircle, ShieldCheck, Trash2 } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import initialHeroSlides from "@/lib/data/hero-slides.json";
 import initialAdsData from "@/lib/data/ads.json";
 import initialSiteConfig from "@/lib/data/site-config.json";
@@ -264,7 +263,7 @@ export default function SettingsPage() {
     console.log(values);
     toast({
         title: "Password Updated (Simulated)",
-        description: "Your admin password has been changed successfully."
+        description: "Your admin password has been changed successfully. This is not persisted on static export."
     });
     passwordForm.reset();
   }
@@ -281,8 +280,8 @@ export default function SettingsPage() {
     console.log("SMTP Config:", smtpConfig);
     
     toast({
-      title: "Settings Updated",
-      description: "Your settings have been updated in the UI. In a real app this would save to a database.",
+      title: "Settings Updated (Simulated)",
+      description: "Your settings have been updated in the UI. This is not persisted on static export.",
     });
   };
 
@@ -749,4 +748,3 @@ export default function SettingsPage() {
     </div>
   );
 }
-

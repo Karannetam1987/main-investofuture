@@ -154,7 +154,7 @@ function InsuranceEditor() {
         }
         toast({
             title: "Changes Saved (Simulated)",
-            description: `Accidental Insurance details for ${foundUser.personalInfo.fullName} have been updated.`
+            description: `Accidental Insurance details for ${foundUser.personalInfo.fullName} have been updated. This is not persisted on static export.`
         });
         console.log("Saving data:", insuranceData);
     }

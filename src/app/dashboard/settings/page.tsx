@@ -55,7 +55,7 @@ function SettingsEditor() {
     // Simulate password change
     toast({
         title: "Password Updated (Simulated)",
-        description: "Your password has been changed successfully."
+        description: "Your password has been changed successfully. This is not persisted on static export."
     });
     passwordForm.reset();
   }

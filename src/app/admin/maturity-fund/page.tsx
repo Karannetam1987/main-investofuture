@@ -152,7 +152,7 @@ function FundEditorInternal() {
         }
         toast({
             title: "Changes Saved (Simulated)",
-            description: `Maturity Fund details for ${foundUser.personalInfo.fullName} have been updated.`
+            description: `Maturity Fund details for ${foundUser.personalInfo.fullName} have been updated. This is not persisted on static export.`
         });
         console.log("Saving data:", fundData);
     };

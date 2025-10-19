@@ -92,7 +92,7 @@ export default function MyDocumentsPage() {
             setUserDocuments(prev => [...prev, newDoc]);
             setIsUploading(false);
             setFileToUpload(null);
-            toast({ title: "Upload Successful", description: `${fileToUpload.name} has been uploaded for ${foundUser.personalInfo.fullName}.` });
+            toast({ title: "Upload Successful", description: `${fileToUpload.name} has been uploaded for ${foundUser.personalInfo.fullName}. This is not persisted.` });
         }, 1000);
     };
 

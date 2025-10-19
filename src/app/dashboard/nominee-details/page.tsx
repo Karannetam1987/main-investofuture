@@ -48,8 +48,8 @@ function NomineeDetailsEditor() {
         };
 
         toast({
-            title: "Success!",
-            description: "Nominee details have been updated (Simulated).",
+            title: "Success! (Simulated)",
+            description: "Nominee details have been updated. This is not persisted on static export.",
         });
         console.log("Saving nominee details:", nomineeDetails);
     };

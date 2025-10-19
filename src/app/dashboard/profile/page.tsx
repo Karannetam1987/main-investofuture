@@ -97,8 +97,8 @@ function ProfileEditor() {
     };
     
     toast({
-      title: "Success!",
-      description: "Profile has been updated. (This is not saved permanently).",
+      title: "Success! (Simulated)",
+      description: "Profile has been updated. This is not persisted on static export.",
     });
     console.log("Saving data:", editableProfile);
   };
@@ -116,8 +116,8 @@ function ProfileEditor() {
             setEditableProfile(prev => prev ? {...prev, photoURL: newPhotoURL} : null);
             setProfile(prev => prev ? {...prev, photoURL: newPhotoURL} : null);
              toast({
-                title: "Profile Picture Updated",
-                description: "Your new profile picture has been saved. (This is not saved permanently)"
+                title: "Profile Picture Updated (Simulated)",
+                description: "Your new profile picture has been saved. This is not persisted."
             });
             setIsUploading(false);
         };
@@ -303,4 +303,3 @@ export default function ProfilePage() {
         </div>
     );
 }
-

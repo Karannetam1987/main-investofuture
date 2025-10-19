@@ -157,7 +157,7 @@ function GiftEditorInternal() {
         
         toast({
             title: "Changes Saved (Simulated)",
-            description: `Joining gift details for ${foundUser.personalInfo.fullName} have been updated.`
+            description: `Joining gift details for ${foundUser.personalInfo.fullName} have been updated. This is not persisted on static export.`
         });
         console.log("Saving data:", giftData);
     }
