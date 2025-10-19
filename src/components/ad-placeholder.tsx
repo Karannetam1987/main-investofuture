@@ -58,5 +58,3 @@ export function AdPlaceholder({ adSlot }: AdPlaceholderProps) {
     </div>
   );
 }
-
-    
