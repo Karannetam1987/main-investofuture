@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Table,
@@ -21,13 +21,27 @@ import initialUsers from "@/lib/data/users.json";
 
 const USERS_PER_PAGE = 25;
 
+type User = {
+    id: string;
+    name: string;
+    email: string;
+    mobile: string;
+    status: string;
+};
+
 export default function ManageUsersPage() {
-  const [users, setUsers] = useState(initialUsers);
-  const [loading, setLoading] = useState(false);
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const { toast } = useToast();
+
+  useEffect(() => {
+    // Simulate fetching data
+    setUsers(initialUsers);
+    setLoading(false);
+  }, []);
 
   const filteredUsers = users?.filter(
     (user) =>
@@ -54,20 +68,24 @@ export default function ManageUsersPage() {
   };
 
   const handleStatusChange = async (userId: string, newStatus: boolean) => {
+    // In a real app, this would be an API call.
+    // For now, we update the local state.
     setUsers(prevUsers => prevUsers.map(u => u.id === userId ? {...u, status: newStatus ? "Active" : "Inactive"} : u));
     toast({
         title: "Status Updated",
         description: `User ${userId} has been set to ${
           newStatus ? "Active" : "Inactive"
-        }.`,
+        }. Note: This is not persisted.`,
       });
   };
 
   const handleDeleteUser = async (userId: string) => {
+    // In a real app, this would be an API call.
+    // For now, we update the local state.
     setUsers(prevUsers => prevUsers.filter(u => u.id !== userId));
     toast({
         title: "User Deleted",
-        description: `User ${userId} has been removed.`,
+        description: `User ${userId} has been removed. Note: This is not persisted.`,
         variant: "destructive"
     });
   }
@@ -200,3 +218,4 @@ export default function ManageUsersPage() {
     </div>
   );
 }
+

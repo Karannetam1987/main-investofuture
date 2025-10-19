@@ -260,7 +260,7 @@ export default function SettingsPage() {
   };
 
   const handlePasswordChange = async (values: z.infer<typeof passwordFormSchema>) => {
-    // Simulate password change
+    // This is still simulated as there is no backend authentication service.
     console.log(values);
     toast({
         title: "Password Updated (Simulated)",
@@ -270,9 +270,8 @@ export default function SettingsPage() {
   }
 
   const handleSaveChanges = () => {
-    // NOTE: This function does not save changes to the JSON files.
-    // The user needs to manually update the corresponding files in `src/lib/data/`.
-    // This is a limitation of the static export setup.
+    // This is a placeholder for a real save function.
+    // In a real application, this would send data to a backend API.
     console.log("Saving data to state...");
     console.log("Site Config:", siteConfig);
     console.log("Homepage Stats:", statsData);
@@ -282,8 +281,8 @@ export default function SettingsPage() {
     console.log("SMTP Config:", smtpConfig);
     
     toast({
-      title: "Settings Updated in UI",
-      description: "To make these changes permanent, you must manually update the JSON files in src/lib/data/.",
+      title: "Settings Updated",
+      description: "Your settings have been updated in the UI. In a real app this would save to a database.",
     });
   };
 
@@ -654,13 +653,6 @@ export default function SettingsPage() {
                     <CardDescription>Configure your SMTP server to send emails from your website. This information will be used by the contact form.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                    <Alert variant="default" className="bg-blue-50 border-blue-200 dark:bg-blue-950 dark:border-blue-800">
-                        <AlertTriangle className="h-4 w-4 text-blue-500" />
-                        <AlertTitle className="text-blue-700 dark:text-blue-300">How to Save</AlertTitle>
-                        <AlertDescription className="text-blue-600 dark:text-blue-400">
-                            After entering your details here and clicking "Save All Settings", you must also manually copy these values into the <strong>`src/lib/data/smtp-config.json`</strong> file for them to take effect.
-                        </AlertDescription>
-                    </Alert>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
                             <Label htmlFor="smtpHost">SMTP Host</Label>
@@ -757,3 +749,4 @@ export default function SettingsPage() {
     </div>
   );
 }
+

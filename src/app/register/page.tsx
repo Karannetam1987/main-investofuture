@@ -159,7 +159,6 @@ export default function RegisterPage() {
 
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    // Firebase logic is removed.
     console.log(values);
     toast({
       title: "Registration Submitted",
@@ -270,3 +269,4 @@ export default function RegisterPage() {
     </div>
   );
 }
+
