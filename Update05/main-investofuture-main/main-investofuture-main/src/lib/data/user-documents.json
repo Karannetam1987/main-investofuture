@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1,
+    "name": "PAN Card.pdf",
+    "date": "2023-10-05",
+    "userId": "INF001",
+    "url": "#"
+  },
+  {
+    "id": 2,
+    "name": "Aadhaar Card.pdf",
+    "date": "2023-10-05",
+    "userId": "INF001",
+    "url": "#"
+  },
+  {
+    "id": 3,
+    "name": "Investment_slip_Q1.pdf",
+    "date": "2024-03-20",
+    "userId": "INF001",
+    "url": "#"
+  }
+]

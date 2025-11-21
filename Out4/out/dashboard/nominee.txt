@@ -1,0 +1,38 @@
+2:I[6513,[],"ClientPageRoot"]
+3:I[1761,["8502","static/chunks/8502-7b67bdc7466ceaf7.js","7515","static/chunks/7515-92c8e87a55b1bb9d.js","4143","static/chunks/4143-a3f7201c3546c215.js","1114","static/chunks/1114-4e23da0597399bc3.js","7170","static/chunks/7170-daeb38dcbb54ecea.js","5510","static/chunks/5510-ca1ab7b63796c29a.js","5866","static/chunks/5866-1e025dd487cd717f.js","9890","static/chunks/9890-408feed534b596fd.js","646","static/chunks/646-579ebd341eec082d.js","821","static/chunks/app/dashboard/nominee/page-67691b4d9bca3743.js"],"default"]
+4:I[9275,[],""]
+5:I[1343,[],""]
+6:I[9717,["8502","static/chunks/8502-7b67bdc7466ceaf7.js","7515","static/chunks/7515-92c8e87a55b1bb9d.js","4143","static/chunks/4143-a3f7201c3546c215.js","1114","static/chunks/1114-4e23da0597399bc3.js","5510","static/chunks/5510-ca1ab7b63796c29a.js","3263","static/chunks/3263-5dae4cad4c0a98e0.js","1133","static/chunks/1133-81bcbad48eff19a3.js","7663","static/chunks/app/dashboard/layout-6844b0ac1cf8635f.js"],"default"]
+9:I[2371,["8502","static/chunks/8502-7b67bdc7466ceaf7.js","4143","static/chunks/4143-a3f7201c3546c215.js","8620","static/chunks/8620-b47e29eb300b42c6.js","3185","static/chunks/app/layout-95fa8e603fe5b20d.js"],"Toaster"]
+7:{}
+8:T4b2,
+    (function() {
+      try {
+        const fontPresets = {
+            inter: "'Inter', sans-serif",
+            roboto: "'Roboto', sans-serif",
+            lato: "'Lato', sans-serif",
+            montserrat: "'Montserrat', sans-serif",
+        };
+        
+        const storedBg = localStorage.getItem('theme-background');
+        const storedPrimary = localStorage.getItem('theme-primary');
+        const storedAccent = localStorage.getItem('theme-accent');
+        const storedFont = localStorage.getItem('theme-font');
+        const storedMode = localStorage.getItem('theme-mode');
+
+        if (storedBg) document.documentElement.style.setProperty('--background', storedBg);
+        if (storedPrimary) document.documentElement.style.setProperty('--primary', storedPrimary);
+        if (storedAccent) document.documentElement.style.setProperty('--accent', storedAccent);
+        if (storedFont && fontPresets[storedFont]) document.body.style.fontFamily = fontPresets[storedFont];
+        if (storedMode === 'dark') {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+
+      } catch (e) {}
+    })();
+  0:["VxDdnmQQpCsUE8GLBX59P",[[["",{"children":["dashboard",{"children":["nominee",{"children":["__PAGE__",{}]}]}]},"$undefined","$undefined",true],["",{"children":["dashboard",{"children":["nominee",{"children":["__PAGE__",{},[["$L1",["$","$L2",null,{"props":{"params":{},"searchParams":{}},"Component":"$3"}]],null],null]},["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","dashboard","children","nominee","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L5",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined","styles":null}],null]},[["$","$L6",null,{"children":["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","dashboard","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L5",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined","styles":null}],"params":"$7"}],null],null]},[["$","html",null,{"lang":"en","suppressHydrationWarning":true,"children":[["$","head",null,{"children":[["$","link",null,{"rel":"preconnect","href":"https://fonts.googleapis.com"}],["$","link",null,{"rel":"preconnect","href":"https://fonts.gstatic.com","crossOrigin":""}],["$","link",null,{"href":"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lato:wght@400;700&family=Montserrat:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap","rel":"stylesheet"}],["$","script",null,{"dangerouslySetInnerHTML":{"__html":"$8"}}]]}],["$","body",null,{"className":"font-body antialiased","children":[["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L5",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":"404"}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],"notFoundStyles":[],"styles":null}],["$","$L9",null,{}]]}]]}],null],null],[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/67d4cc4041002938.css","precedence":"next","crossOrigin":"$undefined"}]],"$La"]]]]
+a:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"charSet":"utf-8"}],["$","title","2",{"children":"InvestoFuture - Secure Your Financial Future"}],["$","meta","3",{"name":"description","content":"InvestoFuture provides user-friendly tools and resources for secure investment and financial growth."}],["$","link","4",{"rel":"icon","href":"/favicon.ico","type":"image/x-icon","sizes":"16x16"}]]
+1:null

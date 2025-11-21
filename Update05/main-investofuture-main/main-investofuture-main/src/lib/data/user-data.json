@@ -1,0 +1,44 @@
+
+[
+  {
+    "id": "INF001",
+    "name": "Karan Singh Sidar",
+    "email": "karan.sidar@example.com",
+    "mobile": "+91-9876543210",
+    "status": "Active",
+    "photoURL": "https://picsum.photos/seed/user1/200/200",
+    "personalInfo": {
+      "fullName": "Karan Singh Sidar",
+      "fatherName": "Father's Name",
+      "motherName": "Mother's Name",
+      "dob": "1990-01-01T00:00:00.000Z",
+      "gender": "Male",
+      "maritalStatus": "Single",
+      "religion": "Hindu",
+      "caste": "General",
+      "children": "0",
+      "bloodGroup": "O+",
+      "identificationMark": "A mole on the right cheek",
+      "pan": "ABCDE1234F",
+      "aadhaar": "xxxx-xxxx-1234"
+    },
+    "address": {
+      "permanent": "123, ABC Street, New Delhi, India - 110001",
+      "current": "123, ABC Street, New Delhi, India - 110001"
+    },
+    "bankDetails": {
+      "bankName": "State Bank of India",
+      "accountNumber": "************1234",
+      "ifsc": "SBIN0001234",
+      "upi": "karan.sidar@upi",
+      "bankAddress": "Main Branch, New Delhi, India"
+    },
+    "nomineeDetails": {
+      "nomineeName": "Nominee Name",
+      "nomineeFatherName": "Nominee Father's Name",
+      "relationship": "Spouse",
+      "nomineeMobile": "+91-9876543211",
+      "nomineeDob": "1992-01-01T00:00:00.000Z"
+    }
+  }
+]

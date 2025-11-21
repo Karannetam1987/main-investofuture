@@ -1,0 +1,25 @@
+{
+  "joiningDate": "2023-10-01T00:00:00.000Z",
+  "overallStatus": "Received",
+  "description": "Standard joining package for new members.",
+  "items": [
+    {
+      "id": 1,
+      "name": "Smart Watch",
+      "status": "Received",
+      "dateReceived": "2023-10-26T00:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "name": "Bag",
+      "status": "Received",
+      "dateReceived": "2023-10-26T00:00:00.000Z"
+    },
+    {
+      "id": 3,
+      "name": "Agreement Document",
+      "status": "Pending",
+      "dateReceived": null
+    }
+  ]
+}

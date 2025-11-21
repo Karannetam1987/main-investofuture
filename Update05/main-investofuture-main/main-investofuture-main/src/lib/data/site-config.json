@@ -1,0 +1,40 @@
+
+{
+    "siteName": "InvestoFuture",
+    "logoType": "text",
+    "logoImageUrl": "",
+    "logoWidth": 120,
+    "logoHeight": 40,
+    "aboutUs": {
+        "title": "About InvestoFuture",
+        "description": "We are dedicated to empowering individuals to achieve financial independence through smart and secure investing."
+    },
+    "contact": {
+        "email": "support@investofuture.com",
+        "phone": "(123) 456-7890"
+    },
+    "socialLinks": [
+        {
+            "name": "Facebook",
+            "url": "#"
+        },
+        {
+            "name": "Instagram",
+            "url": "#"
+        },
+        {
+            "name": "Twitter",
+            "url": "#"
+        },
+        {
+            "name": "Telegram",
+            "url": "#"
+        },
+        {
+            "name": "WhatsApp",
+            "url": "#"
+        }
+    ]
+}
+
+    

@@ -1,0 +1,24 @@
+{
+  "depositAmount": "1,00,000",
+  "depositDate": "2024-01-01T00:00:00.000Z",
+  "annualInterest": "12",
+  "interestReturnMode": "4th Monthly",
+  "paymentMode": "UPI",
+  "description": "High-yield interest fund for stable returns.",
+  "statements": [
+    {
+      "id": 1,
+      "date": "2024-04-01T00:00:00.000Z",
+      "interest": "1,000",
+      "amount": "1,01,000",
+      "status": "Paid"
+    },
+    {
+      "id": 2,
+      "date": "2024-08-01T00:00:00.000Z",
+      "interest": "1,010",
+      "amount": "1,02,010",
+      "status": "Pending"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "description": "1. 75000/- ( After 03 Years)\n2. 75000/- ( After 06 Years )\n3. 150000/- ( After 09 Years )",
+  "statements": [
+    {
+      "id": 1,
+      "amount": "75000",
+      "date": "2025-01-01T00:00:00.000Z",
+      "status": "Upcoming"
+    }
+  ]
+}

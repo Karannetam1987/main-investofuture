@@ -1,0 +1,94 @@
+{
+  "placeholderImages": [
+    {
+      "id": "hero-1",
+      "description": "A modern office setting with charts on screens.",
+      "imageUrl": "https://images.unsplash.com/photo-1745847768367-893e989d3a98?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxvZmZpY2UlMjBjaGFydHN8ZW58MHx8fHwxNzU5MTQxNTE3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "office charts"
+    },
+    {
+      "id": "hero-2",
+      "description": "A person analyzing financial data on a laptop.",
+      "imageUrl": "https://images.unsplash.com/photo-1628348068343-c6a848d2b6dd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxmaW5hbmNpYWwlMjBkYXRhfGVufDB8fHx8MTc1OTA4MTcxOXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "financial data"
+    },
+    {
+      "id": "hero-3",
+      "description": "Abstract visualization of stock market trends.",
+      "imageUrl": "https://images.unsplash.com/photo-1648275913341-7973ae7bc9b3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxzdG9jayUyMG1hcmtldHxlbnwwfHx8fDE3NTkxMzI0Nzd8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "stock market"
+    },
+    {
+      "id": "hero-4",
+      "description": "A skyscraper representing corporate finance.",
+      "imageUrl": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjb3Jwb3JhdGUlMjBmaW5hbmNlfGVufDB8fHx8MTc1OTE0MTUxN3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "corporate finance"
+    },
+    {
+      "id": "hero-5",
+      "description": "A piggy bank symbolizing savings and investment.",
+      "imageUrl": "https://images.unsplash.com/photo-1607863680198-23d4b2565df0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxwaWdneSUyMGJhbmt8ZW58MHx8fHwxNzU5MDU5NDE5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "piggy bank"
+    },
+    {
+      "id": "hero-6",
+      "description": "A diverse group of people in a business meeting.",
+      "imageUrl": "https://images.unsplash.com/photo-1686771416282-3888ddaf249b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxidXNpbmVzcyUyMG1lZXRpbmd8ZW58MHx8fHwxNzU5MTI5MzU3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "business meeting"
+    },
+    {
+      "id": "hero-7",
+      "description": "A globe with network lines, indicating global finance.",
+      "imageUrl": "https://images.unsplash.com/photo-1659754856635-f607d2230f36?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxnbG9iYWwlMjBmaW5hbmNlfGVufDB8fHx8MTc1OTE0MTUxN3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "global finance"
+    },
+    {
+      "id": "hero-8",
+      "description": "A close-up of a person using a tablet with financial apps.",
+      "imageUrl": "https://images.unsplash.com/photo-1554260570-c7068c223285?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxmaW5hbmNpYWwlMjBhcHBzfGVufDB8fHx8MTc1OTE0MTUxN3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "financial apps"
+    },
+    {
+      "id": "hero-9",
+      "description": "A growing plant in a jar of coins.",
+      "imageUrl": "https://images.unsplash.com/photo-1730382624709-81e52dd294d4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxpbnZlc3RtZW50JTIwZ3Jvd3RofGVufDB8fHx8MTc1OTAzOTUxOHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "investment growth"
+    },
+    {
+      "id": "hero-10",
+      "description": "An aerial view of a bustling city financial district.",
+      "imageUrl": "https://images.unsplash.com/photo-1499566727020-881da110a0b0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxmaW5hbmNpYWwlMjBkaXN0cmljdHxlbnwwfHx8fDE3NTkxMzQ3MjF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "financial district"
+    },
+    {
+      "id": "hero-11",
+      "description": "A hand holding a smartphone showing a stock chart.",
+      "imageUrl": "https://images.unsplash.com/photo-1569025690938-a00729c9e1f9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxtb2JpbGUlMjB0cmFkaW5nfGVufDB8fHx8MTc1OTE0MTUxN3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "mobile trading"
+    },
+    {
+      "id": "hero-12",
+      "description": "A modern architectural building, representing stability.",
+      "imageUrl": "https://images.unsplash.com/photo-1519662978799-2f05096d3636?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBhcmNoaXRlY3R1cmV8ZW58MHx8fHwxNzU5MDY2NDk0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "modern architecture"
+    },
+    {
+      "id": "hero-13",
+      "description": "A secure vault door.",
+      "imageUrl": "https://images.unsplash.com/photo-1696013910376-c56f76dd8178?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxzZWN1cmUlMjB2YXVsdHxlbnwwfHx8fDE3NTkxMTgxOTN8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "secure vault"
+    },
+    {
+      "id": "hero-14",
+      "description": "A compass pointing towards success.",
+      "imageUrl": "https://images.unsplash.com/photo-1656049471577-1c10b7359c7d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxmaW5hbmNpYWwlMjBndWlkYW5jZXxlbnwwfHx8fDE3NTkxNDE1MTd8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "financial guidance"
+    },
+    {
+      "id": "hero-15",
+      "description": "Light trails in a city at night, symbolizing fast-paced finance.",
+      "imageUrl": "https://images.unsplash.com/photo-1728044849325-47f4f5a21da3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxmYXN0JTIwZmluYW5jZXxlbnwwfHx8fDE3NTkxNDE1MTd8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "fast finance"
+    }
+  ]
+}
