@@ -1,0 +1,60 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    // Rules for user profiles
+    match /users/{userId} {
+      // Anyone can create their own user profile during sign-up
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      // Users can only read their own profile
+      allow read: if isSignedIn() && isOwner(userId);
+      // Users can only update their own profile
+      allow update: if isSignedIn() && isOwner(userId);
+      // Deletion of user profiles is disallowed for safety
+      allow delete: if false;
+    }
+
+    // Rules for website settings
+    match /settings/site {
+      // Anyone can read the site settings
+      allow get: if true;
+      // Only admins (not yet defined, so restricted for now) can write settings
+      allow write: if false; // TODO: Add admin role check
+    }
+
+    // Rules for user-specific data
+    match /accidental-insurance/{userId} {
+      allow read, write: if isSignedIn() && isOwner(userId);
+    }
+
+    match /joining-gifts/{userId} {
+      allow read, write: if isSignedIn() && isOwner(userId);
+    }
+
+    match /interest-funds/{userId} {
+      allow read, write: if isSignedIn() && isOwner(userId);
+    }
+
+    match /maturity-funds/{userId} {
+      allow read, write: if isSignedIn() && isOwner(userId);
+    }
+    
+    match /scholarships/{userId} {
+      allow read, write: if isSignedIn() && isOwner(userId);
+    }
+    
+    match /documents/{userId}/user-documents/{docId} {
+       allow read, write, delete: if isSignedIn() && isOwner(userId);
+    }
+  }
+}
